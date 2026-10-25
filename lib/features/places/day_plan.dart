@@ -59,6 +59,17 @@ class _DayPlanState extends ConsumerState<DayPlan> {
       children: [
         DailyMap(
           activities: list,
+          onChoosePlace: disabled
+              ? null
+              : (p) => context.push(
+                  '/trips/${widget.trip.id}/activities/new',
+                  extra: ActivitySeed(
+                    p,
+                    list.isEmpty
+                        ? (widget.date ?? widget.trip.startDate)
+                        : list.first.date,
+                  ),
+                ),
           onSelect: edit,
           onAdd: disabled
               ? null

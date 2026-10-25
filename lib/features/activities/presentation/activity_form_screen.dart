@@ -192,7 +192,7 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
                 OutlinedButton.icon(
                   key: const Key('search-place'),
                   icon: const Icon(Icons.search),
-                  label: const Text('ค้นหาสถานที่ • เชียงใหม่'),
+                  label: const Text('ค้นหาสถานที่ทั่วไทย'),
                   onPressed: busy
                       ? null
                       : () async {
@@ -309,7 +309,7 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
                 const SizedBox(height: 16),
                 if (chosenPlace != null)
                   Text(
-                    'แหล่งข้อมูล: ${chosenPlace!.source} • ตรวจ ${chosenPlace!.checkedAt}\nหมุดแนะนำโดยประมาณ กรุณาเปิดแผนที่และยืนยันก่อนบันทึก',
+                    'แหล่งข้อมูล: ${chosenPlace!.source} • ข้อมูล ณ ${chosenPlace!.checkedAt}\nพิกัดอาจไม่ใช่ทางเข้า กรุณาตรวจและยืนยันก่อนบันทึก',
                   ),
                 OutlinedButton.icon(
                   key: const Key('pick-place'),

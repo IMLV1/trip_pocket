@@ -1,3 +1,5 @@
+import 'package:trip_pocket/features/places/place_catalog.dart';
+import 'package:trip_pocket/features/places/curated_places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -56,6 +58,9 @@ void main() {
       runApp(
         ProviderScope(
           overrides: [
+            placeCatalogProvider.overrideWith(
+              (ref) async => PlaceCatalog(chiangMaiPlaces),
+            ),
             modeProvider.overrideWithValue('demo'),
             travelRepositoryProvider.overrideWithValue(repo),
             packingRepositoryProvider.overrideWithValue(packing),
@@ -110,8 +115,8 @@ void main() {
         isTrue,
         reason: 'Real map tiles must render',
       );
-      await tester.pump(const Duration(seconds:1));
-    await binding.takeScreenshot('v21-daily-map');
+      await tester.pump(const Duration(seconds: 1));
+      await binding.takeScreenshot('v21-daily-map');
       await tapKey('travel-b');
       await tester.tap(find.byKey(const Key('travel-mode')));
       await tester.pumpAndSettle();
@@ -142,6 +147,7 @@ void main() {
       await tester.pumpAndSettle();
       await binding.takeScreenshot('v21-place-search');
       await tapKey('recommend-doi-suthep');
+      await tapKey('choose-poi');
       expect(find.text('วัดพระธาตุดอยสุเทพ'), findsOneWidget);
       await tapKey('pick-place');
       await tapKey('confirm-place');
@@ -156,7 +162,7 @@ void main() {
       await tester.pumpAndSettle();
       final rect = tester.getRect(find.byType(FlutterMap));
       await tester.tapAt(rect.center + const Offset(60, 35));
-    await tester.pump(const Duration(milliseconds:500));
+      await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       await tester.tap(find.text('เพิ่มจุดหมายที่นี่'));
       await tester.pumpAndSettle();

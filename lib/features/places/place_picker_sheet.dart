@@ -62,8 +62,8 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
           child: FlutterMap(
             key: ValueKey(attempt),
             options: MapOptions(
-              initialCenter: selected ?? const LatLng(18.7883, 98.9853),
-              initialZoom: 13,
+              initialCenter: selected ?? const LatLng(15, 101),
+              initialZoom: selected == null ? 5 : 13,
               onTap: (tap, p) {
                 if (widget.boundary != null && !widget.boundary!.contains(p)) {
                   ScaffoldMessenger.of(context).showSnackBar(

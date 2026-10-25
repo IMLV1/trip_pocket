@@ -1,3 +1,4 @@
+import 'package:trip_pocket/features/places/place_catalog.dart';
 import 'package:trip_pocket/features/activities/presentation/activity_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -41,14 +42,38 @@ const b = TripActivity(
   longitude: 98.99,
   category: 'food',
 );
+Widget catalogFixture(Widget child) => ProviderScope(
+  overrides: [
+    placeCatalogProvider.overrideWith(
+      (ref) async => PlaceCatalog(chiangMaiPlaces),
+    ),
+  ],
+  child: child,
+);
+Future<void> revealPoi(WidgetTester tester, String key) async {
+  final scrollable = find
+      .descendant(
+        of: find.byKey(const Key('place-results')),
+        matching: find.byType(Scrollable),
+      )
+      .first;
+  final state = tester.state<ScrollableState>(scrollable);
+  state.position.jumpTo(state.position.maxScrollExtent);
+  await tester.pumpAndSettle();
+  await tester.ensureVisible(find.byKey(ValueKey(key)));
+  await tester.pumpAndSettle();
+}
+
 void main() {
   testWidgets(
     'replacing an existing stop via search clears old price and requires a new pin confirmation',
     (tester) async {
       await tester.pumpWidget(
-        const ProviderScope(
-          child: MaterialApp(
-            home: ActivityEditor(uid: 'u', trip: trip, initial: a),
+        catalogFixture(
+          const ProviderScope(
+            child: MaterialApp(
+              home: ActivityEditor(uid: 'u', trip: trip, initial: a),
+            ),
           ),
         ),
       );
@@ -65,9 +90,11 @@ void main() {
       await tester.pumpAndSettle();
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('recommend-jasmine')));
+      await revealPoi(tester, 'recommend-jasmine');
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('recommend-jasmine')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('choose-poi')));
       await tester.pumpAndSettle();
       expect(
         tester
@@ -88,19 +115,21 @@ void main() {
     (tester) async {
       CuratedPlace? chosen;
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (context) => TextButton(
-                onPressed: () async {
-                  chosen = await showModalBottomSheet<CuratedPlace>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (c) =>
-                        const RecommendationsSheet(remaining: 10000),
-                  );
-                },
-                child: const Text('ค้นหา'),
+        catalogFixture(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (context) => TextButton(
+                  onPressed: () async {
+                    chosen = await showModalBottomSheet<CuratedPlace>(
+                      context: context,
+                      isScrollControlled: true,
+                      builder: (c) =>
+                          const RecommendationsSheet(remaining: 10000),
+                    );
+                  },
+                  child: const Text('ค้นหา'),
+                ),
               ),
             ),
           ),
@@ -110,14 +139,16 @@ void main() {
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('place-search')), 'ดอยสุเทพ');
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('recommend-doi-suthep')), findsOneWidget);
+      expect(find.textContaining('พบ 1 แห่ง'), findsOneWidget);
       expect(find.byKey(const Key('recommend-phra-singh')), findsNothing);
       expect(chosen, isNull);
       FocusManager.instance.primaryFocus?.unfocus();
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.byKey(const Key('recommend-doi-suthep')));
+      await revealPoi(tester, 'recommend-doi-suthep');
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('recommend-doi-suthep')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('choose-poi')));
       await tester.pumpAndSettle();
       expect(chosen?.id, 'doi-suthep');
     },
@@ -132,22 +163,25 @@ void main() {
       await repo.saveActivity('u', 't', a, create: true);
       await repo.saveActivity('u', 't', b, create: true);
       await tester.pumpWidget(
-        ProviderScope(
-          overrides: [travelRepositoryProvider.overrideWithValue(repo)],
-          child: MaterialApp(
-            home: Scaffold(
-              body: StreamBuilder(
-                stream: repo.watchActivities('u', 't'),
-                builder: (c, s) => s.hasData
-                    ? SingleChildScrollView(
-                        child: DayPlan(
-                          uid: 'u',
-                          trip: trip,
-                          activities: s.data!.value,
-                          onDelete: (a) => repo.deleteActivity('u', 't', a.id),
-                        ),
-                      )
-                    : const SizedBox(),
+        catalogFixture(
+          ProviderScope(
+            overrides: [travelRepositoryProvider.overrideWithValue(repo)],
+            child: MaterialApp(
+              home: Scaffold(
+                body: StreamBuilder(
+                  stream: repo.watchActivities('u', 't'),
+                  builder: (c, s) => s.hasData
+                      ? SingleChildScrollView(
+                          child: DayPlan(
+                            uid: 'u',
+                            trip: trip,
+                            activities: s.data!.value,
+                            onDelete: (a) =>
+                                repo.deleteActivity('u', 't', a.id),
+                          ),
+                        )
+                      : const SizedBox(),
+                ),
               ),
             ),
           ),
@@ -194,18 +228,20 @@ void main() {
       addTearDown(tester.view.resetDevicePixelRatio);
       TripActivity? result;
       await tester.pumpWidget(
-        MaterialApp(
-          home: Scaffold(
-            body: Builder(
-              builder: (c) => TextButton(
-                onPressed: () async {
-                  result = await showModalBottomSheet<TripActivity>(
-                    context: c,
-                    isScrollControlled: true,
-                    builder: (c) => const TravelEditor(from: a, to: b),
-                  );
-                },
-                child: const Text('เดินทาง'),
+        catalogFixture(
+          MaterialApp(
+            home: Scaffold(
+              body: Builder(
+                builder: (c) => TextButton(
+                  onPressed: () async {
+                    result = await showModalBottomSheet<TripActivity>(
+                      context: c,
+                      isScrollControlled: true,
+                      builder: (c) => const TravelEditor(from: a, to: b),
+                    );
+                  },
+                  child: const Text('เดินทาง'),
+                ),
               ),
             ),
           ),

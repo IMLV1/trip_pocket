@@ -4,17 +4,21 @@ import '../activities/domain/trip_activity.dart';
 class CuratedPlace {
   final String id, name, category, source;
   final double latitude, longitude;
+  final String province, checkedAt, aliases;
+  final bool community;
   const CuratedPlace(
     this.id,
     this.name,
     this.category,
     this.latitude,
     this.longitude,
-    this.source,
-  );
+    this.source, {
+    this.province = 'เชียงใหม่',
+    this.checkedAt = '2026-10-26',
+    this.aliases = '',
+    this.community = false,
+  });
   String get country => 'TH';
-  String get province => 'เชียงใหม่';
-  String get checkedAt => '2026-10-26';
   // Editorial approximate points, not an API geocode or verified entrance.
   LatLng get point => LatLng(latitude, longitude);
 }
@@ -27,6 +31,7 @@ class ActivitySeed {
   const ActivitySeed.pin(this.selectedPoint, this.date) : place = null;
 }
 
+// Legacy curated samples for deterministic regression fixtures; production uses placeCatalogProvider.
 const chiangMaiPlaces = <CuratedPlace>[
   CuratedPlace(
     'phra-singh',

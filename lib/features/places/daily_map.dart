@@ -1,3 +1,5 @@
+import 'curated_places.dart';
+import 'poi_map_layer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'location_service.dart';
 import '../../core/widgets.dart';
@@ -19,11 +21,13 @@ class DailyMap extends ConsumerStatefulWidget {
   final List<TripActivity> activities;
   final void Function(TripActivity) onSelect;
   final void Function(LatLng)? onAdd;
+  final void Function(CuratedPlace)? onChoosePlace;
   const DailyMap({
     super.key,
     required this.activities,
     required this.onSelect,
     this.onAdd,
+    this.onChoosePlace,
   });
   @override
   ConsumerState<DailyMap> createState() => _DailyMapState();
@@ -54,6 +58,8 @@ class _DailyMapState extends ConsumerState<DailyMap> {
     }
   }
 
+  bool recommendations = true;
+  String poiCategory = 'all';
   bool failed = false;
   int attempt = 0;
   @override
@@ -61,7 +67,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
     final points = widget.activities
         .map((a) => LatLng(a.latitude, a.longitude))
         .toList();
-    if (points.isEmpty) points.add(const LatLng(18.7883, 98.9853));
+    if (points.isEmpty) points.add(const LatLng(15, 101));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -89,7 +95,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
             ),
             options: MapOptions(
               initialCenter: points.first,
-              initialZoom: 13,
+              initialZoom: widget.activities.isEmpty ? 5 : 13,
               onTap: (tap, p) async {
                 if (widget.onAdd == null) return;
                 final boundary = await ThailandBoundary.load();
@@ -148,6 +154,18 @@ class _DailyMapState extends ConsumerState<DailyMap> {
                   }
                 },
               ),
+              if (recommendations)
+                PoiMapLayer(
+                  category: poiCategory,
+                  onSelected: widget.onChoosePlace == null
+                      ? null
+                      : (p) async {
+                          final chosen = await chooseSuggestedPlace(context, p);
+                          if (chosen != null && mounted) {
+                            widget.onChoosePlace?.call(chosen);
+                          }
+                        },
+                ),
               MarkerLayer(
                 markers: [
                   if (fix != null)
@@ -207,6 +225,33 @@ class _DailyMapState extends ConsumerState<DailyMap> {
             ],
           ),
         ),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('สถานที่แนะนำบนแผนที่'),
+          subtitle: const Text('ไอคอนสีน้ำเงิน = แนะนำ • เลขหมุด = จุดในทริป'),
+          value: recommendations,
+          onChanged: (v) => setState(() => recommendations = v),
+        ),
+        if (recommendations)
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: [
+                for (final e in {
+                  'all': 'ทั้งหมด',
+                  ...activityCategories,
+                }.entries)
+                  Padding(
+                    padding: const EdgeInsets.all(3),
+                    child: ChoiceChip(
+                      label: Text(e.value),
+                      selected: poiCategory == e.key,
+                      onSelected: (_) => setState(() => poiCategory = e.key),
+                    ),
+                  ),
+              ],
+            ),
+          ),
         Wrap(
           children: [
             TextButton.icon(

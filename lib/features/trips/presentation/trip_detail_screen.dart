@@ -213,7 +213,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                     OutlinedButton.icon(
                       key: const Key('recommend-places'),
                       icon: const Icon(Icons.explore),
-                      label: const Text('แนะนำสถานที่ • เชียงใหม่'),
+                      label: const Text('ค้นหา / แนะนำทั่วไทย'),
                       onPressed: busy || s.pending
                           ? null
                           : () async {

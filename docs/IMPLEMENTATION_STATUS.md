@@ -183,3 +183,12 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - APK ปกติล่าสุด build/install/run สำเร็จหลัง native test และอยู่ที่ build/app/outputs/flutter-apk/app-debug.apk; SHA256 59211B9F6EE18EA6FC329FD5D83CA7082F70008DB5AF43F3EC736350B756D078 ตรง APK รอบ P7 ข้างต้น
 - Commit เป็นช่วง: 47a8c26 หลักฐาน Chrome, 0abdcf6 native Back/round trip; ตามด้วย commit เอกสารปิดรอบนี้บน main ของ repo Private เดิม
 - งานถัดไป P8: เตรียมข้อมูลสาธิต บัญชีสาธิต สไลด์ และซ้อมนำเสนอ ยังไม่ได้ทำในรอบตรวจ P7 นี้
+
+## V2.1 ฟรี — เริ่ม 26 ตุลาคม 2569
+
+- [x] ตรวจโค้ด/skill และออกแบบ backward compatibility ก่อนแก้ schema
+- [ ] Model/repository/Rules และ tests
+- [ ] แผนที่รายวัน/เรียงหมุด/หมวด/เดินทาง/งบ/Maps/คำแนะนำ
+- [ ] Android Emulator integration, APK ปกติและสรุปผล
+- ไม่เปิด Billing/Blaze/API เสียเงิน; OSM และ Maps URL ตรวจเอกสารผู้ให้บริการแล้ว
+- ใช้ incoming segment ใน Activity แทนเพิ่ม collection เพื่อรักษา resumable delete เดิม; ราคาไม่ทราบไม่ถือว่าฟรี

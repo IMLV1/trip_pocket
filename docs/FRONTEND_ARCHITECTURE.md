@@ -152,3 +152,19 @@ Unit test: เงินและการรวมงบ ช่วงวัน�
 โครงด้านบนเป็นข้อเสนอ ชื่อไฟล์จริงใช้ app/providers.dart รวม dependency/StreamProvider และแยกหน้าจอภายใต้ features โดย auth/auth_screen.dart ใช้ร่วม login/register, core/validation.dart รวม validation/formatting และ features/trips/domain/travel_repository.dart เป็น interface รวม trip/activity operations เพื่อใช้ deletion flow ร่วมกัน FirestoreTravelRepository และ DemoTravelRepository อยู่ใน trips/data ส่วน controller ของฟอร์มใช้ TextEditingController และสถานะ submitting ภายใน ConsumerState แยกจาก data repository ไม่มี code generation
 
 SessionApp ถูกสร้างใหม่ด้วย key ตาม uid ทำให้ navigation stack และฟอร์มเดิมถูก dispose ข้อมูล streams ใช้ autoDispose family ที่รวม uid/tripId; กฎสิทธิ์ยังตรวจซ้ำที่ Firestore
+
+## V2.1 ฟรี — สัญญาก่อนพัฒนา 26 ตุลาคม 2569
+
+ไม่เปิด Billing/Blaze/API คิดเงิน ใช้ OSM tiles เดิมตามนโยบาย (attribution, app user-agent, cache, ไม่ prefetch/offline download) และ Maps URLs แบบไม่ใช้ key เปิด app/browser นำทางรายช่วง ข้อมูลแนะนำ bundle มากับแอป เริ่มเชียงใหม่ ไม่เรียก Places/Routes API
+
+Activity อ่านเอกสารเก่าเป็น schema 1 โดย costKnown=true, category=other, orderIndex=timeMinutes*1000; ยอดเก่าเท่าเดิม ไม่ bulk migrate เมื่ออ่าน เมื่อบันทึกใช้ schemaVersion=2 และเพิ่ม category (attraction/food/lodging/other), orderIndex (int 0–1000000000), costKnown (bool), travelMode (none/car/motorcycle/walk/transit), travelFromId (string), travelSignature (string), travelCostKnown (bool), travelCostSatang (int satang) ฟิลด์ใหม่ครบกลุ่ม schema 2 หรือไม่มีกลุ่มเลยสำหรับ legacy
+
+estimatedCostSatang เป็นยอดกิจกรรมรวม ไม่ใช่ราคาต่อหน่วย; costKnown=false บังคับยอด 0 แต่ UI แสดงไม่ทราบราคา ไม่ถือว่าฟรี travelCostSatang เป็นค่าเดินทางเข้าหมุดนี้สำหรับทั้งกลุ่ม กรอกเองเท่านั้น ระยะนี้ยังไม่คำนวณน้ำมัน/เส้นทางถนน/ค่าโดยสารอัตโนมัติ
+
+ช่วงเดินทางเก็บบนกิจกรรมปลายทาง ไม่เพิ่ม legs collection จึงไม่มี leg กำพร้าหรือเปลี่ยน delete cascade เดิม travelSignature ผูก predecessor/target id พิกัด วันและเวลา; เปลี่ยนจุด/เวลา/ลำดับแล้วลายเซ็นไม่ตรงจะไม่รวมราคาเดิมและแจ้งให้กำหนดใหม่ จุดแรกของแต่ละวันไม่มีค่าเดินทางเข้า
+
+เรียงวัน → orderIndex (legacy fallback time) → เวลา → id; swap ใช้ transaction อ่านรายการที่ผู้ใช้เห็นทั้งหมดในวันนั้นก่อนเขียน rank ใหม่ ป้องกันทับการแก้/ลบรายการที่อ่านแล้ว ข้อจำกัด single-editor ต่อทริปยังคงอยู่: รายการที่เพิ่งเพิ่มพร้อมกันจากอีกอุปกรณ์อาจไม่อยู่ใน transaction และต้อง refresh สูงสุด 100 จุดต่อรอบเรียง
+
+ยอดรวม = กิจกรรมที่ทราบราคา + ค่าเดินทางเฉพาะช่วงที่ signature ยังตรง รวมครั้งเดียว; แสดงจำนวนรายการ/ช่วงที่ไม่ทราบและยอดคงเหลือจากข้อมูลที่ทราบ ไม่ซ่อนความไม่ครบของงบ ข้อความแชร์ใช้ลำดับ/ยอดเดียวกับหน้าจอและยังไม่ส่ง note/coordinates/identifiers
+
+ดู FEATURE_THAILAND_TRIP_PLANNER.md และ IMPLEMENTATION_STATUS.md สำหรับผลจริง สัญญาในส่วนนี้แทนข้อเสนอเพิ่ม legs/costItems ใน V2.1; V2.2+ ยังไม่อยู่ในรอบนี้

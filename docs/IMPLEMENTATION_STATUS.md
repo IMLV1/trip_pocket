@@ -288,3 +288,12 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - ภาพตรวจหน้าตาจริง: ux-login.png, ux-trip-list.png, ux-plan.png, ux-nationwide-map.png, ux-nationwide-search.png, ux-packing.png ใน docs/evidence; ภาพ map ทั่วไทยยังเป็นช่วง tiles โหลดไม่ครบ ส่วน v21-daily-map.png มี tiles แสดงจริง
 - ไม่มี schema/Rules เปลี่ยน จึงไม่รัน Rules/live SDK ใหม่ งานค้างด้านอุปกรณ์: มือถือจริง/iOS ยังไม่ได้ตรวจ
 - คู่มือ UI_UX_REFRESH.md และ frontend contract อัปเดตตรงกับโค้ด กำลังสร้าง APK ปกติจาก main.dart (default APP_MODE=live) กลับหลัง integration tests
+
+### ส่งมอบ UI/UX refresh
+
+- สร้าง APK ปกติจาก lib/main.dart สำเร็จ ติดตั้ง/เปิดบน emulator-5554 แล้ว เห็นหน้าเข้าสู่ระบบรุ่นใหม่ ไม่มีแถบโหมดจำลอง; main.dart ใช้ APP_MODE=live เป็นค่าเริ่มต้นและเชื่อม Firebase project เดิม ไม่มีการทดสอบเขียน live เพิ่มในงาน UI นี้
+- APK: build/app/outputs/flutter-apk/app-debug.apk (debug signing สำหรับทดสอบ ไม่ใช่ Play release)
+- Size: 217373915 bytes
+- SHA256: 3BF5EEF0CE52CE505E64111FAC7A86A243A6C320D46486D38AB328C624946C87
+- Commit เป็นช่วงและ push main: 0518850 design/UI/navigation, 1f9fb9e ผลตรวจ responsive/Android และเอกสาร/evidence ตามด้วยบันทึกส่งมอบนี้ ไม่เปลี่ยนสิทธิ์ Private ของ repository
+- งานค้าง: มือถือจริง/iOS และ native share recipient ไม่ได้ตรวจซ้ำในรอบ UI; ผล native share รุ่นเดิมยังบันทึกใน P7 การทดสอบ UI ใหม่ใช้ fake cloud ตามที่ระบุ ไม่อ้างเป็นการยืนยัน Firebase live รอบใหม่

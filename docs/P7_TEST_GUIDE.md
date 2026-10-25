@@ -44,7 +44,7 @@ flutter test integration_test/native_share_test.dart -d emulator-5554 --dart-def
 flutter test integration_test/native_share_test.dart -d emulator-5554 --dart-define=RUN_MANUAL_SHARE=true --dart-define=CHECK_SHARE_RECEIVER=true --no-uninstall --no-pub
 ~~~
 
-เปิดหน้าต่าง Emulator บนจอก่อนรัน ชุดนี้รอการเลือก/ยกเลิกไม่เกิน 60 วินาที ไม่ใช่ automated test ล้วน อย่ากดส่งให้บุคคลอื่น การได้ success จาก share_plus บอกเพียงว่าเลือก action แล้ว ไม่ยืนยันว่าแอปรับข้อความครบหรือผู้รับได้รับ ต้องตรวจ screenshot/เนื้อหาที่แอปปลายทางแสดงด้วย
+เปิดหน้าต่าง Emulator บนจอก่อนรัน ชุดนี้รอการเลือก/ยกเลิกยกเลิกไม่เกิน 60 วินาที / ตรวจแอปรับข้อความไม่เกิน 180 วินาที ไม่ใช่ automated test ล้วน อย่ากดส่งให้บุคคลอื่น การได้ success จาก share_plus บอกเพียงว่าเลือก action แล้ว ไม่ยืนยันว่าแอปรับข้อความครบหรือผู้รับได้รับ ต้องตรวจ screenshot/เนื้อหาที่แอปปลายทางแสดงด้วย
 
 ## ตรวจ keyboard / back / small screen ด้วยมือ
 

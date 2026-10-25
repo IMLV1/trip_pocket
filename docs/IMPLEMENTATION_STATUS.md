@@ -154,3 +154,14 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - SHA256: 59211B9F6EE18EA6FC329FD5D83CA7082F70008DB5AF43F3EC736350B756D078
 - ติดตั้ง APK จาก main.dart กลับคืนแล้ว ไม่ใช่ APK ของ integration test
 - โค้ด/คู่มือ/ผลตรวจรอบนี้อยู่ใน commit ส่งมอบ P7 บน main ของ private repo เดิม
+
+## ช่วงงานต่อ: Chrome receiver — 25 ตุลาคม 2569
+
+- เปิด Emulator กลับขึ้นจอได้แล้วตามที่ผู้ใช้มอบหมาย
+- Chrome เปิดครั้งแรก ผู้ใช้ยืนยันให้ยอมรับ Terms และใช้ Stay signed out; ข้ามการเปิด notifications
+- ตรวจข้อความจริงใน Chrome แล้ว: TripPocket: เชียงใหม่, งบทั้งหมด 3,000.00 บาท, คงเหลือ 2,800.00 บาท ครบ ภาษาไทยไม่เสีย Chrome แสดง line breaks เป็นช่องว่างในช่องค้นหา
+- ใช้ข้อมูลตัวอย่างเท่านั้น ไม่ส่งข้อความถึงบุคคลใด และไม่อ้างว่าแอปแชต/LINE ได้รับข้อความ
+- หลักฐาน: evidence/chrome-receiver.png แสดงข้อความทั้งหมดในช่องค้นหาของแอปปลายทาง
+- รอบ assisted receiver test 60 วินาที timeout ระหว่าง first-run/การสลับกลับ จึงเพิ่มเวลาสำหรับ manual receiver เป็น 180 วินาทีโดยยัง assert success เหมือนเดิม ไม่เปลี่ยน timeout เป็นผลผ่าน
+- สถานะช่วงนี้: manual content receipt ใน Chrome ผ่าน; callback-assisted assertion และ native Back/IME ยังดำเนินการต่อ
+- ตามคำขอผู้ใช้ จะแบ่ง commit ตามช่วงงานที่ตรวจจบ แยกหลักฐานรับแชร์ / native Back / สรุป P7

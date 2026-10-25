@@ -28,7 +28,9 @@ void main() {
             ? 'NATIVE_SHARE_OPEN: select a text receiver and inspect its content'
             : 'NATIVE_SHARE_OPEN: cancel the Android sheet to complete the check',
       );
-      final status = await result.timeout(const Duration(seconds: 60));
+      final status = await result.timeout(
+        Duration(seconds: receiverCheck ? 180 : 60),
+      );
       expect(
         status.status,
         receiverCheck ? ShareResultStatus.success : ShareResultStatus.dismissed,

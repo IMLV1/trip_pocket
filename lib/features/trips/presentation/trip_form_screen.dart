@@ -5,6 +5,7 @@ import 'package:uuid/uuid.dart';
 import '../../../app/providers.dart';
 import '../../../core/validation.dart';
 import '../../../core/widgets.dart';
+import '../../../core/design_system.dart';
 import '../domain/trip.dart';
 
 class TripFormScreen extends ConsumerWidget {
@@ -114,6 +115,11 @@ class _TripEditorState extends ConsumerState<TripEditor> {
       ),
       body: PageBody(
         children: [
+          if (MediaQuery.viewInsetsOf(context).bottom == 0)
+            const FormIntro(
+              'เริ่มต้นการเดินทาง',
+              'ตั้งชื่อทริป เลือกวัน และงบที่อยากใช้',
+            ),
           Form(
             key: form,
             child: Column(

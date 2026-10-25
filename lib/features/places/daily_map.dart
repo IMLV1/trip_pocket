@@ -87,7 +87,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
             ],
           ),
         SizedBox(
-          height: 280,
+          height: 360,
           child: FlutterMap(
             mapController: controller,
             key: ValueKey(

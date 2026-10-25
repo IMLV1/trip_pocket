@@ -5,6 +5,7 @@ import '../../app/providers.dart';
 import '../../core/validation.dart';
 import '../../core/errors.dart';
 import '../../core/widgets.dart';
+import '../../core/design_system.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
   final bool register;
@@ -18,7 +19,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   final email = TextEditingController(),
       password = TextEditingController(),
       confirm = TextEditingController();
-  bool busy = false;
+  bool busy = false, obscure = true;
   String? error;
   @override
   void dispose() {
@@ -53,19 +54,55 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     appBar: AppBar(title: const Text('TripPocket')),
     body: PageBody(
       children: [
-        const SizedBox(height: 32),
-        Icon(
-          Icons.travel_explore,
-          size: 64,
-          color: Theme.of(context).colorScheme.primary,
+        if (MediaQuery.sizeOf(context).height < 650 ||
+            MediaQuery.viewInsetsOf(context).bottom > 0)
+          const FormIntro(
+            'ไปเที่ยวกันเถอะ',
+            'แผนดี ๆ เริ่มต้นที่นี่',
+            icon: Icons.explore_outlined,
+          )
+        else
+          Container(
+            clipBehavior: Clip.antiAlias,
+            decoration: BoxDecoration(
+              color: TripColors.ink,
+              borderRadius: BorderRadius.circular(28),
+            ),
+            child: CustomPaint(
+              painter: const RouteMotif(),
+              child: Padding(
+                padding: const EdgeInsets.all(26),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.explore_outlined,
+                      color: TripColors.accent,
+                      size: 36,
+                    ),
+                    const SizedBox(height: 22),
+                    Text(
+                      widget.register
+                          ? 'เริ่มวางแผนทริปแรก'
+                          : 'ทุกทริป เริ่มจาก\nแผนดี ๆ',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                    ),
+                    const SizedBox(height: 10),
+                    const Text(
+                      'ค้นพบจุดหมาย วางแผนเที่ยว\nและเก็บความทรงจำทั่วไทย',
+                      style: TextStyle(color: Color(0xffcedfd6)),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        const SizedBox(height: 24),
+        SectionTitle(
+          widget.register ? 'สร้างบัญชีของคุณ' : 'ยินดีต้อนรับกลับมา',
         ),
-        const SizedBox(height: 20),
-        Text(
-          widget.register ? 'เริ่มวางแผนทริปแรก' : 'ทุกทริป เริ่มจากแผนดี ๆ',
-          style: Theme.of(context).textTheme.headlineSmall,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 28),
         Form(
           key: form,
           child: Column(
@@ -77,7 +114,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 enabled: !busy,
                 keyboardType: TextInputType.emailAddress,
                 autofillHints: const [AutofillHints.email],
-                decoration: const InputDecoration(labelText: 'อีเมล'),
+                textInputAction: TextInputAction.next,
+                decoration: const InputDecoration(
+                  labelText: 'อีเมล',
+                  prefixIcon: Icon(Icons.mail_outline),
+                ),
                 validator: emailError,
               ),
               const SizedBox(height: 16),
@@ -85,8 +126,26 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 key: const Key('password'),
                 controller: password,
                 enabled: !busy,
-                obscureText: true,
-                decoration: const InputDecoration(labelText: 'รหัสผ่าน'),
+                obscureText: obscure,
+                textInputAction: widget.register
+                    ? TextInputAction.next
+                    : TextInputAction.done,
+                onFieldSubmitted: (_) {
+                  if (!widget.register) submit();
+                },
+                decoration: InputDecoration(
+                  labelText: 'รหัสผ่าน',
+                  prefixIcon: const Icon(Icons.lock_outline),
+                  suffixIcon: IconButton(
+                    tooltip: obscure ? 'แสดงรหัสผ่าน' : 'ซ่อนรหัสผ่าน',
+                    onPressed: () => setState(() => obscure = !obscure),
+                    icon: Icon(
+                      obscure
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                  ),
+                ),
                 validator: passwordError,
               ),
               if (widget.register) ...[

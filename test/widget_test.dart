@@ -30,11 +30,13 @@ void main() {
     );
     await tester.pumpAndSettle();
     expect(find.textContaining('โหมดจำลอง'), findsOneWidget);
+    await tester.ensureVisible(find.byKey(const Key('auth-submit')));
     await tester.tap(find.byKey(const Key('auth-submit')));
     await tester.pumpAndSettle();
     expect(find.text('กรอกอีเมลให้ถูกต้อง'), findsOneWidget);
     await tester.enterText(find.byKey(const Key('email')), 'a@example.com');
     await tester.enterText(find.byKey(const Key('password')), 'test1234');
+    await tester.ensureVisible(find.byKey(const Key('auth-submit')));
     await tester.tap(find.byKey(const Key('auth-submit')));
     await tester.pumpAndSettle();
     expect(find.text('ทริปของฉัน'), findsOneWidget);
@@ -50,6 +52,26 @@ void main() {
     await tester.tap(find.text('เชียงใหม่'));
     await tester.pumpAndSettle();
     expect(find.text('งบทริป 3,000.10 บาท'), findsOneWidget);
+    // Map is created only on demand; packing drafts survive switching tabs.
+    expect(find.byType(NavigationBar), findsOneWidget);
+    await tester.tap(find.byKey(const Key('tab-packing')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const Key('packing-text')), 'แว่นกันแดด');
+    await tester.tap(find.byKey(const Key('tab-plan')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const Key('packing-text')), findsNothing);
+    await tester.tap(find.byKey(const Key('tab-packing')));
+    await tester.pumpAndSettle();
+    expect(
+      tester
+          .widget<TextField>(find.byKey(const Key('packing-text')))
+          .controller!
+          .text,
+      'แว่นกันแดด',
+    );
+    await tester.tap(find.byKey(const Key('packing-add')));
+    await tester.pumpAndSettle();
+    expect(find.text('แว่นกันแดด'), findsOneWidget);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('ออกจากระบบ'));

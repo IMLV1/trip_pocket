@@ -15,7 +15,7 @@ class DayPlan extends ConsumerStatefulWidget {
   final String? date;
   final Trip trip;
   final List<TripActivity> activities;
-  final bool disabled;
+  final bool disabled, showMap, showStops;
   final Future<void> Function(TripActivity) onDelete;
   const DayPlan({
     super.key,
@@ -25,6 +25,8 @@ class DayPlan extends ConsumerStatefulWidget {
     required this.activities,
     required this.onDelete,
     this.disabled = false,
+    this.showMap = true,
+    this.showStops = true,
   });
   @override
   ConsumerState<DayPlan> createState() => _DayPlanState();
@@ -57,41 +59,45 @@ class _DayPlanState extends ConsumerState<DayPlan> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        DailyMap(
-          activities: list,
-          onChoosePlace: disabled
-              ? null
-              : (p) => context.push(
-                  '/trips/${widget.trip.id}/activities/new',
-                  extra: ActivitySeed(
-                    p,
-                    list.isEmpty
-                        ? (widget.date ?? widget.trip.startDate)
-                        : list.first.date,
+        if (widget.showMap)
+          DailyMap(
+            activities: list,
+            onChoosePlace: disabled
+                ? null
+                : (p) => context.push(
+                    '/trips/${widget.trip.id}/activities/new',
+                    extra: ActivitySeed(
+                      p,
+                      list.isEmpty
+                          ? (widget.date ?? widget.trip.startDate)
+                          : list.first.date,
+                    ),
                   ),
-                ),
-          onSelect: edit,
-          onAdd: disabled
-              ? null
-              : (p) => context.push(
-                  '/trips/${widget.trip.id}/activities/new',
-                  extra: ActivitySeed.pin(
-                    p,
-                    list.isEmpty
-                        ? (widget.date ?? widget.trip.startDate)
-                        : list.first.date,
+            onSelect: edit,
+            onAdd: disabled
+                ? null
+                : (p) => context.push(
+                    '/trips/${widget.trip.id}/activities/new',
+                    extra: ActivitySeed.pin(
+                      p,
+                      list.isEmpty
+                          ? (widget.date ?? widget.trip.startDate)
+                          : list.first.date,
+                    ),
                   ),
-                ),
-        ),
-        if (list.asMap().entries.any(
-          (e) => e.key > 0 && list[e.key - 1].timeMinutes > e.value.timeMinutes,
-        ))
+          ),
+        if (widget.showStops &&
+            list.asMap().entries.any(
+              (e) =>
+                  e.key > 0 &&
+                  list[e.key - 1].timeMinutes > e.value.timeMinutes,
+            ))
           const Text(
             'เวลาไม่เรียงตามลำดับจุดหมาย กรุณาตรวจและแก้เวลาก่อนเดินทาง',
           ),
-        if (list.length > 100)
+        if (widget.showStops && list.length > 100)
           const Text('เรียงได้ครั้งละไม่เกิน 100 จุดต่อวัน'),
-        for (var i = 0; i < list.length; i++) ...[
+        for (var i = 0; i < (widget.showStops ? list.length : 0); i++) ...[
           if (i > 0)
             Card(
               child: ListTile(
@@ -132,9 +138,10 @@ class _DayPlanState extends ConsumerState<DayPlan> {
                 ),
               ),
             ),
+          const SizedBox(height: 12),
           Card(
             child: Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(14),
               child: Column(
                 children: [
                   ListTile(
@@ -148,6 +155,12 @@ class _DayPlanState extends ConsumerState<DayPlan> {
                     ),
                     subtitle: Text(
                       '${activityCategories[list[i].category]} • ${list[i].costKnown ? '${money(list[i].estimatedCostSatang)} บาท' : 'ยังไม่ทราบราคา'}${list[i].note.isEmpty ? '' : '\n${list[i].note}'}',
+                    ),
+                    trailing: IconButton(
+                      key: ValueKey('edit-${list[i].id}'),
+                      tooltip: 'แก้ไขจุดหมาย',
+                      onPressed: disabled ? null : () => edit(list[i]),
+                      icon: const Icon(Icons.edit_outlined),
                     ),
                     onTap: disabled ? null : () => edit(list[i]),
                   ),
@@ -235,7 +248,7 @@ class _DayPlanState extends ConsumerState<DayPlan> {
             ),
           ),
         ],
-        if (list.length > 1)
+        if (widget.showStops && list.length > 1)
           const Text(
             'ลำดับกำหนดเอง เวลาเดิมไม่ถูกเลื่อนอัตโนมัติ • กดนำทางเปิด Maps ภายนอก ไม่มีผลเส้นทาง/ราคาส่งกลับ',
           ),

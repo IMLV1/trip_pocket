@@ -77,6 +77,11 @@ flutter:
     - assets/thailand.geojson
     - assets/thailand_pois.json
     - assets/THAILAND_POIS_LICENSE.txt
+    - assets/fonts/OFL.txt
+  fonts:
+    - family: NotoSansThai
+      fonts:
+        - asset: assets/fonts/NotoSansThai.ttf
 
   # To add assets to your application, add an assets section, like this:
   # assets:

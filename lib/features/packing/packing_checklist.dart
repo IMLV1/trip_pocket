@@ -46,13 +46,29 @@ class _PackingChecklistState extends ConsumerState<PackingChecklist> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('เตรียมของ', style: Theme.of(context).textTheme.titleLarge),
+          Text(
+            'เช็กลิสต์ก่อนออกเดินทาง',
+            style: Theme.of(context).textTheme.titleLarge,
+          ),
           const Text('บันทึกเฉพาะเครื่องนี้ ใช้ได้แม้ออฟไลน์'),
           AsyncContent(
             value: ref.watch(packingProvider(widget.tripKey)),
             retry: () => ref.invalidate(packingProvider(widget.tripKey)),
             data: (items) => Column(
               children: [
+                const SizedBox(height: 16),
+                LinearProgressIndicator(
+                  value: items.isEmpty
+                      ? 0
+                      : items.where((e) => e.checked).length / items.length,
+                  minHeight: 6,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'เตรียมแล้ว ${items.where((e) => e.checked).length} / ${items.length} รายการ',
+                ),
+                const SizedBox(height: 8),
                 for (final item in items)
                   CheckboxListTile(
                     contentPadding: EdgeInsets.zero,

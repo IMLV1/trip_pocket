@@ -81,6 +81,7 @@ void main() {
         await tester.pumpAndSettle();
       }
 
+      await tapKey('tab-map');
       expect(
         tester
             .widget<DailyMap>(find.byType(DailyMap))
@@ -117,6 +118,7 @@ void main() {
       );
       await tester.pump(const Duration(seconds: 1));
       await binding.takeScreenshot('v21-daily-map');
+      await tapKey('tab-plan');
       await tapKey('travel-b');
       await tester.tap(find.byKey(const Key('travel-mode')));
       await tester.pumpAndSettle();
@@ -133,6 +135,7 @@ void main() {
       stops = (await repo.watchActivities(uid, trip.id).first).value;
       expect(stops.map((a) => a.id), ['b', 'a']);
       expect(planBudget(stops).transport, 0);
+      await tapKey('tab-map');
       expect(
         tester
             .widget<DailyMap>(find.byType(DailyMap))
@@ -183,6 +186,7 @@ void main() {
         tester.widget<DailyMap>(find.byType(DailyMap)).activities,
         hasLength(3),
       );
+      await tapKey('tab-plan');
       await tester.ensureVisible(find.text('แชร์แผนเที่ยว'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('แชร์แผนเที่ยว'));

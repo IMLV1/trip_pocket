@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/providers.dart';
 import '../../../core/widgets.dart';
+import '../../../core/design_system.dart';
 
 class TripListScreen extends ConsumerStatefulWidget {
   final String uid;
@@ -70,12 +71,45 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
     ),
     body: PageBody(
       children: [
-        Text(
-          'ออกไปเก็บความทรงจำ',
-          style: Theme.of(context).textTheme.headlineSmall,
+        Container(
+          decoration: BoxDecoration(
+            color: TripColors.ink,
+            borderRadius: BorderRadius.circular(28),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: CustomPaint(
+            painter: const RouteMotif(),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SoftBadge(
+                    'YOUR NEXT JOURNEY',
+                    icon: Icons.explore_outlined,
+                    color: TripColors.accent,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'ออกไปเก็บ\nความทรงจำ',
+                    style: Theme.of(
+                      context,
+                    ).textTheme.headlineMedium?.copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text(
+                    'แผนเที่ยว งบ และของที่ต้องเตรียม\nพร้อมสำหรับการเดินทางครั้งใหม่',
+                    style: TextStyle(color: Color(0xffcedfd6)),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
-        const Text('จัดแผนรายวัน งบ และของที่ต้องเตรียมในที่เดียว'),
-        const SizedBox(height: 20),
+        const SectionTitle(
+          'การเดินทางของคุณ',
+          subtitle: 'เลือกทริปเพื่อจัดแผนรายวัน',
+        ),
         if (cleanupError != null)
           Card(
             child: ListTile(
@@ -111,25 +145,32 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
               if (s.cached)
                 const Text('ข้อมูลที่โหลดไว้ล่าสุด • อาจยังไม่เป็นปัจจุบัน'),
               if (s.value.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(40),
-                  child: Text(
-                    'ยังไม่มีทริป\nกด “สร้างทริป” เพื่อเริ่มต้น',
-                    textAlign: TextAlign.center,
-                  ),
+                const EmptyPanel(
+                  icon: Icons.luggage_outlined,
+                  title: 'ยังไม่มีทริป',
+                  message: 'กด “สร้างทริป” เพื่อเริ่มการเดินทาง',
                 ),
               for (final t in s.value)
-                Card(
-                  child: ListTile(
-                    contentPadding: const EdgeInsets.all(16),
-                    leading: const CircleAvatar(child: Icon(Icons.luggage)),
-                    title: Text(t.title),
-                    subtitle: Text(
-                      '${t.destination}\n${t.startDate} ถึง ${t.endDate}',
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Card(
+                    child: ListTile(
+                      contentPadding: const EdgeInsets.all(16),
+                      leading: const CircleAvatar(
+                        backgroundColor: TripColors.mint,
+                        child: Icon(
+                          Icons.luggage_outlined,
+                          color: TripColors.primary,
+                        ),
+                      ),
+                      title: Text(t.title),
+                      subtitle: Text(
+                        '${t.destination == t.title ? 'จุดหมายในทริป' : t.destination}\n${prettyDate(t.startDate)} – ${prettyDate(t.endDate, year: true)}',
+                      ),
+                      isThreeLine: true,
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.push('/trips/${t.id}'),
                     ),
-                    isThreeLine: true,
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.push('/trips/${t.id}'),
                   ),
                 ),
             ],

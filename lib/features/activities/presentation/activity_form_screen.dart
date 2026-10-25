@@ -9,6 +9,7 @@ import 'package:uuid/uuid.dart';
 import '../../../app/providers.dart';
 import '../../../core/validation.dart';
 import '../../../core/widgets.dart';
+import '../../../core/design_system.dart';
 import '../../trips/domain/trip.dart';
 import '../domain/trip_activity.dart';
 import '../../places/place_picker_sheet.dart';
@@ -184,6 +185,11 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
       ),
       body: PageBody(
         children: [
+          if (MediaQuery.viewInsetsOf(context).bottom == 0)
+            const FormIntro(
+              'จุดหมายของคุณ',
+              'ค้นหาหรือเลือกหมุด แล้วตรวจรายละเอียดก่อนบันทึก',
+            ),
           Form(
             key: form,
             child: Column(

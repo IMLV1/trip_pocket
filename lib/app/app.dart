@@ -1,3 +1,4 @@
+import '../core/design_system.dart';
 import '../features/places/curated_places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -122,17 +123,7 @@ class _SessionAppState extends ConsumerState<SessionApp> {
       locale: const Locale('th'),
       supportedLocales: const [Locale('th'), Locale('en')],
       localizationsDelegates: GlobalMaterialLocalizations.delegates,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xff087e8b)),
-        scaffoldBackgroundColor: const Color(0xfff6f9f9),
-        inputDecorationTheme: const InputDecorationTheme(
-          border: OutlineInputBorder(),
-        ),
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(minimumSize: const Size(48, 48)),
-        ),
-      ),
+      theme: buildTripTheme(),
       routerConfig: router,
       builder: (context, child) => Column(
         children: [

@@ -56,8 +56,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('เชียงใหม่ UI'));
       await tester.pumpAndSettle();
-      await tester.ensureVisible(find.text('เพิ่มกิจกรรม'));
-      await tester.tap(find.text('เพิ่มกิจกรรม'));
+      await tester.ensureVisible(find.byKey(const Key('add-stop')));
+      await tester.tap(find.byKey(const Key('add-stop')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const Key('activity-title')), 'คาเฟ่');
       await tester.enterText(find.byKey(const Key('activity-cost')), '200.25');
@@ -143,6 +143,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('วางแผนแล้ว 200.25 บาท'), findsOneWidget);
       await binding.takeScreenshot('trip-budget');
+      await tester.tap(find.byKey(const Key('tab-packing')));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const Key('packing-text')));
       await tester.enterText(find.byKey(const Key('packing-text')), 'สายชาร์จ');
       FocusManager.instance.primaryFocus?.unfocus();
@@ -150,6 +152,8 @@ void main() {
       await tester.tap(find.byKey(const Key('packing-add')));
       await tester.pumpAndSettle();
       expect(find.text('สายชาร์จ'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('tab-plan')));
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('แชร์แผนเที่ยว'));
       await tester.tap(find.text('แชร์แผนเที่ยว'));
       await tester.pumpAndSettle();
@@ -160,6 +164,8 @@ void main() {
       await tester.tap(find.byType(BackButton));
       await tester.pumpAndSettle();
       await tester.tap(find.text('เชียงใหม่ UI'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('tab-packing')));
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.text('สายชาร์จ'));
       expect(find.text('สายชาร์จ'), findsOneWidget);

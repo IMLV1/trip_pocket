@@ -122,7 +122,7 @@ P5/P6 แยกงานได้หลังสัญญาข้อมูล�
 - [x] flutter analyze และ flutter test
 - [x] Emulator rules tests และ integration test กระบวนการหลัก
 - [x] รอบ Emulator: cold restart, native keyboard inset/ปุ่มบันทึก และ workflow หลัก; widget test จอเล็ก/ปุ่มกลับ/error states (25 ต.ค. 2569)
-- [ ] รอบ Emulator: ตรวจเนื้อหาในแอปรับแชร์และ Back ของระบบเมื่อ IME เปิดด้วยมือ (รอเปิดหน้าต่าง Emulator)
+- [x] รอบ Emulator: Chrome รับข้อความครบและ callback success; Back ซ่อนแผงคีย์บอร์ดแบบ floating บน APK ปกติ (25 ต.ค. 2569; ดูหลักฐานในสถานะ)
 - [ ] ทดสอบบน Android จริง รวม back button, keyboard และหน้าจอเล็ก (นอก scope รอบ Emulator ที่ผู้ใช้เลือก)
 - [x] ทดสอบเครือข่ายขัดข้อง เปลี่ยนบัญชี และ retry delete
 - [x] Build APK และติดตั้งทดสอบ
@@ -167,4 +167,4 @@ P5/P6 แยกงานได้หลังสัญญาข้อมูล�
 
 ครบ 6 ประเภทหน้าจอ มี Form Validation, Authentication, Firestore CRUD, async, แผนที่และ Local Storage กระบวนการหลักผ่านบน Android จริง Rules ป้องกันข้ามบัญชี และมีผลตรวจที่ระบุวัน/อุปกรณ์/ข้อจำกัดชัดเจน สถานะงานต้องสะท้อนหลักฐาน ไม่ใช่จำนวนไฟล์ที่สร้าง
 
-หมายเหตุการติ๊ก: หลักฐาน Android ในงานนี้เป็น Emulator; live คือบริการ Firebase จริงที่ Android Emulator เชื่อมถึง ไม่ใช่มือถือจริง รายการตรวจรับ cold restart, native recipient และอุปกรณ์จริงยังไม่ครบ จึงยังไม่อ้าง Definition of Done ทั้งหมด ดูไฟล์สถานะ
+หมายเหตุการติ๊ก: หลักฐาน Android ในงานนี้เป็น Emulator; live คือบริการ Firebase จริงที่ Android Emulator เชื่อมถึง ไม่ใช่มือถือจริง cold restart และ Chrome recipient ผ่านแล้ว ปิด P7 ตาม scope Emulator ที่ผู้ใช้เลือก; อุปกรณ์จริงยังไม่ได้ตรวจ จึงยังไม่อ้าง Definition of Done ที่ต้องใช้มือถือจริงทั้งหมด ดูไฟล์สถานะ

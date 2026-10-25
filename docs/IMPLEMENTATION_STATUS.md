@@ -13,8 +13,8 @@
 | P4 Activities/Budget | CRUD/เรียงวันเวลา/ยอดสตางค์/ย่อวัน/ลบ children ก่อน parent/cleanup retry ผ่าน; derived totals ไม่เก็บซ้ำ |
 | P5 Map | OSM Standard, app identifier, built-in HTTP caching, attribution ที่มองเห็นและลิงก์ลิขสิทธิ์; แตะ ยืนยัน ยกเลิก และเปิดหมุดเดิมผ่าน Android UI test; ตรวจว่ามี tile จริง render แล้ว |
 | P6 Packing | SharedPreferences แยก uid/tripId, malformed JSON ไม่เขียนทับ, cleanup queue; unit, Android offline persistence และกลับหน้ารายละเอียดผ่าน; cold restart ผ่านบน Emulator แล้ว; มือถือจริงยังไม่ได้ตรวจ |
-| P6A Sharing | formatter/privacy/empty/over budget, preview/error/busy tests ผ่าน; Android native share sheet เปิด/แสดงข้อความ/ยกเลิก ผ่านบน Emulator โดย CUA กด Back และ assertion ได้ dismissed; แอปปลายทางยังต้องตรวจต่อ |
-| P7 Integration | analyze + Flutter tests + Rules tests + Android Firebase SDK Emulator/live + Android UI ผ่าน; ยังต้องตรวจ hardware จริงและ native app ปลายทาง |
+| P6A Sharing | formatter/privacy/empty/over budget, preview/error/busy tests ผ่าน; Android native share sheet เปิด/แสดงข้อความ/ยกเลิก ผ่านบน Emulator โดย CUA กด Back และ assertion ได้ dismissed; Chrome รับข้อความครบและ callback success ผ่านบน Emulator; ไม่อ้างว่าส่งถึงบุคคล |
+| P7 Integration | analyze + Flutter tests + Rules tests + Android Firebase SDK Emulator/live + Android UI ผ่าน; ปิด P7 ใน scope Emulator ที่ผู้ใช้เลือก; Chrome/Back ผ่านแล้ว; hardware จริง/iOS ไม่ได้ตรวจ |
 | P8 Demo | มี DEMO_GUIDE และตัวอย่าง workflow; สไลด์และซ้อมกับบัญชีของผู้พัฒนายังเป็นงานเตรียมนำเสนอ |
 
 ## Firebase จริง
@@ -42,7 +42,7 @@
 | firebase_flow_test APP_MODE=emulator | ผ่านบน Android ด้วย Auth/Firestore Emulator project demo-trippocket |
 | firebase_flow_test APP_MODE=live | ผ่านบน Android เชื่อม Firebase จริง: register/login, create/update/delete, active cleanup intent, offline write rejection, anonymous/user B denial, interrupted deleting แล้ว resume |
 | flutter drive ui_flow_test | ผ่าน: login demo → สร้าง → กิจกรรม → tile จริง/เลือกและยกเลิกหมุด → งบ → packing → preview → กลับหน้าแล้วของยังอยู่; ใช้ fake cloud repository แต่ map/native preferences จริง |
-| native_share_test | ผ่าน 1/1 แบบมี CUA ช่วยกด Back: เปิด Android share sheet เห็นข้อความจริงและผล ShareResultStatus.dismissed; ยังไม่ได้ส่งต่อเข้าแอปปลายทางหรือส่งหาผู้รับ |
+| native_share_test | ผ่าน 1/1 แบบมี CUA ช่วยกด Back: เปิด Android share sheet เห็นข้อความจริงและผล ShareResultStatus.dismissed; รอบต่อมา Chrome รับข้อความครบและ callback success ผ่าน 1/1; ไม่ได้ส่งหาผู้รับ |
 
 ภาพ: [แผนที่](evidence/map-picker.png), [งบและกิจกรรม](evidence/trip-budget.png), [Android share sheet](evidence/android-share-sheet.png)
 
@@ -115,7 +115,7 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - พบว่า flutter test ถอน app เมื่อจบโดย default จึงปรับคำสั่ง cold restart เป็น --no-uninstall ทั้ง setup/verify; การถอน app ไม่ใช้เป็นหลักฐานว่า persistence ของแอปผิด
 - กำลังตรวจ cold restart และ native receiver ต่อ ก่อนสรุปผล/สร้าง APK/push
 
-### ผลยืนยันรอบนี้
+### บันทึกระหว่างรอบ (สถานะก่อนตรวจ Chrome สำเร็จ)
 
 - flutter analyze --no-pub: ผ่าน ไม่มี issues
 - flutter test --no-pub: ผ่าน 12/12 รวม 5 กรณีเพิ่มจากรอบก่อน (editor recovery 3, map failure/retry 1, share preview refresh 1)
@@ -126,7 +126,7 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - Rules ไม่เปลี่ยน จึงไม่มีการ deploy ใหม่หรืออ้าง Rules tests รอบใหม่; ผล Rules 6 กลุ่มในตารางก่อนหน้าเป็นหลักฐานเดิม
 - P7 รอบ Emulator ยังไม่ปิดครบ: การตรวจเนื้อหาในแอปปลายทางและ keyboard/back แบบ native ด้วยมือยังค้าง; ไม่มีมือถือจริงหรือ iOS ถูกทดสอบ
 
-### สรุปผล P7 ล่าสุดก่อนส่งมอบ
+### ผลตรวจพื้นฐาน P7 และข้อค้างในเวลานั้น (ดูผลปิดรอบด้านล่าง)
 
 | รายการ | ผลและระดับการตรวจ |
 |---|---|
@@ -143,7 +143,7 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 | Native receiver รอบนี้ | ยังไม่ผ่าน: CUA ไม่สามารถเปิดหน้าต่าง Emulator ขึ้นมาเลือกแอปได้ จึง timeout; ห้ามอ้างว่าแอปปลายทางได้รับข้อความ |
 | มือถือจริง / iOS | ไม่ได้ตรวจ ตาม scope Emulator ที่ผู้ใช้เลือก |
 
-งานค้างที่ต้องเปิดหน้าต่าง Emulator: เลือกแอปรับข้อความและตรวจเนื้อหาในแอปนั้น, ตรวจปุ่ม Back ของระบบขณะ IME เปิดด้วยมือ ไม่อ้างว่าผล selected action หรือการเปิด chooser ยืนยันการรับข้อความ
+ข้อค้างในเวลานั้น ซึ่งตรวจต่อสำเร็จแล้วด้านล่าง: เลือกแอปรับข้อความและตรวจเนื้อหาในแอปนั้น, ตรวจปุ่ม Back ของระบบขณะ IME เปิดด้วยมือ ไม่อ้างว่าผล selected action หรือการเปิด chooser ยืนยันการรับข้อความ
 
 ผล cold restart จากรอบแรกที่ลืม --no-uninstall ถูกแยกเป็นปัญหา test harness และข้อมูลทดสอบรอบนั้นถูก cleanup แล้ว ไม่ตีความเป็นบั๊ก persistence ของแอป มีคู่มือรันซ้ำใน P7_TEST_GUIDE.md
 
@@ -163,7 +163,7 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - ใช้ข้อมูลตัวอย่างเท่านั้น ไม่ส่งข้อความถึงบุคคลใด และไม่อ้างว่าแอปแชต/LINE ได้รับข้อความ
 - หลักฐาน: evidence/chrome-receiver.png แสดงข้อความทั้งหมดในช่องค้นหาของแอปปลายทาง
 - รอบ assisted receiver test 60 วินาที timeout ระหว่าง first-run/การสลับกลับ จึงเพิ่มเวลาสำหรับ manual receiver เป็น 180 วินาทีโดยยัง assert success เหมือนเดิม ไม่เปลี่ยน timeout เป็นผลผ่าน
-- สถานะช่วงนี้: manual content receipt ใน Chrome ผ่าน; callback-assisted assertion และ native Back/IME ยังดำเนินการต่อ
+- สถานะเมื่อจบช่วงแรก: manual content receipt ใน Chrome ผ่าน; callback-assisted assertion และ native Back/IME ตรวจผ่านในช่วงถัดไปด้านล่าง
 - ตามคำขอผู้ใช้ จะแบ่ง commit ตามช่วงงานที่ตรวจจบ แยกหลักฐานรับแชร์ / native Back / สรุป P7
 
 ## ช่วงงานต่อ: native Back และ Chrome round trip — 25 ตุลาคม 2569
@@ -173,3 +173,13 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - APK ปกติจาก main.dart: เปิดฟอร์มสมัครสมาชิก เปิด on-screen keyboard จาก IME แล้วกด Android Back (Control+BackSpace) แผงคีย์บอร์ดถูกซ่อนและยังอยู่บนฟอร์มเดิม ไม่มี crash; toolbar handwriting ของ IME ยังอยู่ จึงไม่อ้างว่า IME ทุกส่วนปิด
 - หลักฐานก่อน/หลัง: evidence/keyboard-before-back.png และ evidence/keyboard-after-back.png เป็น Android Emulator จริง ไม่ใช่ภาพ widget จำลอง
 - จอเล็กและปุ่มกลับฟอร์ม error/not-found ใช้ผล widget tests เดิม; ไม่อ้างว่าได้ตรวจบนมือถือจริง
+
+## ผลปิด P7 ตาม scope Emulator — 25 ตุลาคม 2569
+
+- ปิดงาน P7 ในขอบเขต Android Emulator ที่ผู้ใช้ยืนยัน: Firebase live workflow, cold restart, account isolation, offline/retry deletion, maps, budget, checklist, preview/cancel, Chrome receiver และ Back/keyboard มีหลักฐานตามระดับการตรวจข้างต้น
+- Analysis ไม่มี issues; Flutter tests 13/13 ผ่าน; Rules เดิม 6 กลุ่มผ่านและไม่มี Rules เปลี่ยนในรอบนี้; native receiver รอบล่าสุด 1/1 ผ่าน ไม่รวมรอบ timeout เป็นผลผ่าน
+- Back manual ตรวจแผงคีย์บอร์ดแบบ floating ของ IME บน APK ปกติ; save กับ keyboard inset ตรวจโดย Android UI test; จอเล็กและ navigation error states ตรวจด้วย widget tests จึงไม่เหมารวมเป็นการตรวจทุกหน้าด้วยมือ
+- ข้อจำกัด: ยังไม่ได้ทดสอบ hardware Android จริงหรือ iOS, แอปแชต/LINE และการส่งถึงผู้รับ; Definition of Done เดิมที่ต้องใช้มือถือจริงยังไม่ได้ครบทั้งหมด
+- APK ปกติล่าสุด build/install/run สำเร็จหลัง native test และอยู่ที่ build/app/outputs/flutter-apk/app-debug.apk; SHA256 59211B9F6EE18EA6FC329FD5D83CA7082F70008DB5AF43F3EC736350B756D078 ตรง APK รอบ P7 ข้างต้น
+- Commit เป็นช่วง: 47a8c26 หลักฐาน Chrome, 0abdcf6 native Back/round trip; ตามด้วย commit เอกสารปิดรอบนี้บน main ของ repo Private เดิม
+- งานถัดไป P8: เตรียมข้อมูลสาธิต บัญชีสาธิต สไลด์ และซ้อมนำเสนอ ยังไม่ได้ทำในรอบตรวจ P7 นี้

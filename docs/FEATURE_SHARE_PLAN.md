@@ -60,7 +60,7 @@ TripShareFormatter เป็น Dart function/class ที่รับ Trip แ�
 - [x] ทริปไม่มีกิจกรรม งบ 0 และเกินงบ แสดงผลถูกต้อง
 - [x] Preview ไม่ใส่ note, packing, coordinates หรือ internal identifiers
 - [x] ยกเลิก preview/share sheet แล้วข้อมูลคงเดิมและไม่อ้างว่าส่งสำเร็จ
-- [ ] ทดสอบ native share sheet บน Android จริงอย่างน้อยหนึ่งแอปที่รับข้อความได้ โดยระบุแอปที่ทดสอบ
+- [x] ทดสอบ native share sheet กับ Chrome บน Android Emulator ตาม scope ที่ผู้ใช้เลือก: ข้อความไทย/ยอดเงินครบและ callback success ผ่าน; หลักฐานใน IMPLEMENTATION_STATUS.md (ยังไม่ได้ทดสอบมือถือจริงหรือแอปแชต)
 - [x] ไม่มีการเปลี่ยน Firestore Rules ให้บุคคลอื่นอ่านข้อมูลเพื่อรองรับการแชร์ข้อความ
 
 ## อ้างอิง

@@ -44,7 +44,7 @@ flutter test integration_test/native_share_test.dart -d emulator-5554 --dart-def
 flutter test integration_test/native_share_test.dart -d emulator-5554 --dart-define=RUN_MANUAL_SHARE=true --dart-define=CHECK_SHARE_RECEIVER=true --no-uninstall --no-pub
 ~~~
 
-เปิดหน้าต่าง Emulator บนจอก่อนรัน ชุดนี้รอการเลือก/ยกเลิกยกเลิกไม่เกิน 60 วินาที / ตรวจแอปรับข้อความไม่เกิน 180 วินาที ไม่ใช่ automated test ล้วน อย่ากดส่งให้บุคคลอื่น การได้ success จาก share_plus บอกเพียงว่าเลือก action แล้ว ไม่ยืนยันว่าแอปรับข้อความครบหรือผู้รับได้รับ ต้องตรวจ screenshot/เนื้อหาที่แอปปลายทางแสดงด้วย
+เปิดหน้าต่าง Emulator บนจอก่อนรัน ชุดนี้รอการยกเลิกไม่เกิน 60 วินาที / ตรวจแอปรับข้อความไม่เกิน 180 วินาที ไม่ใช่ automated test ล้วน อย่ากดส่งให้บุคคลอื่น การได้ success จาก share_plus บอกเพียงว่าเลือก action แล้ว ไม่ยืนยันว่าแอปรับข้อความครบหรือผู้รับได้รับ ต้องตรวจ screenshot/เนื้อหาที่แอปปลายทางแสดงด้วย
 
 ## ตรวจ keyboard / back / small screen ด้วยมือ
 
@@ -62,3 +62,12 @@ flutter install --debug -d emulator-5554
 ~~~
 
 ต้อง build APK จาก main.dart กลับคืนหลัง integration tests เพราะทุก target ใช้ output `build/app/outputs/flutter-apk/app-debug.apk` ร่วมกัน ดู hash และผลล่าสุดใน IMPLEMENTATION_STATUS.md
+
+## ผลรอบ 25 ตุลาคม 2569
+
+P7 ผ่านใน scope Android Emulator ที่ผู้ใช้เลือก ดูระดับ fake/live/widget/manual แยกใน IMPLEMENTATION_STATUS.md ไม่ใช่ผลตรวจมือถือจริงหรือ iOS
+
+- Chrome แสดง TripPocket: เชียงใหม่ งบทั้งหมด 3,000.00 บาท คงเหลือ 2,800.00 บาท ครบ; line breaks กลายเป็นช่องว่างในช่องค้นหา หลักฐาน evidence/chrome-receiver.png
+- Receiver test ผ่าน 1/1 ในประมาณ 34 วินาที component com.android.chrome/com.google.android.apps.chrome.IntentDispatcher; success ยืนยันการเลือก action เท่านั้น ใช้ภาพเนื้อหาปลายทางประกอบ ไม่อ้างการส่งถึงบุคคล
+- APK ปกติ: เปิดแผงคีย์บอร์ด floating ผ่านเมนู IME แล้ว Control+BackSpace ซ่อนแผงโดยยังอยู่บนฟอร์มสมัครสมาชิก toolbar handwriting ยังอยู่ หลักฐาน evidence/keyboard-before-back.png และ evidence/keyboard-after-back.png
+- Android UI assertion ตรวจ save เหนือ keyboard inset ผ่าน; จอเล็ก/ฟอร์ม error/not-found ใช้ widget tests ไม่ใช่มือถือจอเล็กจริง

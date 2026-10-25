@@ -44,3 +44,7 @@ Keep source documents synchronized when routes, schema, or scope change. Report 
 ## Approved V2.1 scope
 
 The user extended the original MVP with free multi-stop planning, categories, manual travel costs, offline Chiang Mai catalog search/recommendations and on-demand location plus external Maps navigation. Follow the appended V2.1 schema contracts and V21_TEST_GUIDE.md; the earlier MVP-only limitations do not remove this approved scope. Do not add paid APIs/billing or assume countrywide transit/fare coverage. Preserve legacy totals, unknown-cost semantics, segment invalidation and the resumable deletion contract. GPS is one-shot by user action, transient and not included in sharing.
+
+## Nationwide POI correction (approved 26 October 2026)
+
+The user explicitly requires nationwide Thai search and selectable recommendations on the map. Production uses assets/thailand_pois.json via placeCatalogProvider (66,975 named community POIs across all 77 provinces), not the old Chiang Mai sample list, which remains only for deterministic regression fixtures. Read docs/FEATURE_NATIONWIDE_PLACES.md. Preserve ODbL attribution/data licensing and the reproducible importer. No public Nominatim/Overpass backend, paid API or billing. Public POI data remains device-local and separate from uid-scoped trip data. Selection must open details and require confirmation before saving a trip stop; unknown prices stay unknown.

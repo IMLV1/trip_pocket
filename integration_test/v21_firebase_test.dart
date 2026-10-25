@@ -132,7 +132,9 @@ void main() {
           repo.reorderActivities(uid, t.id, stale.reversed.toList()),
           throwsStateError,
         );
-        await packing.save(uid, t.id, [const PackingItem('pack', 'charger',false)]);
+        await packing.save(uid, t.id, [
+          const PackingItem('pack', 'charger', false),
+        ]);
         await packing.queueCleanup(uid, t.id);
         await parent.update({
           'status': 'deleting',

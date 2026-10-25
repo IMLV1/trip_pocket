@@ -209,7 +209,7 @@ class _PoiMapLayerState extends ConsumerState<PoiMapLayer> {
                     child: Text(
                       window.total == 0
                           ? 'พื้นที่นี้ยังไม่มีผลแนะนำ'
-                          : 'แนะนำ ${window.total} แห่ง • แตะไอคอน/กลุ่ม',
+                          : 'แนะนำ ${window.total} แห่ง • ${camera.zoom >= 12 && window.total > 100 ? 'แสดง 100 ไอคอน ซูมดูเพิ่ม' : 'แตะไอคอน/กลุ่ม'}',
                       style: const TextStyle(fontSize: 10),
                     ),
                   ),

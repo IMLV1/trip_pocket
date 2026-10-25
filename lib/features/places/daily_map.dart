@@ -129,7 +129,15 @@ class _DailyMapState extends ConsumerState<DailyMap> {
                 );
                 if (confirmed == true && mounted) widget.onAdd?.call(p);
               },
-              initialCameraFit: points.length > 1
+              initialCameraFit: widget.activities.isEmpty
+                  ? CameraFit.bounds(
+                      bounds: LatLngBounds(
+                        const LatLng(5.6, 97.3),
+                        const LatLng(20.5, 105.7),
+                      ),
+                      padding: const EdgeInsets.all(24),
+                    )
+                  : points.length > 1
                   ? CameraFit.bounds(
                       bounds: LatLngBounds.fromPoints(points),
                       padding: const EdgeInsets.all(36),
@@ -263,7 +271,12 @@ class _DailyMapState extends ConsumerState<DailyMap> {
             TextButton(
               onPressed: () => controller.fitCamera(
                 CameraFit.bounds(
-                  bounds: LatLngBounds.fromPoints(points),
+                  bounds: widget.activities.isEmpty
+                      ? LatLngBounds(
+                          const LatLng(5.6, 97.3),
+                          const LatLng(20.5, 105.7),
+                        )
+                      : LatLngBounds.fromPoints(points),
                   padding: const EdgeInsets.all(36),
                   maxZoom: 15,
                 ),

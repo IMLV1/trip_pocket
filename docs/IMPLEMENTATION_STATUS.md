@@ -1,6 +1,8 @@
-# สถานะ TripPocket — 25 ตุลาคม 2569
+# สถานะ TripPocket — 26 ตุลาคม 2569
 
 ดำเนินการตามข้อ 1 ใน IMPLEMENTATION_PROMPTS.md โดยต่อยอด Flutter starter ใน `C:\Users\GOODK\IdeaProjects\trip_pocket` ผู้ใช้เปลี่ยนจาก Emulator เป็น Firebase จริงบน Spark และอนุญาต commit/push ไป `https://github.com/IMLV1/trip_pocket.git` (Private) แล้ว
+
+สถานะล่าสุด: ค้นหาทั่วไทย 66,975 แห่ง/77 จังหวัด และเลือกหมุดแนะนำบนแผนที่ได้แล้ว ดู FEATURE_NATIONWIDE_PLACES.md และผล V2.2 ท้ายไฟล์
 
 ## ผลงาน
 
@@ -246,3 +248,18 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - ข้อมูล OSM/ODbL มี attribution, source URL, timestamp, input SHA และ license แยกจาก source แอป; ไม่แต่งราคา/เวลาเปิดปิดหรืออ้างตรวจทุกสถานที่ด้วยมือ
 - flutter analyze ไม่มี issues; unit/widget tests 32/32 ผ่าน รวมข้อมูลจริง 77 จังหวัดและการแตะหมุด/cluster
 - กำลังตรวจ Android integration ไม่อ้าง device ผ่านในช่วงนี้ ไม่มี schema/Rules cloud เปลี่ยน
+
+### ส่งมอบ V2.2 ทั่วไทย — 26 ตุลาคม 2569
+
+- แก้ข้อจำกัดชุดเชียงใหม่แล้ว: production catalogue 66,975 แห่ง/77 จังหวัด พร้อมหมุดแนะนำที่แตะเลือกได้ ตัวกรองและกลุ่มจำนวน ไม่มี public geocoding API หรือ billing
+- flutter analyze ไม่มี issues; Flutter tests 33/33 ผ่าน รวมกรอบประเทศเหนือถึงใต้ และชุด map tests 3/3 ผ่านหลังปรับปุ่มกลับภาพรวมประเทศ
+- Android Emulator nationwide_ui_test ผ่าน: production catalogue/loader จริง แตะหมุดแนะนำกรุงเทพ แล้วยืนยัน/บันทึก จากนั้นค้นป่าตองและเพิ่มสถานที่ภูเก็ตเป็นจุดที่สอง; cloud repository ใน UI test เป็น fake/demo ไม่ใช่ Firebase live ใหม่
+- ภาพหลักฐาน: evidence/nationwide-bangkok-pois.png และ evidence/nationwide-phuket-search.png
+- ไม่มี schema/Rules cloud เปลี่ยน จึงไม่ deploy หรืออ้างผล Rules/live รอบใหม่; ผลด้านนั้นใน V2.1 เป็นหลักฐานเดิม
+- สร้างและติดตั้ง APK ปกติจาก main.dart แล้ว: build/app/outputs/flutter-apk/app-debug.apk
+- ตรวจ ZIP ภายใน APK พบ assets/flutter_assets/assets/thailand_pois.json (11,854,856 bytes, compressed 3,103,103 bytes), thailand.geojson และ THAILAND_POIS_LICENSE.txt จริง
+- APK size: 217349761 bytes
+- APK SHA256: 4B350BDE2451842456C7AB180452143542A2F737744416EE84D76CB8D41755E2
+- Commit เป็นช่วง: 749c3c4 สัญญาขอบเขต, 6acc4ce ข้อมูล/ค้นหา/หมุดแนะนำ และ commit ส่งมอบผลตรวจ/คู่มือรอบนี้ push ไป main ของ Private repo เดิม
+- ข้อมูลเป็น OSM community extract ณ 24 ต.ค. 2569 ไม่ใช่ทุกธุรกิจและไม่ยืนยันว่าร้านยังเปิดอยู่ ไม่มีการแต่งราคา/เวลาเปิดปิด ไม่อ้าง offline tiles หรือทดสอบมือถือจริง/iOS
+- คู่มือและ data license/provenance: FEATURE_NATIONWIDE_PLACES.md

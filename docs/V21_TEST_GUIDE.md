@@ -1,5 +1,7 @@
 # ตรวจ V2.1 แบบฟรี
 
+หมายเหตุล่าสุด: UI/ฐานสถานที่เปลี่ยนเป็นทั่วไทยแล้ว ดู FEATURE_NATIONWIDE_PLACES.md และ nationwide_ui_test.dart ส่วนรายการเชียงใหม่ 4 แห่งด้านล่างเป็นประวัติ V2.1/fixture regression เท่านั้น
+
 ผลจริงอยู่ใน IMPLEMENTATION_STATUS.md โค้ดปกติใช้ Firebase Spark live; demo อยู่ในหน่วยความจำ ไม่ใช่ข้อมูล cloud จริง ห้ามใช้ข้อมูลส่วนตัวกับ fixtures
 
 ## ชุดตรวจ

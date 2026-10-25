@@ -1,3 +1,4 @@
+import 'package:trip_pocket/features/places/daily_map.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -29,6 +30,35 @@ const second = CuratedPlace(
 );
 
 void main() {
+  testWidgets('an empty trip frames Thailand from north to south', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          placeCatalogProvider.overrideWith(
+            (ref) async => PlaceCatalog([place]),
+          ),
+        ],
+        child: MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: DailyMap(activities: const [], onSelect: (_) {}),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    final bounds = tester
+        .widget<FlutterMap>(find.byType(FlutterMap))
+        .mapController!
+        .camera
+        .visibleBounds;
+    expect(bounds.contains(const LatLng(5.6, 97.3)), isTrue);
+    expect(bounds.contains(const LatLng(20.5, 105.7)), isTrue);
+    await tester.pumpWidget(const SizedBox());
+  });
   testWidgets(
     'recommended POI is visible and selectable separately from trip stops',
     (tester) async {

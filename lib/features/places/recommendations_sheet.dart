@@ -270,6 +270,14 @@ class DiscoveryMap extends StatelessWidget {
                 padding: const EdgeInsets.all(30),
                 maxZoom: 15,
               )
+            : anchor == null
+            ? CameraFit.bounds(
+                bounds: LatLngBounds(
+                  const LatLng(5.6, 97.3),
+                  const LatLng(20.5, 105.7),
+                ),
+                padding: const EdgeInsets.all(24),
+              )
             : null,
       ),
       children: [

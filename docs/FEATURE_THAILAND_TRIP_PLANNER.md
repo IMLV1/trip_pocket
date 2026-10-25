@@ -83,3 +83,11 @@ Google Places ที่แสดงผลบนแผนที่ต้องใ
 - Transit routes ไม่รองรับ intermediate waypoints และมี fare เฉพาะเมื่อคำนวณครบทุก step: https://developers.google.com/maps/documentation/routes/transit-route
 - Routes API ต้องเปิด billing และคิดตามการใช้งาน แยกจาก Firebase Spark: https://developers.google.com/maps/documentation/routes/usage-and-billing
 - Places มีเงื่อนไขแสดงบน Google Map, attribution และการเก็บข้อมูล: https://developers.google.com/maps/documentation/places/web-service/policies
+
+## เพิ่มตามคำขอ: ตำแหน่งปัจจุบัน — 26 ตุลาคม 2569
+
+อ่าน GPS ครั้งเดียวเมื่อผู้ใช้กดปุ่ม แสดงจุดสีน้ำเงินพร้อมความแม่นยำและเวลาอ่านบนแผนที่ ปุ่มอัปเดตต้องกดเอง ไม่มี background tracking/stream หรือบันทึกตำแหน่งปัจจุบันลง Firestore/SharedPreferences ผู้ใช้ปฏิเสธสิทธิ์/ปิด Location/หมดเวลารอได้โดยยังวางแผนต่อได้
+
+เพิ่ม geolocator จาก pub.dev และสิทธิ์ Android coarse/fine ขอตอนกดใช้งาน ไม่ขอ background location; เลือกตำแหน่งใกล้เคียงได้ บริการเป็น OS GPS ไม่ใช้ API key/บริการเสียเงิน
+
+แยกปุ่มนำทางตามแผนจากหมุดก่อนหน้า กับนำทางจากฉัน (ไม่ระบุ origin ให้ Google Maps อ่านตำแหน่งเอง) Maps ภายนอกเป็นผู้แสดงเส้นทางถนน คำสั่งเลี้ยว/เสียงนำทาง ไม่รับผลกลับ ไม่มี turn-by-turn engine ใน TripPocket

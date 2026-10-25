@@ -250,6 +250,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                             ),
                     ),
                     DayPlan(
+                      date: selected,
                       uid: widget.uid,
                       trip: t,
                       activities: s.value

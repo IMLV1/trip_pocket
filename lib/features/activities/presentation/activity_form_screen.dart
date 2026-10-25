@@ -207,6 +207,7 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
                           if (p != null && mounted) {
                             setState(() {
                               chosenPlace = p;
+                              cost.clear();
                               title.text = p.name;
                               category = p.category;
                               point = null;

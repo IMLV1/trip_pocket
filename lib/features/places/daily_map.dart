@@ -1,3 +1,6 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'location_service.dart';
+import '../../core/widgets.dart';
 import 'thailand_boundary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -12,7 +15,7 @@ Color categoryColor(String category) => switch (category) {
   _ => Colors.blueGrey,
 };
 
-class DailyMap extends StatefulWidget {
+class DailyMap extends ConsumerStatefulWidget {
   final List<TripActivity> activities;
   final void Function(TripActivity) onSelect;
   final void Function(LatLng)? onAdd;
@@ -23,10 +26,34 @@ class DailyMap extends StatefulWidget {
     this.onAdd,
   });
   @override
-  State<DailyMap> createState() => _DailyMapState();
+  ConsumerState<DailyMap> createState() => _DailyMapState();
 }
 
-class _DailyMapState extends State<DailyMap> {
+class _DailyMapState extends ConsumerState<DailyMap> {
+  final controller = MapController();
+  LocationFix? fix;
+  bool locating = false;
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> locate() async {
+    if (locating) return;
+    setState(() => locating = true);
+    try {
+      final result = await ref.read(locationProvider).locate();
+      if (!mounted) return;
+      setState(() => fix = result);
+      controller.move(result.point, 14);
+    } catch (e) {
+      if (mounted) showError(context, e);
+    } finally {
+      if (mounted) setState(() => locating = false);
+    }
+  }
+
   bool failed = false;
   int attempt = 0;
   @override
@@ -34,7 +61,7 @@ class _DailyMapState extends State<DailyMap> {
     final points = widget.activities
         .map((a) => LatLng(a.latitude, a.longitude))
         .toList();
-    if (points.isEmpty) return const SizedBox.shrink();
+    if (points.isEmpty) points.add(const LatLng(18.7883, 98.9853));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -56,6 +83,7 @@ class _DailyMapState extends State<DailyMap> {
         SizedBox(
           height: 280,
           child: FlutterMap(
+            mapController: controller,
             key: ValueKey(
               '${points.map((p) => '${p.latitude},${p.longitude}').join(';')}/$attempt',
             ),
@@ -122,6 +150,20 @@ class _DailyMapState extends State<DailyMap> {
               ),
               MarkerLayer(
                 markers: [
+                  if (fix != null)
+                    Marker(
+                      point: fix!.point,
+                      width: 32,
+                      height: 32,
+                      child: Semantics(
+                        label: 'ตำแหน่งของฉันที่อ่านล่าสุด',
+                        child: Icon(
+                          Icons.my_location,
+                          color: Colors.blue,
+                          size: 30,
+                        ),
+                      ),
+                    ),
                   for (var i = 0; i < widget.activities.length; i++)
                     Marker(
                       point: points[i],
@@ -164,6 +206,33 @@ class _DailyMapState extends State<DailyMap> {
               ),
             ],
           ),
+        ),
+        Wrap(
+          children: [
+            TextButton.icon(
+              key: const Key('my-location'),
+              onPressed: locating ? null : locate,
+              icon: const Icon(Icons.my_location),
+              label: Text(locating ? 'กำลังหาตำแหน่ง…' : 'ตำแหน่งของฉัน'),
+            ),
+            TextButton(
+              onPressed: () => controller.fitCamera(
+                CameraFit.bounds(
+                  bounds: LatLngBounds.fromPoints(points),
+                  padding: const EdgeInsets.all(36),
+                  maxZoom: 15,
+                ),
+              ),
+              child: const Text('ดูจุดหมายทั้งหมด'),
+            ),
+          ],
+        ),
+        if (fix != null)
+          Text(
+            'ตำแหน่งที่อ่านล่าสุด • ความคลาดเคลื่อนประมาณ ${fix!.accuracy.round()} เมตร • ${fix!.timestamp.toLocal().toString().substring(0, 19)}',
+          ),
+        const Text(
+          'อ่านเมื่อกดปุ่มเท่านั้น ไม่ติดตามเบื้องหลังหรือบันทึกลงบัญชี',
         ),
         const Text(
           'แตะแผนที่เพิ่มจุดหมาย • แตะเลขหมุดเพื่อแก้ไข • ไม่มีเส้นทางถนนในแอป',

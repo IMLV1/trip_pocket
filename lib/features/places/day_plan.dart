@@ -12,6 +12,7 @@ import 'navigation_service.dart';
 
 class DayPlan extends ConsumerStatefulWidget {
   final String uid;
+  final String? date;
   final Trip trip;
   final List<TripActivity> activities;
   final bool disabled;
@@ -19,6 +20,7 @@ class DayPlan extends ConsumerStatefulWidget {
   const DayPlan({
     super.key,
     required this.uid,
+    this.date,
     required this.trip,
     required this.activities,
     required this.onDelete,
@@ -55,17 +57,21 @@ class _DayPlanState extends ConsumerState<DayPlan> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (list.isNotEmpty)
-          DailyMap(
-            activities: list,
-            onSelect: edit,
-            onAdd: disabled
-                ? null
-                : (p) => context.push(
-                    '/trips/${widget.trip.id}/activities/new',
-                    extra: ActivitySeed.pin(p, list.first.date),
+        DailyMap(
+          activities: list,
+          onSelect: edit,
+          onAdd: disabled
+              ? null
+              : (p) => context.push(
+                  '/trips/${widget.trip.id}/activities/new',
+                  extra: ActivitySeed.pin(
+                    p,
+                    list.isEmpty
+                        ? (widget.date ?? widget.trip.startDate)
+                        : list.first.date,
                   ),
-          ),
+                ),
+        ),
         if (list.asMap().entries.any(
           (e) => e.key > 0 && list[e.key - 1].timeMinutes > e.value.timeMinutes,
         ))
@@ -192,6 +198,17 @@ class _DayPlanState extends ConsumerState<DayPlan> {
                               ),
                         icon: const Icon(Icons.navigation),
                         label: const Text('นำทาง'),
+                      ),
+                      TextButton.icon(
+                        key: ValueKey('navigate-current-${list[i].id}'),
+                        onPressed: disabled
+                            ? null
+                            : () => run(
+                                () =>
+                                    ref.read(navigationProvider).open(list[i]),
+                              ),
+                        icon: const Icon(Icons.my_location),
+                        label: const Text('จากฉัน'),
                       ),
                       IconButton(
                         tooltip: 'ลบกิจกรรม',

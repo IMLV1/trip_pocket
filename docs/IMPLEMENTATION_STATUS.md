@@ -201,3 +201,17 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - แผนที่ใช้ OSM policy เดิม ไม่มี API key/billing; ขอบเขตประเทศไทยจาก Natural Earth 1:10m public domain (assets/thailand.geojson) เป็นขอบเขตประมาณ เกาะเล็ก/ริมแดนอาจคลาดเคลื่อน ไม่ใช่ข้อมูลสำรวจ
 - Flutter analyze ไม่มี issues; Flutter tests 23/23 ผ่าน (เดิม 13 + domain 7 + UI 3); Rules tests 9/9 ผ่าน (เดิม 6 + V2 3) ใน Emulator เท่านั้น
 - ยังไม่อ้าง Android device/live schema ผ่านในช่วงนี้ กำลังเพิ่มทดสอบ integration และตำแหน่งปัจจุบันตามคำขอเพิ่มเติม
+
+## V2.1 ช่วง GPS และ Android verification — 26 ตุลาคม 2569
+
+- Analysis ไม่มี issues; Flutter unit/widget tests 25/25 ผ่าน (เพิ่ม GPS permission/timeout 2 tests) และ Rules Emulator 9/9 ผ่านตามช่วงก่อนหน้า
+- Android Firebase SDK V2.1 ผ่าน 1/1 ทั้ง APP_MODE=emulator และ APP_MODE=live: legacy → schema2, ยอดเก่า, transaction reorder, ปฏิเสธ stale snapshot, anonymous/user B server reads และ resumable deletion/packing cleanup; บัญชี/ทริป fixture ล้างเมื่อจบ
+- Rules เผยแพร่บน trippocket-382b7 ผ่าน Firebase Console สำเร็จ (CLI ไม่มี login) ขอบเขต owner-only เดิมและ Spark No-cost ($0/month) ตรวจแล้ว ไม่มี billing/Blaze/API คิดเงินหรือ service ใหม่
+- Android UI workflow ผ่าน: 2→3→4 จุดจากค้นหาและแตะแผนที่ ยืนยันหมุด เรียงบนแผนที่/รายการ ค่าเดินทาง 50 บาทแยกยอดและถูกตัดออกเมื่อ reorder ทำให้ช่วงเดิมไม่ตรง ลบจุด และ preview ราคาไม่ทราบ โดย cloud repository เป็น demo/fake แต่ native tiles/SharedPreferences จริง
+- Native GPS test ผ่านบน Emulator: ขอสิทธิ์เฉพาะครั้งนี้ อ่านจาก Android LocationManager โดยตรงและแสดงจุดพร้อม accuracy/timestamp; ไม่ใช้ Google Location Accuracy เพิ่ม ไม่มี stream/background หรือเก็บ current fix ลงบัญชี
+- Native URL launch ผ่านและ CUA เห็น Maps รับ Your location → 18.7885000,98.9814000; Maps ขอ Location Accuracy สำหรับต้นทางปัจจุบัน จึงไม่อ้างว่าทดสอบนำทางจริงขณะเคลื่อนที่/เสียงนำทางครบ
+- รอบ fallback จำลอง external handler ล้มเหลวแล้วเรียก inAppBrowserView จริงผ่าน; URL ถูกส่งต่อไป Maps ที่ติดตั้งอยู่ และ CUA เห็นเส้นทางถนนระหว่างพิกัดทดสอบเชียงใหม่ 4 นาที/1.2 กม. ณ เวลาทดสอบ เป็นผลของ Maps ไม่ใช่ค่าที่ TripPocket คำนวณหรือบันทึก
+- กรณีไม่มี Maps ติดตั้งจริงยังไม่จำลองด้วยการถอน/ปิดแอป; unit test ยืนยัน browser fallback/error branch ไม่เหมารวมเป็นผล device กรณีไม่มีแอป
+- ภาพ: evidence/v21-daily-map.png, v21-place-search.png, v21-current-location.png, v21-maps-receiver.png และ v21-route-receiver.png ภาพ tiles บางส่วนยังโหลดอยู่ ไม่อ้าง offline maps
+- รอบแรก native test ถูกหยุดเมื่อ Fused Location ขอเปิดบริการ Accuracy เพิ่ม แล้วเปลี่ยนเป็น Android LocationManager และรอบใหม่ผ่าน; ไม่ใช้รอบที่หยุดเป็นผลผ่าน
+- ยังไม่ได้ตรวจ handset Android จริง/iOS, on-road tracking หรือระบบรถสาธารณะอัตโนมัติ

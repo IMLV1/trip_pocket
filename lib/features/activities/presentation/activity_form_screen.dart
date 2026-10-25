@@ -1,3 +1,6 @@
+import '../../places/recommendations_sheet.dart';
+import '../../places/thailand_boundary.dart';
+import '../../places/curated_places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -13,11 +16,13 @@ import '../../places/place_picker_sheet.dart';
 class ActivityFormScreen extends ConsumerWidget {
   final String uid, tripId;
   final String? activityId;
+  final ActivitySeed? seed;
   const ActivityFormScreen({
     super.key,
     required this.uid,
     required this.tripId,
     this.activityId,
+    this.seed,
   });
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -34,7 +39,9 @@ class ActivityFormScreen extends ConsumerWidget {
             onExit: () => context.go('/trips'),
           );
         }
-        if (activityId == null) return ActivityEditor(uid: uid, trip: s.value!);
+        if (activityId == null) {
+          return ActivityEditor(uid: uid, trip: s.value!, seed: seed);
+        }
         return AsyncContent(
           screenTitle: activityId == null ? 'เพิ่มกิจกรรม' : 'แก้ไขกิจกรรม',
           value: ref.watch(activitiesProvider(key)),
@@ -64,11 +71,13 @@ class ActivityEditor extends ConsumerStatefulWidget {
   final String uid;
   final Trip trip;
   final TripActivity? initial;
+  final ActivitySeed? seed;
   const ActivityEditor({
     super.key,
     required this.uid,
     required this.trip,
     this.initial,
+    this.seed,
   });
   @override
   ConsumerState<ActivityEditor> createState() => _ActivityEditorState();
@@ -77,16 +86,24 @@ class ActivityEditor extends ConsumerStatefulWidget {
 class _ActivityEditorState extends ConsumerState<ActivityEditor> {
   final form = GlobalKey<FormState>();
   late final id = widget.initial?.id ?? const Uuid().v4();
-  late final title = TextEditingController(text: widget.initial?.title),
+  late final title = TextEditingController(
+        text: widget.initial?.title ?? widget.seed?.place?.name,
+      ),
       note = TextEditingController(text: widget.initial?.note),
       cost = TextEditingController(
-        text: moneyInput(widget.initial?.estimatedCostSatang ?? 0),
+        text: widget.initial == null || !widget.initial!.costKnown
+            ? ''
+            : moneyInput(widget.initial!.estimatedCostSatang),
       );
-  late String date = widget.initial?.date ?? widget.trip.startDate;
+  late String date =
+      widget.initial?.date ?? widget.seed?.date ?? widget.trip.startDate;
   late int minutes = widget.initial?.timeMinutes ?? 540;
   late LatLng? point = widget.initial == null
-      ? null
+      ? widget.seed?.selectedPoint
       : LatLng(widget.initial!.latitude, widget.initial!.longitude);
+  late String category =
+      widget.initial?.category ?? widget.seed?.place?.category ?? 'other';
+  late CuratedPlace? chosenPlace = widget.seed?.place;
   bool busy = false;
   @override
   void dispose() {
@@ -104,6 +121,25 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
     }
     setState(() => busy = true);
     try {
+      final boundary = await ThailandBoundary.load();
+      final unchanged =
+          widget.initial != null &&
+          widget.initial!.latitude == point!.latitude &&
+          widget.initial!.longitude == point!.longitude;
+      requireValid(
+        unchanged || boundary.contains(point!),
+        'กรุณาเลือกหมุดในประเทศไทย',
+      );
+      final items = await ref
+          .read(travelRepositoryProvider)
+          .watchActivities(widget.uid, widget.trip.id)
+          .first;
+      final peers = items.value.where((a) => a.date == date && a.id != id);
+      final nextRank =
+          peers.fold<int>(-1000, (n, a) => a.rank > n ? a.rank : n) + 1000;
+      final rank = widget.initial?.date == date
+          ? widget.initial!.rank
+          : nextRank;
       await ref
           .read(travelRepositoryProvider)
           .saveActivity(
@@ -114,7 +150,17 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
               title: title.text,
               date: date,
               timeMinutes: minutes,
-              estimatedCostSatang: parseMoney(cost.text)!,
+              estimatedCostSatang: cost.text.trim().isEmpty
+                  ? 0
+                  : parseMoney(cost.text)!,
+              costKnown: cost.text.trim().isNotEmpty,
+              category: category,
+              orderIndex: rank,
+              travelMode: widget.initial?.travelMode ?? 'none',
+              travelFromId: widget.initial?.travelFromId ?? '',
+              travelSignature: widget.initial?.travelSignature ?? '',
+              travelCostSatang: widget.initial?.travelCostSatang ?? 0,
+              travelCostKnown: widget.initial?.travelCostKnown ?? false,
               latitude: point!.latitude,
               longitude: point!.longitude,
               note: note.text,
@@ -143,12 +189,54 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                OutlinedButton.icon(
+                  key: const Key('search-place'),
+                  icon: const Icon(Icons.search),
+                  label: const Text('ค้นหาสถานที่ • เชียงใหม่'),
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          final p = await showModalBottomSheet<CuratedPlace>(
+                            context: context,
+                            isScrollControlled: true,
+                            useSafeArea: true,
+                            builder: (c) => RecommendationsSheet(
+                              remaining: widget.trip.budgetSatang,
+                            ),
+                          );
+                          if (p != null && mounted) {
+                            setState(() {
+                              chosenPlace = p;
+                              title.text = p.name;
+                              category = p.category;
+                              point = null;
+                            });
+                          }
+                        },
+                ),
+                const SizedBox(height: 12),
                 TextFormField(
                   key: const Key('activity-title'),
                   controller: title,
                   enabled: !busy,
                   decoration: const InputDecoration(labelText: 'ชื่อกิจกรรม'),
                   validator: textError,
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  key: ValueKey('activity-category-$category'),
+                  isExpanded: true,
+                  initialValue: category,
+                  items: activityCategories.entries
+                      .map(
+                        (e) => DropdownMenuItem(
+                          value: e.key,
+                          child: Text(e.value),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: busy ? null : (v) => setState(() => category = v!),
+                  decoration: const InputDecoration(labelText: 'ประเภทสถานที่'),
                 ),
                 const SizedBox(height: 12),
                 ListTile(
@@ -197,9 +285,12 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
                     decimal: true,
                   ),
                   decoration: const InputDecoration(
-                    labelText: 'ค่าใช้จ่ายประมาณ (บาท)',
+                    labelText: 'ค่าใช้จ่ายกิจกรรมรวม (บาท)',
+                    helperText:
+                        'กรอกเองสำหรับทั้งกลุ่ม • ว่าง = ยังไม่ทราบราคา • ไม่รวมค่าเดินทาง',
                   ),
-                  validator: moneyError,
+                  validator: (v) =>
+                      (v ?? '').trim().isEmpty ? null : moneyError(v),
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
@@ -215,12 +306,19 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
                       : 'ไม่เกิน 500 ตัวอักษร',
                 ),
                 const SizedBox(height: 16),
+                if (chosenPlace != null)
+                  Text(
+                    'แหล่งข้อมูล: ${chosenPlace!.source} • ตรวจ ${chosenPlace!.checkedAt}\nหมุดแนะนำโดยประมาณ กรุณาเปิดแผนที่และยืนยันก่อนบันทึก',
+                  ),
                 OutlinedButton.icon(
                   key: const Key('pick-place'),
                   onPressed: busy
                       ? null
                       : () async {
-                          final p = await pickPlace(context, point);
+                          final p = await pickPlace(
+                            context,
+                            point ?? chosenPlace?.point,
+                          );
                           if (p != null && mounted) setState(() => point = p);
                         },
                   icon: const Icon(Icons.map),

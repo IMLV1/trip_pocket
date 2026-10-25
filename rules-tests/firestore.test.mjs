@@ -16,3 +16,27 @@ test('trip field allowlist, money, dates, timestamps',async()=>{const d=db();for
 test('activity range, bounds, schema, parent missing and immutable timestamps',async()=>{const d=db(),a=doc(d,tripPath+'/activities/a');await assertFails(setDoc(a,activity()));await setDoc(doc(d,tripPath),trip());for(const change of [{date:'2026-11-09'},{timeMinutes:1440},{timeMinutes:-1},{estimatedCostSatang:-1},{estimatedCostSatang:0.1},{latitude:91},{latitude:NaN},{longitude:-181},{note:'ก'.repeat(501)},{title:'ก'.repeat(101)},{unknown:true}])await assertFails(setDoc(a,{...activity(),...change}));await assertSucceeds(setDoc(a,{...activity(),title:'ก'.repeat(100)}));await assertFails(updateDoc(a,{createdAt:Timestamp.fromMillis(1),updatedAt:serverTimestamp()}));});
 test('getAfter enforces parent range and deleting in same batch',async()=>{const d=db(),p=doc(d,tripPath);await setDoc(p,trip());let b=writeBatch(d);b.update(p,{endDate:'2026-11-06',updatedAt:serverTimestamp()});b.set(doc(d,tripPath+'/activities/a'),activity());await assertFails(b.commit());b=writeBatch(d);b.update(p,{status:'deleting',updatedAt:serverTimestamp()});b.set(doc(d,tripPath+'/activities/a'),activity());await assertFails(b.commit());});
 test('100 child cleanup batch fits cached parent rule reads',async()=>{const d=db(),p=doc(d,tripPath);await setDoc(p,trip());let b=writeBatch(d);for(let i=0;i<100;i++)b.set(doc(d,tripPath+'/activities/a'+i),activity());await assertSucceeds(b.commit());await updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()});b=writeBatch(d);for(let i=0;i<100;i++)b.delete(doc(d,tripPath+'/activities/a'+i));await assertSucceeds(b.commit());await assertSucceeds(deleteDoc(p));});
+
+
+const v2=()=>({...activity(),schemaVersion:2,category:'food',orderIndex:0,costKnown:true,travelMode:'none',travelFromId:'',travelSignature:'',travelCostSatang:0,travelCostKnown:false});
+test('V2 compatibility, incoming transport, migration and rank updates',async()=>{
+  const d=db(),p=doc(d,tripPath),a=doc(d,tripPath+'/activities/a');await setDoc(p,trip());
+  await assertSucceeds(setDoc(a,activity()));const upgrade=v2();delete upgrade.createdAt;await assertSucceeds(updateDoc(a,upgrade));
+  await assertSucceeds(updateDoc(a,{orderIndex:1000,updatedAt:serverTimestamp()}));
+  await assertSucceeds(setDoc(doc(d,tripPath+'/activities/b'),{...v2(),travelMode:'transit',travelFromId:'a',travelSignature:'user-segment',travelCostKnown:true,travelCostSatang:2000}));
+  await assertFails(getDoc(doc(db('other'),tripPath+'/activities/a')));
+  await assertFails(updateDoc(doc(db('other'),tripPath+'/activities/a'),{orderIndex:2000,updatedAt:serverTimestamp()}));
+});
+test('V2 rejects partial groups, types, invalid enums, unknown money and unchecked fields',async()=>{
+  const d=db(),a=doc(d,tripPath+'/activities/a');await setDoc(doc(d,tripPath),trip());
+  await assertFails(setDoc(a,{...activity(),category:'food'}));
+  for(const change of [{schemaVersion:3},{category:'bogus'},{orderIndex:-1},{orderIndex:1.5},{orderIndex:1000000001},{costKnown:false},{costKnown:'yes'},{travelMode:'plane'},{travelCostKnown:'yes'},{travelMode:'none',travelCostKnown:true},{travelMode:'car',travelCostSatang:1},{travelMode:'car',travelCostSatang:-1},{travelMode:'car',travelCostKnown:true,travelCostSatang:1.5},{travelFromId:'a'.repeat(129)},{travelSignature:'x'.repeat(1025)},{extra:'bad'}])await assertFails(setDoc(a,{...v2(),...change}));
+  await assertSucceeds(setDoc(a,{...v2(),costKnown:false,estimatedCostSatang:0}));
+});
+test('V2 reorder batch and resumable child cleanup retain owner restrictions',async()=>{
+  const d=db(),p=doc(d,tripPath);await setDoc(p,trip());let batch=writeBatch(d);
+  for(let i=0;i<100;i++)batch.set(doc(d,tripPath+'/activities/v'+i),{...v2(),orderIndex:i*1000});await assertSucceeds(batch.commit());
+  batch=writeBatch(d);for(let i=0;i<100;i++)batch.update(doc(d,tripPath+'/activities/v'+i),{orderIndex:(99-i)*1000,updatedAt:serverTimestamp()});await assertSucceeds(batch.commit());
+  await updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()});await assertFails(updateDoc(doc(d,tripPath+'/activities/v0'),{orderIndex:1,updatedAt:serverTimestamp()}));
+  batch=writeBatch(d);for(let i=0;i<100;i++)batch.delete(doc(d,tripPath+'/activities/v'+i));await assertSucceeds(batch.commit());await assertSucceeds(deleteDoc(p));
+});

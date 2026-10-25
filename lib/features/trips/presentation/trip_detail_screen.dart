@@ -1,3 +1,6 @@
+import '../../places/day_plan.dart';
+import '../../places/curated_places.dart';
+import '../../places/recommendations_sheet.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -109,8 +112,8 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
               value: ref.watch(activitiesProvider(tripKey)),
               retry: () => ref.invalidate(activitiesProvider(tripKey)),
               data: (s) {
-                final total = plannedTotal(s.value),
-                    remaining = t.budgetSatang - total;
+                final budget = planBudget(s.value);
+                final total = budget.total, remaining = t.budgetSatang - total;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -127,6 +130,13 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                           children: [
                             Text('งบทริป ${money(t.budgetSatang)} บาท'),
                             Text('วางแผนแล้ว ${money(total)} บาท'),
+                            Text(
+                              'กิจกรรม ${money(budget.activities)} • เดินทาง ${money(budget.transport)} บาท',
+                            ),
+                            if (budget.unknown > 0)
+                              Text(
+                                'ยังไม่รวมราคา ${budget.unknown} รายการ/ช่วงเดินทาง • ยอดคงเหลือคำนวณเฉพาะที่ทราบ',
+                              ),
                             const SizedBox(height: 8),
                             Text(
                               '${remaining < 0 ? 'เกินงบ' : 'คงเหลือ'} ${money(remaining.abs())} บาท',
@@ -200,27 +210,54 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
-                    for (final a in s.value.where((a) => a.date == selected))
-                      Card(
-                        child: ListTile(
-                          title: Text(
-                            '${clockText(a.timeMinutes)}  ${a.title}',
-                          ),
-                          subtitle: Text(
-                            '${money(a.estimatedCostSatang)} บาท${a.note.isEmpty ? '' : '\n${a.note}'}',
-                          ),
-                          onTap: busy
-                              ? null
-                              : () => context.push(
-                                  '/trips/${t.id}/activities/${a.id}/edit',
-                                ),
-                          trailing: IconButton(
-                            tooltip: 'ลบกิจกรรม',
-                            onPressed: busy ? null : () => deleteActivity(a),
-                            icon: const Icon(Icons.delete_outline),
-                          ),
-                        ),
-                      ),
+                    OutlinedButton.icon(
+                      key: const Key('recommend-places'),
+                      icon: const Icon(Icons.explore),
+                      label: const Text('แนะนำสถานที่ • เชียงใหม่'),
+                      onPressed: busy || s.pending
+                          ? null
+                          : () async {
+                              final daily = sortedActivities(
+                                s.value.where((a) => a.date == selected),
+                              );
+                              final place =
+                                  await showModalBottomSheet<CuratedPlace>(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    useSafeArea: true,
+                                    builder: (c) => RecommendationsSheet(
+                                      anchor: daily.isEmpty ? null : daily.last,
+                                      remaining: remaining,
+                                    ),
+                                  );
+                              if (place != null && context.mounted) {
+                                context.push(
+                                  '/trips/${t.id}/activities/new',
+                                  extra: ActivitySeed(place, selected),
+                                );
+                              }
+                            },
+                    ),
+                    OutlinedButton.icon(
+                      key: const Key('add-stop'),
+                      icon: const Icon(Icons.add_location_alt),
+                      label: const Text('เพิ่มจุดหมาย'),
+                      onPressed: busy || s.pending
+                          ? null
+                          : () => context.push(
+                              '/trips/${t.id}/activities/new',
+                              extra: ActivitySeed.pin(null, selected),
+                            ),
+                    ),
+                    DayPlan(
+                      uid: widget.uid,
+                      trip: t,
+                      activities: s.value
+                          .where((a) => a.date == selected)
+                          .toList(),
+                      disabled: busy || s.pending || snapshot.pending,
+                      onDelete: deleteActivity,
+                    ),
                   ],
                 );
               },

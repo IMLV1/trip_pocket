@@ -18,6 +18,11 @@ abstract class TravelRepository {
     TripActivity activity, {
     required bool create,
   });
+  Future<void> reorderActivities(
+    String uid,
+    String tripId,
+    List<TripActivity> ordered,
+  );
   Future<void> deleteActivity(String uid, String tripId, String activityId);
   Future<void> deleteTrip(String uid, String tripId);
   Future<void> resumePendingDeletes(String uid);

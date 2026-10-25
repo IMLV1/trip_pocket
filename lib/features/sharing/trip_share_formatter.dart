@@ -13,10 +13,15 @@ String formatTripShare(Trip trip, List<TripActivity> activities) {
       out.writeln('\n$day');
     }
     out.writeln(
-      '${clockText(a.timeMinutes)} ${a.title} — ${money(a.estimatedCostSatang)} บาท',
+      '${clockText(a.timeMinutes)} ${a.title} — ${a.costKnown ? '${money(a.estimatedCostSatang)} บาท' : 'ยังไม่ทราบราคา'}',
     );
   }
   if (activities.isEmpty) out.writeln('\nยังไม่มีกิจกรรมในแผน');
+  final budget = planBudget(activities);
+  if (budget.unknown > 0) {
+    out.writeln('\nยังไม่รวมราคา ${budget.unknown} รายการ/ช่วงเดินทาง');
+  }
+  out.writeln('ค่าเดินทางที่ทราบ: ${money(budget.transport)} บาท');
   final planned = plannedTotal(activities),
       remaining = trip.budgetSatang - planned;
   out.writeln('\nงบทั้งหมด: ${money(trip.budgetSatang)} บาท');

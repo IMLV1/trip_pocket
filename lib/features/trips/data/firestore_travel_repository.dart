@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../domain/trip.dart';
 import '../domain/travel_repository.dart';
@@ -29,15 +30,9 @@ class FirestoreTravelRepository implements TravelRepository {
 
   TripActivity activity(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
-    return TripActivity(
-      id: doc.id,
-      title: d['title'],
-      date: d['date'],
-      timeMinutes: d['timeMinutes'],
-      estimatedCostSatang: d['estimatedCostSatang'],
-      latitude: (d['latitude'] as num).toDouble(),
-      longitude: (d['longitude'] as num).toDouble(),
-      note: d['note'],
+    return TripActivity.fromFields(
+      doc.id,
+      d,
       createdAt: stamp(d['createdAt']),
       updatedAt: stamp(d['updatedAt']),
     );
@@ -144,6 +139,44 @@ class FirestoreTravelRepository implements TravelRepository {
             : FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
+    });
+  }
+
+  @override
+  Future<void> reorderActivities(
+    String uid,
+    String tripId,
+    List<TripActivity> ordered,
+  ) async {
+    requireValid(
+      ordered.isNotEmpty &&
+          ordered.length <= 100 &&
+          ordered.map((a) => a.id).toSet().length == ordered.length &&
+          ordered.every((a) => a.date == ordered.first.date),
+      'เรียงได้ครั้งละไม่เกิน 100 จุดในวันเดียว',
+    );
+    final parent = trips(uid).doc(tripId);
+    await db.runTransaction((tx) async {
+      final p = await tx.get(parent);
+      requireValid(p.exists && p['status'] == 'active', 'ทริปไม่พร้อมแก้ไข');
+      final docs = <DocumentSnapshot<Map<String, dynamic>>>[];
+      for (final a in ordered) {
+        docs.add(await tx.get(parent.collection('activities').doc(a.id)));
+      }
+      for (var i = 0; i < ordered.length; i++) {
+        requireValid(
+          docs[i].exists &&
+              mapEquals(activity(docs[i]).fields(), ordered[i].fields()),
+          'ข้อมูลเปลี่ยนแล้ว กรุณาโหลดใหม่ก่อนเรียง',
+        );
+      }
+      for (var i = 0; i < ordered.length; i++) {
+        tx.update(docs[i].reference, {
+          'schemaVersion': 2,
+          ...ordered[i].withRank(i * 1000).fields(),
+          'updatedAt': FieldValue.serverTimestamp(),
+        });
+      }
     });
   }
 

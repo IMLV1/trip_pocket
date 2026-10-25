@@ -1,3 +1,4 @@
+import 'package:trip_pocket/features/places/thailand_boundary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -12,6 +13,7 @@ void main() {
   testWidgets(
     'tile failure and retry keep the activity draft and confirmed point',
     (tester) async {
+      await tester.runAsync(() => ThailandBoundary.load());
       const trip = Trip(
         id: 't',
         title: 'ทริป',
@@ -41,8 +43,13 @@ void main() {
         'ชื่อที่ยังไม่บันทึก',
       );
       await tester.enterText(find.byKey(const Key('activity-cost')), '234.56');
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const Key('pick-place')));
-      await tester.tap(find.byKey(const Key('pick-place')));
+      await tester.pumpAndSettle();
+      await tester.runAsync(() async {
+        await tester.tap(find.byKey(const Key('pick-place')));
+      });
       await tester.pumpAndSettle();
       final layer = tester.widget<TileLayer>(find.byType(TileLayer));
       layer.errorTileCallback!(

@@ -22,9 +22,24 @@ service cloud.firestore {
    match /activities/{activityId} {
     function parent() {return get(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));}
     function parentAfter() {return getAfter(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));}
+    function validExtension(d) {
+      return (!d.keys().hasAny(['schemaVersion','category','orderIndex','costKnown','travelMode','travelFromId','travelSignature','travelCostSatang','travelCostKnown'])) || (
+        d.keys().hasAll(['schemaVersion','category','orderIndex','costKnown','travelMode','travelFromId','travelSignature','travelCostSatang','travelCostKnown']) && d.schemaVersion == 2
+        && d.category in ['attraction','food','lodging','other']
+        && d.orderIndex is int && d.orderIndex >= 0 && d.orderIndex <= 1000000000
+        && d.costKnown is bool && (d.costKnown || d.estimatedCostSatang == 0)
+        && d.travelMode in ['none','car','motorcycle','walk','transit']
+        && d.travelFromId is string && d.travelFromId.size() <= 128
+        && d.travelSignature is string && d.travelSignature.size() <= 1024
+        && d.travelCostKnown is bool && money(d.travelCostSatang)
+        && (d.travelCostKnown || d.travelCostSatang == 0)
+        && (d.travelMode != 'none' || (!d.travelCostKnown && d.travelCostSatang == 0 && d.travelFromId == '' && d.travelSignature == ''))
+      );
+    }
     function validActivity(d) {
      return d.keys().hasAll(['title','date','timeMinutes','estimatedCostSatang','latitude','longitude','note','createdAt','updatedAt'])
-      && d.keys().hasOnly(['title','date','timeMinutes','estimatedCostSatang','latitude','longitude','note','createdAt','updatedAt'])
+      && d.keys().hasOnly(['title','date','timeMinutes','estimatedCostSatang','latitude','longitude','note','createdAt','updatedAt','schemaVersion','category','orderIndex','costKnown','travelMode','travelFromId','travelSignature','travelCostSatang','travelCostKnown'])
+      && validExtension(d)
       && text(d.title,100) && date(d.date) && d.date >= parentAfter().data.startDate && d.date <= parentAfter().data.endDate
       && d.timeMinutes is int && d.timeMinutes >= 0 && d.timeMinutes < 1440
       && money(d.estimatedCostSatang) && d.latitude is number && d.latitude >= -90 && d.latitude <= 90

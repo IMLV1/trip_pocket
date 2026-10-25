@@ -1,3 +1,4 @@
+import '../features/places/curated_places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -93,6 +94,7 @@ class _SessionAppState extends ConsumerState<SessionApp> {
         builder: (c, s) => ActivityFormScreen(
           uid: widget.uid!,
           tripId: s.pathParameters['tripId']!,
+          seed: s.extra is ActivitySeed ? s.extra as ActivitySeed : null,
         ),
       ),
       GoRoute(

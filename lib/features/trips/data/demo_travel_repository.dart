@@ -72,6 +72,32 @@ class DemoTravelRepository implements TravelRepository {
   }
 
   @override
+  Future<void> reorderActivities(
+    String uid,
+    String tripId,
+    List<TripActivity> ordered,
+  ) async {
+    requireValid(user(uid)[tripId]?.status == 'active', 'ทริปไม่พร้อมแก้ไข');
+    requireValid(
+      ordered.isNotEmpty &&
+          ordered.length <= 100 &&
+          ordered.every((a) => a.date == ordered.first.date),
+      'ลำดับไม่ถูกต้อง',
+    );
+    final items = children(uid, tripId);
+    for (final a in ordered) {
+      requireValid(
+        identical(items[a.id], a),
+        'ข้อมูลเปลี่ยนแล้ว กรุณาโหลดใหม่',
+      );
+    }
+    for (var i = 0; i < ordered.length; i++) {
+      items[ordered[i].id] = ordered[i].withRank(i * 1000);
+    }
+    _changes.add(null);
+  }
+
+  @override
   Future<void> deleteActivity(String uid, String tripId, String id) async {
     children(uid, tripId).remove(id);
     _changes.add(null);

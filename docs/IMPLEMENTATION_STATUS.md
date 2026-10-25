@@ -192,3 +192,12 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - [ ] Android Emulator integration, APK ปกติและสรุปผล
 - ไม่เปิด Billing/Blaze/API เสียเงิน; OSM และ Maps URL ตรวจเอกสารผู้ให้บริการแล้ว
 - ใช้ incoming segment ใน Activity แทนเพิ่ม collection เพื่อรักษา resumable delete เดิม; ราคาไม่ทราบไม่ถือว่าฟรี
+
+## V2.1 ช่วง model/UI — 26 ตุลาคม 2569
+
+- เพิ่ม schema 2 โดยอ่าน legacy เป็นค่าเดิม; incoming travel ที่ล้าสมัยไม่รวมงบ และราคาว่างไม่แปลว่าฟรี
+- หลายจุดหมายต่อวัน หมุดเลขตามลำดับ หมวด เรียงขึ้น/ลง transaction แก้/ลบ เพิ่มจากแผนที่และจากช่องค้นหาออฟไลน์เชียงใหม่
+- ข้อมูลแนะนำคัด 4 รายการจาก TAT/Dusit: ชื่อ หมวด URL และวันที่ตรวจ 2026-10-26 พิกัดโดยประมาณต้องยืนยันก่อนเพิ่ม ไม่มีราคา/เวลาเปิดปิดแต่งขึ้น
+- แผนที่ใช้ OSM policy เดิม ไม่มี API key/billing; ขอบเขตประเทศไทยจาก Natural Earth 1:10m public domain (assets/thailand.geojson) เป็นขอบเขตประมาณ เกาะเล็ก/ริมแดนอาจคลาดเคลื่อน ไม่ใช่ข้อมูลสำรวจ
+- Flutter analyze ไม่มี issues; Flutter tests 23/23 ผ่าน (เดิม 13 + domain 7 + UI 3); Rules tests 9/9 ผ่าน (เดิม 6 + V2 3) ใน Emulator เท่านั้น
+- ยังไม่อ้าง Android device/live schema ผ่านในช่วงนี้ กำลังเพิ่มทดสอบ integration และตำแหน่งปัจจุบันตามคำขอเพิ่มเติม

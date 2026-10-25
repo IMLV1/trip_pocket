@@ -1,19 +1,24 @@
+import 'thailand_boundary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Future<LatLng?> pickPlace(BuildContext context, LatLng? initial) =>
-    showModalBottomSheet<LatLng>(
-      context: context,
-      isScrollControlled: true,
-      useSafeArea: true,
-      builder: (c) => PlacePickerSheet(initial: initial),
-    );
+Future<LatLng?> pickPlace(BuildContext context, LatLng? initial) async {
+  final boundary = await ThailandBoundary.load();
+  if (!context.mounted) return null;
+  return showModalBottomSheet<LatLng>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    builder: (c) => PlacePickerSheet(initial: initial, boundary: boundary),
+  );
+}
 
 class PlacePickerSheet extends StatefulWidget {
   final LatLng? initial;
-  const PlacePickerSheet({super.key, this.initial});
+  final ThailandBoundary? boundary;
+  const PlacePickerSheet({super.key, this.initial, this.boundary});
   @override
   State<PlacePickerSheet> createState() => _PlacePickerSheetState();
 }
@@ -28,7 +33,7 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
     child: Column(
       children: [
         ListTile(
-          title: const Text('แตะแผนที่เพื่อเลือกหมุด'),
+          title: const Text('แตะแผนที่เพื่อเลือกหมุดในไทย'),
           trailing: IconButton(
             tooltip: 'ยกเลิก',
             onPressed: () => Navigator.pop(context),
@@ -59,7 +64,19 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
             options: MapOptions(
               initialCenter: selected ?? const LatLng(18.7883, 98.9853),
               initialZoom: 13,
-              onTap: (tap, p) => setState(() => selected = p),
+              onTap: (tap, p) {
+                if (widget.boundary != null && !widget.boundary!.contains(p)) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'เลือกหมุดในประเทศไทยตามขอบเขตโดยประมาณ • เกาะเล็ก/จุดริมแดนอาจไม่มีในข้อมูล',
+                      ),
+                    ),
+                  );
+                } else {
+                  setState(() => selected = p);
+                }
+              },
             ),
             children: [
               TileLayer(

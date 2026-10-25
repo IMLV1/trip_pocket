@@ -33,3 +33,8 @@ Preserve docs when initializing Flutter. Do not add bookings, payments, collabor
 Run checks relevant to the actual change: Flutter analysis/tests for code, Emulator rules tests for security changes, and Android device checks for maps/navigation/persistence. Distinguish fake, emulator, and live results. Report environment limitations accurately. Update milestone checkboxes only after verification, and synchronize affected documents when contracts change.
 
 Keep user-facing explanations in Thai unless requested otherwise. Finish development reports with what changed, validation results, and outstanding work.
+
+
+## Approved free V2.1 extension
+
+Read docs/FEATURE_THAILAND_TRIP_PLANNER.md, the appended V2.1 contracts in frontend/backend/database documents, and docs/V21_TEST_GUIDE.md. The user approved daily multi-stop maps, ordering, categories, manual incoming travel costs, offline curated Chiang Mai search/recommendations, on-demand foreground location and external Maps URLs. Do not enable billing, Blaze, paid APIs or card-backed trials. No Go backend. Legacy activities decode without migration; saving upgrades to schema 2. Unknown costs are not free and stale segment costs must be excluded. Current GPS fixes are transient; never persist or share them by default. Read location only after the user requests it; no background tracking.

@@ -1,6 +1,6 @@
 # แชร์แผนเที่ยวเป็นข้อความ
 
-สถานะ 25 ตุลาคม 2569: มี formatter/preview/native service และ tests แล้ว native cancellation ผ่านบน Android Emulator แล้ว ส่วนแอปปลายทางยังต้องตรวจตาม IMPLEMENTATION_STATUS.md ฟีเจอร์นี้ส่งออกข้อความสรุปให้ผู้ใช้เลือกแอปและผู้รับเองผ่าน Android share sheet
+สถานะเดิม 25 ตุลาคม 2569 (ผลล่าสุดดู IMPLEMENTATION_STATUS.md): มี formatter/preview/native service และ tests แล้ว native cancellation ผ่านบน Android Emulator แล้ว ส่วนแอปปลายทางยังต้องตรวจตาม IMPLEMENTATION_STATUS.md ฟีเจอร์นี้ส่งออกข้อความสรุปให้ผู้ใช้เลือกแอปและผู้รับเองผ่าน Android share sheet
 
 ## ผู้ใช้ทำอะไรได้
 
@@ -66,3 +66,8 @@ TripShareFormatter เป็น Dart function/class ที่รับ Trip แ�
 ## อ้างอิง
 
 [share_plus](https://pub.dev/packages/share_plus) รองรับการส่งข้อความผ่าน share UI ของระบบ ผลและความเข้ากันได้ขึ้นกับแพลตฟอร์มและแอปปลายทาง ต้องทดสอบจริงก่อนอ้างว่ารองรับแอปใด
+
+
+## V2.1 — 26 ตุลาคม 2569
+
+ข้อความเรียงตามลำดับหมุดรายวันเดียวกับหน้าจอ เพิ่มยอดค่าเดินทางที่ทราบและจำนวนรายการ/ช่วงที่ยังไม่ทราบราคา ยอดรวมไม่นับค่าเดินทางเดิมเมื่อจุด/เวลา/ลำดับเปลี่ยน ไม่ส่ง signature, note, พิกัด หรือ identifiers การเปิด Maps เป็นอีกปุ่มหนึ่ง ไม่เพิ่มข้อมูล GPS ลงข้อความแชร์

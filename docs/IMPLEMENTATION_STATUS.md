@@ -187,9 +187,9 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 ## V2.1 ฟรี — เริ่ม 26 ตุลาคม 2569
 
 - [x] ตรวจโค้ด/skill และออกแบบ backward compatibility ก่อนแก้ schema
-- [ ] Model/repository/Rules และ tests
-- [ ] แผนที่รายวัน/เรียงหมุด/หมวด/เดินทาง/งบ/Maps/คำแนะนำ
-- [ ] Android Emulator integration, APK ปกติและสรุปผล
+- [x] Model/repository/Rules และ tests
+- [x] แผนที่รายวัน/เรียงหมุด/หมวด/เดินทาง/งบ/Maps/คำแนะนำ และค้นหาออฟไลน์
+- [x] Android Emulator integration, APK ปกติและสรุปผล
 - ไม่เปิด Billing/Blaze/API เสียเงิน; OSM และ Maps URL ตรวจเอกสารผู้ให้บริการแล้ว
 - ใช้ incoming segment ใน Activity แทนเพิ่ม collection เพื่อรักษา resumable delete เดิม; ราคาไม่ทราบไม่ถือว่าฟรี
 
@@ -215,3 +215,20 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - ภาพ: evidence/v21-daily-map.png, v21-place-search.png, v21-current-location.png, v21-maps-receiver.png และ v21-route-receiver.png ภาพ tiles บางส่วนยังโหลดอยู่ ไม่อ้าง offline maps
 - รอบแรก native test ถูกหยุดเมื่อ Fused Location ขอเปิดบริการ Accuracy เพิ่ม แล้วเปลี่ยนเป็น Android LocationManager และรอบใหม่ผ่าน; ไม่ใช้รอบที่หยุดเป็นผลผ่าน
 - ยังไม่ได้ตรวจ handset Android จริง/iOS, on-road tracking หรือระบบรถสาธารณะอัตโนมัติ
+
+## ส่งมอบ V2.1 ฟรี — 26 ตุลาคม 2569
+
+V2.1 ตามขอบเขตที่ผู้ใช้เลือกเสร็จแล้ว พร้อมส่วนที่ขอเพิ่มระหว่างทำ: ค้นหาสถานที่แทนกรอกเอง, เพิ่มจุดหมายต่อเนื่องจากแผนที่, และตำแหน่งของฉัน/เปิด Maps จากฉัน
+
+- Flutter analyze ไม่มี issues; unit/widget tests สุดท้าย 26/26 ผ่าน เพิ่ม regression ว่าเลือกสถานที่ใหม่แล้วล้างราคาของสถานที่เดิมและให้ยืนยันหมุดใหม่
+- Rules 9/9 ผ่าน; Android SDK integration ผ่านทั้ง Firebase Emulator และ live; Android UI workflow และ native GPS/URL launcher ผ่านตามหลักฐานที่แยกไว้ด้านบน
+- Build/install/run APK ปกติจาก main.dart สำเร็จ เปิดหน้า login ภาษาไทย ไม่มีป้าย demo/test และไม่ขอ GPS ตอนเริ่มแอป ไม่ใช่ integration test APK
+- APK: build/app/outputs/flutter-apk/app-debug.apk (debug signing)
+- Size: 217334388 bytes
+- SHA256: 9D22362F41C20266590F0B17EEA2411BFA9FD1CD79AE268F8A8C69F393248180
+- Commit เป็นช่วงและ push main: b64fbed สัญญาข้อมูล, 1e0dc90 หลายหมุด/ค้นหา, a445b02 GPS/Android verification และ commit เอกสาร/ผลส่งมอบรอบนี้
+- Repo ยังคง Private ไม่มีการเปลี่ยน visibility; ไม่ commit APK/build artifacts
+- ฟรีในขอบเขต Spark quota และนโยบาย OSM ไม่มี billing/Blaze/Places/Routes API หรือ Go server
+- ข้อจำกัดส่งมอบ: แค็ตตาล็อกออฟไลน์เชียงใหม่ 4 รายการ, ราคาและการเดินทางกรอกเอง, ไม่คำนวณค่าโดยสาร/ต่อรถทั่วไทย, แผนที่ต้องใช้อินเทอร์เน็ตและอาจโหลดบางส่วน, ไม่มี turn-by-turn/เสียงภายใน TripPocket, ไม่รับผลจาก Maps กลับ
+- มือถือจริง/iOS/on-road navigation ยังไม่ได้ตรวจ ไม่อ้างผล Emulator เป็น hardware จริง งาน P8 สไลด์และซ้อมนำเสนอยังอยู่นอกงานรอบนี้
+- คู่มือรันทดสอบและ provenance: V21_TEST_GUIDE.md

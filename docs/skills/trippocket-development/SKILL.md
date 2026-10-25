@@ -39,3 +39,8 @@ The approved extra feature is sharing a text itinerary through share_plus after 
 Choose checks from the milestone being changed: domain tests for money/dates, widget checks for forms, emulator tests for authorization, and Android integration for maps and persistence. Check cross-account access whenever changing paths, providers, or rules. Do not invent test results or mark a milestone done merely because files exist.
 
 Keep source documents synchronized when routes, schema, or scope change. Report changed behavior, checks run, actual results, and remaining blockers. Creating this plan or using this skill does not authorize deploying Firebase resources or adding paid services.
+
+
+## Approved V2.1 scope
+
+The user extended the original MVP with free multi-stop planning, categories, manual travel costs, offline Chiang Mai catalog search/recommendations and on-demand location plus external Maps navigation. Follow the appended V2.1 schema contracts and V21_TEST_GUIDE.md; the earlier MVP-only limitations do not remove this approved scope. Do not add paid APIs/billing or assume countrywide transit/fare coverage. Preserve legacy totals, unknown-cost semantics, segment invalidation and the resumable deletion contract. GPS is one-shot by user action, transient and not included in sharing.

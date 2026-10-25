@@ -1,3 +1,4 @@
+import 'package:trip_pocket/features/activities/presentation/activity_form_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -41,6 +42,47 @@ const b = TripActivity(
   category: 'food',
 );
 void main() {
+  testWidgets(
+    'replacing an existing stop via search clears old price and requires a new pin confirmation',
+    (tester) async {
+      await tester.pumpWidget(
+        const ProviderScope(
+          child: MaterialApp(
+            home: ActivityEditor(uid: 'u', trip: trip, initial: a),
+          ),
+        ),
+      );
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key('activity-cost')))
+            .controller!
+            .text,
+        '100.00',
+      );
+      await tester.tap(find.byKey(const Key('search-place')));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byKey(const Key('place-search')), 'Jasmine');
+      await tester.pumpAndSettle();
+      FocusManager.instance.primaryFocus?.unfocus();
+      await tester.pumpAndSettle();
+      await tester.ensureVisible(find.byKey(const Key('recommend-jasmine')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('recommend-jasmine')));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<TextFormField>(find.byKey(const Key('activity-cost')))
+            .controller!
+            .text,
+        isEmpty,
+      );
+      expect(
+        find.byKey(const ValueKey('activity-category-food')),
+        findsOneWidget,
+      );
+      expect(find.text('เลือกตำแหน่งบนแผนที่'), findsOneWidget);
+    },
+  );
   testWidgets(
     'search is offline, respects category, and selection does not save a trip',
     (tester) async {

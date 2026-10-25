@@ -165,3 +165,11 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - รอบ assisted receiver test 60 วินาที timeout ระหว่าง first-run/การสลับกลับ จึงเพิ่มเวลาสำหรับ manual receiver เป็น 180 วินาทีโดยยัง assert success เหมือนเดิม ไม่เปลี่ยน timeout เป็นผลผ่าน
 - สถานะช่วงนี้: manual content receipt ใน Chrome ผ่าน; callback-assisted assertion และ native Back/IME ยังดำเนินการต่อ
 - ตามคำขอผู้ใช้ จะแบ่ง commit ตามช่วงงานที่ตรวจจบ แยกหลักฐานรับแชร์ / native Back / สรุป P7
+
+## ช่วงงานต่อ: native Back และ Chrome round trip — 25 ตุลาคม 2569
+
+- native_share_test แบบ RUN_MANUAL_SHARE=true และ CHECK_SHARE_RECEIVER=true ผ่าน 1/1 ภายในประมาณ 34 วินาที เมื่อเลือก Chrome แล้วกลับเข้า test host
+- ผล receiver component: com.android.chrome/com.google.android.apps.chrome.IntentDispatcher; assert ShareResultStatus.success ผ่าน แยกจากหลักฐานเนื้อหาที่ตรวจด้วยมือใน Chrome
+- APK ปกติจาก main.dart: เปิดฟอร์มสมัครสมาชิก เปิด on-screen keyboard จาก IME แล้วกด Android Back (Control+BackSpace) แผงคีย์บอร์ดถูกซ่อนและยังอยู่บนฟอร์มเดิม ไม่มี crash; toolbar handwriting ของ IME ยังอยู่ จึงไม่อ้างว่า IME ทุกส่วนปิด
+- หลักฐานก่อน/หลัง: evidence/keyboard-before-back.png และ evidence/keyboard-after-back.png เป็น Android Emulator จริง ไม่ใช่ภาพ widget จำลอง
+- จอเล็กและปุ่มกลับฟอร์ม error/not-found ใช้ผล widget tests เดิม; ไม่อ้างว่าได้ตรวจบนมือถือจริง

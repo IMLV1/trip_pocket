@@ -92,7 +92,7 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - Final flutter build apk --debug --no-pub จาก main.dart: ผ่าน
 - APK: build/app/outputs/flutter-apk/app-debug.apk (216094954 bytes)
 - APK SHA256: D7A59F57657CA59658C5B1F57C1DA4391AA4BBF9FC422789E3744F11F575446B
-- ตรวจ private repo ปลายทางแล้ว เตรียม initial commit บน main โดยไม่ force push
+- ตรวจ Private ของ repo แล้ว ส่ง initial code commit 5b169ee ไป main สำเร็จ และตรวจ remote revision ตรงกับ local โดยไม่ force push
 
 ### ตรวจ APK และ native share หลังรีสตาร์ต Emulator
 - พบ Android system ANR ระหว่างตรวจ APK ปกติ ทำให้หน้าจอดำ/ควบคุม share sheet ไม่ตอบสนอง แม้ widget tree สร้างครบแล้ว
@@ -101,3 +101,4 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - ปัญหา timeout สองรอบก่อนหน้าเป็นผลระหว่าง Android system ค้าง ไม่ใช้เป็นหลักฐานว่าแอปยกเลิกแชร์ไม่ได้
 - ชุด native นี้มีผู้ช่วยกด UI จึงแยกจาก automated Flutter 7 tests; ยังไม่ทดสอบแอปผู้รับหรือมือถือจริง
 - สร้างและติดตั้ง APK ปกติรอบสุดท้ายหลัง native test ผ่านแล้ว
+- ผลส่งมอบ: โค้ดอยู่ใน https://github.com/IMLV1/trip_pocket บน branch main; build artifacts และ node_modules ไม่อยู่ใน Git

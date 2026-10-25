@@ -23,22 +23,30 @@ class ActivityFormScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final key = (uid: uid, tripId: tripId);
     return AsyncContent(
+      screenTitle: activityId == null ? 'เพิ่มกิจกรรม' : 'แก้ไขกิจกรรม',
       value: ref.watch(tripProvider(key)),
       retry: () => ref.invalidate(tripProvider(key)),
       data: (s) {
         if (s.value == null || s.value!.status != 'active') {
-          return const Scaffold(
-            body: Center(child: Text('ไม่พบทริปที่แก้ไขได้')),
+          return UnavailablePage(
+            title: 'กิจกรรม',
+            message: 'ไม่พบทริปที่แก้ไขได้',
+            onExit: () => context.go('/trips'),
           );
         }
         if (activityId == null) return ActivityEditor(uid: uid, trip: s.value!);
         return AsyncContent(
+          screenTitle: activityId == null ? 'เพิ่มกิจกรรม' : 'แก้ไขกิจกรรม',
           value: ref.watch(activitiesProvider(key)),
           retry: () => ref.invalidate(activitiesProvider(key)),
           data: (a) {
             final matches = a.value.where((e) => e.id == activityId);
             return matches.isEmpty
-                ? const Scaffold(body: Center(child: Text('ไม่พบกิจกรรม')))
+                ? UnavailablePage(
+                    title: 'กิจกรรม',
+                    message: 'ไม่พบกิจกรรม',
+                    onExit: () => context.go('/trips'),
+                  )
                 : ActivityEditor(
                     key: ValueKey(activityId),
                     uid: uid,

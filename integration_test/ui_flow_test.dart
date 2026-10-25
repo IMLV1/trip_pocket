@@ -26,9 +26,32 @@ void main() {
       );
       await tester.enterText(find.byKey(const Key('destination')), 'เชียงใหม่');
       await tester.enterText(find.byKey(const Key('budget')), '3000');
-      FocusManager.instance.primaryFocus?.unfocus();
+      for (
+        var attempt = 0;
+        attempt < 30 && tester.view.viewInsets.bottom == 0;
+        attempt++
+      ) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(
+        tester.view.viewInsets.bottom,
+        greaterThan(0),
+        reason: 'Native Android keyboard must be visible for this check',
+      );
       await tester.pumpAndSettle();
       await tester.ensureVisible(find.byKey(const Key('save-trip')));
+      await tester.pumpAndSettle();
+      final visibleBottom =
+          (tester.view.physicalSize.height - tester.view.viewInsets.bottom) /
+          tester.view.devicePixelRatio;
+      expect(
+        tester.getBottomRight(find.byKey(const Key('save-trip'))).dy,
+        lessThanOrEqualTo(visibleBottom + 1),
+        reason: 'Save button must be scrollable above the keyboard',
+      );
+      debugPrint(
+        'P7 native keyboard verified with nonzero inset and visible save button',
+      );
       await tester.tap(find.byKey(const Key('save-trip')));
       await tester.pumpAndSettle();
       await tester.tap(find.text('เชียงใหม่ UI'));

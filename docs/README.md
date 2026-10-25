@@ -4,6 +4,7 @@
 
 ## เริ่มอ่าน
 
+- [คู่มือตรวจ P7](P7_TEST_GUIDE.md) — Emulator, cold restart และ native share
 - [สถานะ implementation](IMPLEMENTATION_STATUS.md) — ผลตรวจจริงและงานค้าง
 - [คู่มือสาธิต](DEMO_GUIDE.md) — workflow 5–7 นาที
 

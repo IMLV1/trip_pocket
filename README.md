@@ -56,6 +56,6 @@ APK อยู่ที่ `build/app/outputs/flutter-apk/app-debug.apk` กา�
 - รุ่นนี้ตั้งค่า Firebase เฉพาะ Android; iOS/Web ต้องลงทะเบียน app และสร้าง config เพิ่มก่อนใช้ live
 - ยังใช้ debug signing สำหรับ APK ทดสอบ ไม่ใช่ไฟล์พร้อมลง Play Store
 
-ผลทดสอบจริงและงานค้างอยู่ใน [IMPLEMENTATION_STATUS](docs/IMPLEMENTATION_STATUS.md), คู่มือสาธิต [DEMO_GUIDE](docs/DEMO_GUIDE.md), และ [เอกสารออกแบบ](docs/README.md)
+ผลทดสอบจริงและงานค้างอยู่ใน [IMPLEMENTATION_STATUS](docs/IMPLEMENTATION_STATUS.md), คู่มือสาธิต [DEMO_GUIDE](docs/DEMO_GUIDE.md), คู่มือรันตรวจ P7 [P7_TEST_GUIDE](docs/P7_TEST_GUIDE.md) และ [เอกสารออกแบบ](docs/README.md)
 
 Firebase client config ใน source เป็นข้อมูลเชื่อมต่อแอป ไม่ใช่ Admin credential; ห้ามใส่ service account, signing key หรือรหัสผ่านผู้ใช้ใน repo การ deploy ครั้งต่อไปทำเมื่อได้รับมอบหมายพร้อมตรวจ Rules tests ก่อน

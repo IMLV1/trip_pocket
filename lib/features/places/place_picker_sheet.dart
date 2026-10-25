@@ -74,6 +74,8 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (mounted) setState(() => tileError = true);
                     });
+                    // A network failure can arrive while no frame is scheduled.
+                    WidgetsBinding.instance.ensureVisualUpdate();
                   }
                 },
               ),

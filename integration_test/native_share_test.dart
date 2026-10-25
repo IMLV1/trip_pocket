@@ -6,7 +6,7 @@ import 'package:share_plus/share_plus.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   testWidgets(
-    'Android native text share sheet opens and can be cancelled',
+    'Android native text share sheet opens and returns its selected action',
     (tester) async {
       await tester.pumpWidget(
         const MaterialApp(
@@ -22,11 +22,18 @@ void main() {
               'TripPocket: เชียงใหม่\nงบทั้งหมด: 3,000.00 บาท\nคงเหลือ: 2,800.00 บาท',
         ),
       );
+      const receiverCheck = bool.fromEnvironment('CHECK_SHARE_RECEIVER');
       debugPrint(
-        'NATIVE_SHARE_OPEN: cancel the Android sheet to complete the check',
+        receiverCheck
+            ? 'NATIVE_SHARE_OPEN: select a text receiver and inspect its content'
+            : 'NATIVE_SHARE_OPEN: cancel the Android sheet to complete the check',
       );
       final status = await result.timeout(const Duration(seconds: 60));
-      expect(status.status, ShareResultStatus.dismissed);
+      expect(
+        status.status,
+        receiverCheck ? ShareResultStatus.success : ShareResultStatus.dismissed,
+      );
+      if (receiverCheck) debugPrint('SHARE_RECEIVER: ${status.raw}');
     },
     skip: !const bool.fromEnvironment('RUN_MANUAL_SHARE'),
   );

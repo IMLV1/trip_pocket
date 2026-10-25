@@ -8,11 +8,11 @@
 |---|---|
 | P0 Setup | Flutter 3.44.6 / Dart 3.12.2; dependency lockfiles; applicationId com.imlv1.trippocket; Android build และติดตั้งชุดทดสอบผ่าน |
 | P1 App Shell | ธีม Material 3 ภาษาไทย, Riverpod แบบไม่ generate, go_router, 6 ประเภทหน้าจอ; workflow fake ผ่าน widget/Android UI tests |
-| P2 Auth | Firebase Email/Password register/login/logout จริงผ่าน; router สร้างใหม่ต่อ uid ปิดหน้าข้อมูลเมื่อ logout; ยังต้องตรวจปิดเปิด process กับมือถือจริง |
+| P2 Auth | Firebase Email/Password register/login/logout จริงผ่าน; router สร้างใหม่ต่อ uid ปิดหน้าข้อมูลเมื่อ logout; cold process restart ผ่านบน Emulator แล้ว; มือถือจริงยังไม่ได้ตรวจ |
 | P3 Trip CRUD | Firestore client SDK, models, validation, query/index และ Rules; owner/user B/anonymous ผ่าน Emulator Rules; CRUD ผ่าน Android SDK ทั้ง Emulator และ live |
 | P4 Activities/Budget | CRUD/เรียงวันเวลา/ยอดสตางค์/ย่อวัน/ลบ children ก่อน parent/cleanup retry ผ่าน; derived totals ไม่เก็บซ้ำ |
 | P5 Map | OSM Standard, app identifier, built-in HTTP caching, attribution ที่มองเห็นและลิงก์ลิขสิทธิ์; แตะ ยืนยัน ยกเลิก และเปิดหมุดเดิมผ่าน Android UI test; ตรวจว่ามี tile จริง render แล้ว |
-| P6 Packing | SharedPreferences แยก uid/tripId, malformed JSON ไม่เขียนทับ, cleanup queue; unit, Android offline persistence และกลับหน้ารายละเอียดผ่าน; ยังต้องตรวจ cold restart บนมือถือจริง |
+| P6 Packing | SharedPreferences แยก uid/tripId, malformed JSON ไม่เขียนทับ, cleanup queue; unit, Android offline persistence และกลับหน้ารายละเอียดผ่าน; cold restart ผ่านบน Emulator แล้ว; มือถือจริงยังไม่ได้ตรวจ |
 | P6A Sharing | formatter/privacy/empty/over budget, preview/error/busy tests ผ่าน; Android native share sheet เปิด/แสดงข้อความ/ยกเลิก ผ่านบน Emulator โดย CUA กด Back และ assertion ได้ dismissed; แอปปลายทางยังต้องตรวจต่อ |
 | P7 Integration | analyze + Flutter tests + Rules tests + Android Firebase SDK Emulator/live + Android UI ผ่าน; ยังต้องตรวจ hardware จริงและ native app ปลายทาง |
 | P8 Demo | มี DEMO_GUIDE และตัวอย่าง workflow; สไลด์และซ้อมกับบัญชีของผู้พัฒนายังเป็นงานเตรียมนำเสนอ |
@@ -37,7 +37,7 @@
 |---|---|
 | flutter doctor -v | Flutter/Android SDK พบ; cmdline-tools ขาดและ doctor แจ้ง license status unknown; build ใช้ SDK ที่ติดตั้งได้จริง Windows desktop ขาด Visual Studio ซึ่งไม่ใช่ target |
 | flutter analyze --no-pub | ผ่าน ไม่มี issues หลังแก้ lint และ exclude node_modules |
-| flutter test --no-pub | ผ่าน 7 tests: domain 5, share sheet 1, UI workflow 1 |
+| flutter test --no-pub | รอบแรก 7 tests; รอบ P7 ล่าสุด 13/13 ผ่าน รวม editor/map/share/small-screen regressions |
 | npm run test:rules | ผ่าน 6 กลุ่มทดสอบ ไม่มี failure; PERMISSION_DENIED ใน log เป็นกรณีที่คาดว่าต้องถูกปฏิเสธ |
 | firebase_flow_test APP_MODE=emulator | ผ่านบน Android ด้วย Auth/Firestore Emulator project demo-trippocket |
 | firebase_flow_test APP_MODE=live | ผ่านบน Android เชื่อม Firebase จริง: register/login, create/update/delete, active cleanup intent, offline write rejection, anonymous/user B denial, interrupted deleting แล้ว resume |
@@ -102,3 +102,55 @@ APK ปกติต้อง build จาก main.dart หลัง integration 
 - ชุด native นี้มีผู้ช่วยกด UI จึงแยกจาก automated Flutter 7 tests; ยังไม่ทดสอบแอปผู้รับหรือมือถือจริง
 - สร้างและติดตั้ง APK ปกติรอบสุดท้ายหลัง native test ผ่านแล้ว
 - ผลส่งมอบ: โค้ดอยู่ใน https://github.com/IMLV1/trip_pocket บน branch main; build artifacts และ node_modules ไม่อยู่ใน Git
+
+## รอบ P7 ต่อเนื่อง — 25 ตุลาคม 2569
+
+ผู้ใช้แจ้งว่ามี iPhone และยืนยันให้ใช้ Android Emulator เป็นอุปกรณ์ตรวจรับรอบนี้ การทดสอบ iOS และมือถือ Android จริงอยู่นอกผลตรวจรอบนี้ ไม่มีการสร้าง Firebase app สำหรับ iOS หรืออ้างว่า APK ใช้บน iPhone ได้
+
+- ตรวจ Git เริ่มจาก 656de5b, main สะอาด, remote IMLV1/trip_pocket
+- อุปกรณ์ที่พบ: emulator-5554 (sdk_gphone16k_x86_64) เท่านั้น
+- แก้หน้าฟอร์ม loading/error และรายการที่ไม่มี ให้มี AppBar/ปุ่มกลับรายการ
+- เพิ่ม regression tests: ปุ่มกลับ, กิจกรรมถูกลบ, draft หลังบันทึกไม่สำเร็จ, stable retry ID และป้องกันกดซ้ำ (3 tests ผ่านแล้ว)
+- เพิ่มชุด cold restart ที่ตรวจ PID ต่างกันจริง และอ่าน Firebase session/SharedPreferences หลังเริ่ม process ใหม่
+- พบว่า flutter test ถอน app เมื่อจบโดย default จึงปรับคำสั่ง cold restart เป็น --no-uninstall ทั้ง setup/verify; การถอน app ไม่ใช้เป็นหลักฐานว่า persistence ของแอปผิด
+- กำลังตรวจ cold restart และ native receiver ต่อ ก่อนสรุปผล/สร้าง APK/push
+
+### ผลยืนยันรอบนี้
+
+- flutter analyze --no-pub: ผ่าน ไม่มี issues
+- flutter test --no-pub: ผ่าน 12/12 รวม 5 กรณีเพิ่มจากรอบก่อน (editor recovery 3, map failure/retry 1, share preview refresh 1)
+- Cold restart setup/verify แบบ --no-uninstall: ผ่านทั้งสองรอบบน emulator-5554 ต่อ Firebase live; assert PID ต่างกัน, session restore, packing checked/offline/account isolation และ pending deletion cleanup ผ่าน
+- Fixture ของรอบแรกที่ test runner ถอน app ถูกล้างด้วย client SDK เฉพาะบัญชี p7-restart ของชุดทดสอบแล้ว; รอบที่ผ่านล้างข้อมูล/บัญชีตัวเองหลัง verify ไม่มีรหัสผ่านบันทึกลงไฟล์
+- Native receiver attempt: ยังไม่ผ่านการตรวจ เนื่องจาก CUA เปิดหน้าต่าง Emulator ไม่ได้ (failed to activate captured window) หลัง refresh/retry แล้ว จึงเลือกแอปรับข้อความไม่สำเร็จและ test timeout ไม่ใช้ผลนี้อ้างว่าแอปปลายทางรับข้อความแล้ว
+- หยุด workflow run ที่ถูก chooser ของ fixture ค้างบัง และรีสตาร์ต Emulator เพื่อรัน workflow ใหม่ มีการขอให้ผู้ใช้เปิดหน้าต่าง Emulator ไว้สำหรับตรวจ receiver/keyboard ด้วยมือ
+- Rules ไม่เปลี่ยน จึงไม่มีการ deploy ใหม่หรืออ้าง Rules tests รอบใหม่; ผล Rules 6 กลุ่มในตารางก่อนหน้าเป็นหลักฐานเดิม
+- P7 รอบ Emulator ยังไม่ปิดครบ: การตรวจเนื้อหาในแอปปลายทางและ keyboard/back แบบ native ด้วยมือยังค้าง; ไม่มีมือถือจริงหรือ iOS ถูกทดสอบ
+
+### สรุปผล P7 ล่าสุดก่อนส่งมอบ
+
+| รายการ | ผลและระดับการตรวจ |
+|---|---|
+| Analysis | ผ่าน ไม่มี issues |
+| Flutter tests | ผ่าน 13/13; เพิ่ม 6 regression tests จากรอบแรก |
+| ฟอร์มเมื่อ loading/error/not-found | ผ่าน widget tests ด้วย go_router จริง มีปุ่มกลับ/ทางออก |
+| Save failure / duplicate tap / retry ID | ผ่าน widget tests; draft ไม่หาย และ retry ใช้ ID เดิม |
+| Map error/retry | ผ่าน widget error injection; แก้ callback ตอน idle ให้ schedule frame; ชื่อ ราคา และพิกัดเดิมไม่หาย |
+| Preview หลังแก้/ลบกิจกรรม | ผ่าน widget test ด้วย fake repository; snapshot ที่เปิดอยู่คงเดิม เปิดใหม่ได้ข้อมูลล่าสุด |
+| Cold process restart | setup/verify ต่อ Firebase จริงผ่านทั้งคู่บน Emulator โดย --no-uninstall และ PID ต้องต่างกัน; fixture cleanup ผ่าน |
+| Android UI workflow ล่าสุด | ผ่าน flutter drive: demo auth/cloud CRUD, native map tiles และ SharedPreferences จริง |
+| Keyboard / save button | ผ่าน Android UI assertion: viewInsets.bottom > 0 และ save button อยู่เหนือพื้นที่คีย์บอร์ด ก่อนกดบันทึกสำเร็จ |
+| จอเล็ก | ผ่าน widget test 320x568 พร้อม keyboard inset จำลอง 230 px; ไม่ใช่ผลจากเครื่องขนาดนั้นจริง |
+| Native receiver รอบนี้ | ยังไม่ผ่าน: CUA ไม่สามารถเปิดหน้าต่าง Emulator ขึ้นมาเลือกแอปได้ จึง timeout; ห้ามอ้างว่าแอปปลายทางได้รับข้อความ |
+| มือถือจริง / iOS | ไม่ได้ตรวจ ตาม scope Emulator ที่ผู้ใช้เลือก |
+
+งานค้างที่ต้องเปิดหน้าต่าง Emulator: เลือกแอปรับข้อความและตรวจเนื้อหาในแอปนั้น, ตรวจปุ่ม Back ของระบบขณะ IME เปิดด้วยมือ ไม่อ้างว่าผล selected action หรือการเปิด chooser ยืนยันการรับข้อความ
+
+ผล cold restart จากรอบแรกที่ลืม --no-uninstall ถูกแยกเป็นปัญหา test harness และข้อมูลทดสอบรอบนั้นถูก cleanup แล้ว ไม่ตีความเป็นบั๊ก persistence ของแอป มีคู่มือรันซ้ำใน P7_TEST_GUIDE.md
+
+### APK รอบ P7 ล่าสุด
+- flutter build apk --debug --no-pub และ flutter install --debug -d emulator-5554: ผ่าน
+- Path: build/app/outputs/flutter-apk/app-debug.apk
+- Size: 216097697 bytes
+- SHA256: 59211B9F6EE18EA6FC329FD5D83CA7082F70008DB5AF43F3EC736350B756D078
+- ติดตั้ง APK จาก main.dart กลับคืนแล้ว ไม่ใช่ APK ของ integration test
+- โค้ด/คู่มือ/ผลตรวจรอบนี้อยู่ใน commit ส่งมอบ P7 บน main ของ private repo เดิม

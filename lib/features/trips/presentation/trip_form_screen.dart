@@ -16,12 +16,14 @@ class TripFormScreen extends ConsumerWidget {
     if (tripId == null) return TripEditor(uid: uid);
     final key = (uid: uid, tripId: tripId!);
     return AsyncContent(
+      screenTitle: 'แก้ไขทริป',
       value: ref.watch(tripProvider(key)),
       retry: () => ref.invalidate(tripProvider(key)),
       data: (s) => s.value == null || s.value!.status != 'active'
-          ? Scaffold(
-              appBar: AppBar(),
-              body: const Center(child: Text('ไม่พบทริปที่แก้ไขได้')),
+          ? UnavailablePage(
+              title: 'แก้ไขทริป',
+              message: 'ไม่พบทริปที่แก้ไขได้',
+              onExit: () => context.go('/trips'),
             )
           : TripEditor(key: ValueKey(tripId), uid: uid, initial: s.value),
     );

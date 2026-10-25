@@ -56,7 +56,7 @@ TripShareFormatter เป็น Dart function/class ที่รับ Trip แ�
 ## เกณฑ์ตรวจรับ
 
 - [x] ข้อความภาษาไทย วันที่ ลำดับกิจกรรม และจำนวนเงินตรงข้อมูลที่บันทึก
-- [ ] เพิ่ม/แก้ไข/ลบกิจกรรมแล้วเปิด preview ใหม่ได้ข้อความล่าสุด
+- [x] เพิ่ม/แก้ไข/ลบกิจกรรมแล้วเปิด preview ใหม่ได้ข้อความล่าสุด (widget test ด้วย fake repository)
 - [x] ทริปไม่มีกิจกรรม งบ 0 และเกินงบ แสดงผลถูกต้อง
 - [x] Preview ไม่ใส่ note, packing, coordinates หรือ internal identifiers
 - [x] ยกเลิก preview/share sheet แล้วข้อมูลคงเดิมและไม่อ้างว่าส่งสำเร็จ

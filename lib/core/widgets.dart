@@ -6,33 +6,46 @@ class AsyncContent<T> extends StatelessWidget {
   final AsyncValue<T> value;
   final Widget Function(T) data;
   final VoidCallback retry;
+  final String? screenTitle;
   const AsyncContent({
     super.key,
     required this.value,
     required this.data,
     required this.retry,
+    this.screenTitle,
   });
   @override
   Widget build(BuildContext context) => value.when(
     skipLoadingOnRefresh: false,
     data: data,
-    loading: () => const Center(
-      child: Padding(
-        padding: EdgeInsets.all(24),
-        child: CircularProgressIndicator(),
+    loading: () => frame(
+      const Center(
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: CircularProgressIndicator(),
+        ),
       ),
     ),
-    error: (e, s) => Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(errorText(e)),
-          TextButton(onPressed: retry, child: const Text('ลองใหม่')),
-        ],
+    error: (e, s) => frame(
+      Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(errorText(e)),
+            TextButton(onPressed: retry, child: const Text('ลองใหม่')),
+          ],
+        ),
       ),
     ),
   );
+
+  Widget frame(Widget child) => screenTitle == null
+      ? child
+      : Scaffold(
+          appBar: AppBar(title: Text(screenTitle!)),
+          body: Center(child: child),
+        );
 }
 
 Future<bool> confirmDelete(BuildContext context, String title) async =>
@@ -69,6 +82,30 @@ class PageBody extends StatelessWidget {
       child: ListView(
         padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
         children: children,
+      ),
+    ),
+  );
+}
+
+class UnavailablePage extends StatelessWidget {
+  final String title, message;
+  final VoidCallback onExit;
+  const UnavailablePage({
+    super.key,
+    required this.title,
+    required this.message,
+    required this.onExit,
+  });
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    appBar: AppBar(title: Text(title)),
+    body: Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(message),
+          TextButton(onPressed: onExit, child: const Text('กลับรายการทริป')),
+        ],
       ),
     ),
   );

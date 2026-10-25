@@ -84,7 +84,7 @@ P5/P6 แยกงานได้หลังสัญญาข้อมูล�
 - [x] ตรวจนโยบาย tile provider และการตั้งค่า attribution/caching/app identifier
 - [x] Place picker แตะแผนที่ ยืนยัน และยกเลิก
 - [x] บันทึกและเปิดแก้ไขหมุดเดิม
-- [ ] Map error ไม่ทำให้ข้อมูลในฟอร์มหาย
+- [x] Map error ไม่ทำให้ข้อมูลในฟอร์มหาย (widget error injection; ดูผล P7)
 
 ตรวจรับ: เลือกหมุดจริงบน Android กลับมาเปิดหมุดเดิมได้ attribution มองเห็น และไม่มี GPS permission ที่ไม่ได้ใช้
 
@@ -113,13 +113,17 @@ P5/P6 แยกงานได้หลังสัญญาข้อมูล�
 
 ## P7 ทดสอบรวมและเชื่อม Firebase จริง
 
+ขอบเขตรอบ 25 ตุลาคม 2569: ผู้ใช้มี iPhone และยืนยันให้ใช้ Android Emulator เป็นอุปกรณ์ตรวจรับรอบนี้ ดู P7_TEST_GUIDE.md มือถือ Android จริงยังไม่ผ่านการทดสอบ และไม่ถือว่าผล Emulator เป็นผล hardware จริง
+
 เป้าหมาย 29–31 ตุลาคม; ต้องผ่าน P2–P6 และ P6A
 
 - [x] ตั้งค่า Firebase project จริงเมื่อได้รับข้อมูลและการร้องขอที่ครอบคลุม
 - [x] เปิด Auth provider และตรวจ rules/indexes บน environment ที่ใช้สาธิต
 - [x] flutter analyze และ flutter test
 - [x] Emulator rules tests และ integration test กระบวนการหลัก
-- [ ] ทดสอบบน Android จริง รวม back button, keyboard และหน้าจอเล็ก
+- [x] รอบ Emulator: cold restart, native keyboard inset/ปุ่มบันทึก และ workflow หลัก; widget test จอเล็ก/ปุ่มกลับ/error states (25 ต.ค. 2569)
+- [ ] รอบ Emulator: ตรวจเนื้อหาในแอปรับแชร์และ Back ของระบบเมื่อ IME เปิดด้วยมือ (รอเปิดหน้าต่าง Emulator)
+- [ ] ทดสอบบน Android จริง รวม back button, keyboard และหน้าจอเล็ก (นอก scope รอบ Emulator ที่ผู้ใช้เลือก)
 - [x] ทดสอบเครือข่ายขัดข้อง เปลี่ยนบัญชี และ retry delete
 - [x] Build APK และติดตั้งทดสอบ
 

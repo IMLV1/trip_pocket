@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "488059345725",
+    "project_id": "trippocket-382b7",
+    "storage_bucket": "trippocket-382b7.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:488059345725:android:fda70ed7806ce54da28354",
+        "android_client_info": {
+          "package_name": "com.imlv1.trippocket"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4J1qFc6bGIacv9p8ZA52uv4vUjADLR8Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

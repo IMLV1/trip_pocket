@@ -1,0 +1,41 @@
+rules_version = '2';
+service cloud.firestore {
+ match /databases/{database}/documents {
+  function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+  function text(s, maximum) { return s is string && s.size() > 0 && s.size() <= maximum && s.matches('.*[^ ].*'); }
+  function date(s) { return s is string && s.matches('(19|20|21)[0-9]{2}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])'); }
+  function money(n) { return n is int && n >= 0 && n <= 1000000000; }
+  function validTrip(d) {
+   return d.keys().hasAll(['title','destination','startDate','endDate','budgetSatang','status','createdAt','updatedAt'])
+    && d.keys().hasOnly(['title','destination','startDate','endDate','budgetSatang','status','createdAt','updatedAt'])
+    && text(d.title,100) && text(d.destination,100) && date(d.startDate) && date(d.endDate)
+    && d.startDate <= d.endDate && money(d.budgetSatang) && d.status in ['active','deleting']
+    && d.createdAt is timestamp && d.updatedAt == request.time;
+  }
+  match /users/{uid}/trips/{tripId} {
+   allow read: if owner(uid);
+   allow create: if owner(uid) && validTrip(request.resource.data) && request.resource.data.status == 'active' && request.resource.data.createdAt == request.time;
+   allow update: if owner(uid) && validTrip(request.resource.data)
+    && request.resource.data.createdAt == resource.data.createdAt && resource.data.status == 'active'
+    && (request.resource.data.status == 'active' || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt']));
+   allow delete: if owner(uid) && resource.data.status == 'deleting';
+   match /activities/{activityId} {
+    function parent() {return get(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));}
+    function parentAfter() {return getAfter(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));}
+    function validActivity(d) {
+     return d.keys().hasAll(['title','date','timeMinutes','estimatedCostSatang','latitude','longitude','note','createdAt','updatedAt'])
+      && d.keys().hasOnly(['title','date','timeMinutes','estimatedCostSatang','latitude','longitude','note','createdAt','updatedAt'])
+      && text(d.title,100) && date(d.date) && d.date >= parentAfter().data.startDate && d.date <= parentAfter().data.endDate
+      && d.timeMinutes is int && d.timeMinutes >= 0 && d.timeMinutes < 1440
+      && money(d.estimatedCostSatang) && d.latitude is number && d.latitude >= -90 && d.latitude <= 90
+      && d.longitude is number && d.longitude >= -180 && d.longitude <= 180
+      && d.note is string && d.note.size() <= 500 && d.createdAt is timestamp && d.updatedAt == request.time;
+    }
+    allow read: if owner(uid) && exists(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));
+    allow create: if owner(uid) && parentAfter().data.status == 'active' && validActivity(request.resource.data) && request.resource.data.createdAt == request.time;
+    allow update: if owner(uid) && parentAfter().data.status == 'active' && validActivity(request.resource.data) && request.resource.data.createdAt == resource.data.createdAt;
+    allow delete: if owner(uid) && parent().data.status in ['active','deleting'];
+   }
+  }
+ }
+}

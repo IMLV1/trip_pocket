@@ -1,0 +1,35 @@
+# TripPocket repository guidance
+
+This repository contains the TripPocket individual mobile application project. At the initial planning stage, only design documents exist; inspect current files before assuming implementation status.
+
+## Project documents
+
+- Product scope and document index: `docs/README.md` and `docs/PROJECT_PROPOSAL.md`.
+- UI and routes: `docs/FRONTEND_ARCHITECTURE.md`.
+- Persistence and security contract: `docs/BACKEND_ARCHITECTURE.md`.
+- Database schema and acceptance cases: `docs/DATABASE_DESIGN.md`.
+- Approved text sharing feature: `docs/FEATURE_SHARE_PLAN.md`.
+- Milestones and acceptance: `docs/IMPLEMENTATION_PLAN.md`.
+- Reusable project skill: `docs/skills/trippocket-development/SKILL.md`.
+
+Read the relevant contract before changing its implementation. The skill is a repository document; do not assume it has been installed globally.
+
+## Implementation decisions
+
+Use Flutter/Dart for Android, Thai Material 3 UI, Riverpod without code generation, go_router, Firebase Authentication, and Cloud Firestore. Use flutter_map for manual location selection and SharedPreferences for the local packing checklist. Select compatible package versions when implementation begins.
+
+The user selected Flutter connecting directly to Firebase. Firebase is the backend; do not introduce a Go server or custom REST API for the current MVP. Use Firestore client SDK with Security Rules, not Admin credentials in the app.
+
+The approved additional feature exports a text itinerary through share_plus after a preview. It does not grant recipients database access or add collaborative editing. Follow the fields and acceptance cases in docs/FEATURE_SHARE_PLAN.md.
+
+Keep data access behind feature repositories. Store money as integer satang, travel dates as YYYY-MM-DD, and local time as minutes from midnight. Derive totals from activities. Scope all cloud data to the authenticated uid and local checklist keys to uid plus tripId. Dispose user state when switching accounts.
+
+Do not delete a trip parent before its activities. Use the documented resumable deletion flow. Enforce ownership in Firestore Rules, not only in UI. Read the documented limitation for concurrent trip date edits.
+
+Preserve docs when initializing Flutter. Do not add bookings, payments, collaborative editing, chat, or automatic route optimization without a scope change from the user. Do not deploy or create live cloud resources merely because a milestone describes them.
+
+## Validation and reporting
+
+Run checks relevant to the actual change: Flutter analysis/tests for code, Emulator rules tests for security changes, and Android device checks for maps/navigation/persistence. Distinguish fake, emulator, and live results. Report environment limitations accurately. Update milestone checkboxes only after verification, and synchronize affected documents when contracts change.
+
+Keep user-facing explanations in Thai unless requested otherwise. Finish development reports with what changed, validation results, and outstanding work.

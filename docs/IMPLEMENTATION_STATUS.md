@@ -1,0 +1,103 @@
+# สถานะ TripPocket — 25 ตุลาคม 2569
+
+ดำเนินการตามข้อ 1 ใน IMPLEMENTATION_PROMPTS.md โดยต่อยอด Flutter starter ใน `C:\Users\GOODK\IdeaProjects\trip_pocket` ผู้ใช้เปลี่ยนจาก Emulator เป็น Firebase จริงบน Spark และอนุญาต commit/push ไป `https://github.com/IMLV1/trip_pocket.git` (Private) แล้ว
+
+## ผลงาน
+
+| Milestone | สถานะตามหลักฐาน |
+|---|---|
+| P0 Setup | Flutter 3.44.6 / Dart 3.12.2; dependency lockfiles; applicationId com.imlv1.trippocket; Android build และติดตั้งชุดทดสอบผ่าน |
+| P1 App Shell | ธีม Material 3 ภาษาไทย, Riverpod แบบไม่ generate, go_router, 6 ประเภทหน้าจอ; workflow fake ผ่าน widget/Android UI tests |
+| P2 Auth | Firebase Email/Password register/login/logout จริงผ่าน; router สร้างใหม่ต่อ uid ปิดหน้าข้อมูลเมื่อ logout; ยังต้องตรวจปิดเปิด process กับมือถือจริง |
+| P3 Trip CRUD | Firestore client SDK, models, validation, query/index และ Rules; owner/user B/anonymous ผ่าน Emulator Rules; CRUD ผ่าน Android SDK ทั้ง Emulator และ live |
+| P4 Activities/Budget | CRUD/เรียงวันเวลา/ยอดสตางค์/ย่อวัน/ลบ children ก่อน parent/cleanup retry ผ่าน; derived totals ไม่เก็บซ้ำ |
+| P5 Map | OSM Standard, app identifier, built-in HTTP caching, attribution ที่มองเห็นและลิงก์ลิขสิทธิ์; แตะ ยืนยัน ยกเลิก และเปิดหมุดเดิมผ่าน Android UI test; ตรวจว่ามี tile จริง render แล้ว |
+| P6 Packing | SharedPreferences แยก uid/tripId, malformed JSON ไม่เขียนทับ, cleanup queue; unit, Android offline persistence และกลับหน้ารายละเอียดผ่าน; ยังต้องตรวจ cold restart บนมือถือจริง |
+| P6A Sharing | formatter/privacy/empty/over budget, preview/error/busy tests ผ่าน; Android native share sheet เปิด/แสดงข้อความ/ยกเลิก ผ่านบน Emulator โดย CUA กด Back และ assertion ได้ dismissed; แอปปลายทางยังต้องตรวจต่อ |
+| P7 Integration | analyze + Flutter tests + Rules tests + Android Firebase SDK Emulator/live + Android UI ผ่าน; ยังต้องตรวจ hardware จริงและ native app ปลายทาง |
+| P8 Demo | มี DEMO_GUIDE และตัวอย่าง workflow; สไลด์และซ้อมกับบัญชีของผู้พัฒนายังเป็นงานเตรียมนำเสนอ |
+
+## Firebase จริง
+
+- Project `trippocket-382b7`, Spark (No-cost $0/month), ไม่เปิด billing/Blaze
+- Android app `com.imlv1.trippocket`; client config ใน android/app/google-services.json
+- Authentication: Email/Password เปิดแล้ว ไม่ใช้ SMS หรือ passwordless link
+- Firestore Standard `(default)`, `asia-southeast3` Bangkok
+- เผยแพร่ firestore.rules ที่ผ่าน Emulator tests แล้ว; composite index trips(status ASC, startDate ASC) สร้างแล้ว
+- เริ่มจาก Production mode แล้วใส่ Rules เฉพาะเจ้าของ ไม่มี allow-all
+- Analytics และบริการ AI ไม่ใช้ใน MVP
+- Live integration สร้างบัญชี A/B และข้อมูลทดสอบชั่วคราว แล้วลบเมื่อชุดทดสอบจบผ่าน ไม่ใช้ข้อมูลส่วนตัว
+- Native config ตั้งไว้เฉพาะ Android; iOS/Web ยังไม่ได้ลงทะเบียน app/config
+
+## ผลตรวจจริง
+
+อุปกรณ์ที่ใช้: Android Emulator `Pixel_10_Pro_XL`, serial `emulator-5554` ไม่ใช่มือถือจริง
+
+| คำสั่ง/ระดับ | ผล |
+|---|---|
+| flutter doctor -v | Flutter/Android SDK พบ; cmdline-tools ขาดและ doctor แจ้ง license status unknown; build ใช้ SDK ที่ติดตั้งได้จริง Windows desktop ขาด Visual Studio ซึ่งไม่ใช่ target |
+| flutter analyze --no-pub | ผ่าน ไม่มี issues หลังแก้ lint และ exclude node_modules |
+| flutter test --no-pub | ผ่าน 7 tests: domain 5, share sheet 1, UI workflow 1 |
+| npm run test:rules | ผ่าน 6 กลุ่มทดสอบ ไม่มี failure; PERMISSION_DENIED ใน log เป็นกรณีที่คาดว่าต้องถูกปฏิเสธ |
+| firebase_flow_test APP_MODE=emulator | ผ่านบน Android ด้วย Auth/Firestore Emulator project demo-trippocket |
+| firebase_flow_test APP_MODE=live | ผ่านบน Android เชื่อม Firebase จริง: register/login, create/update/delete, active cleanup intent, offline write rejection, anonymous/user B denial, interrupted deleting แล้ว resume |
+| flutter drive ui_flow_test | ผ่าน: login demo → สร้าง → กิจกรรม → tile จริง/เลือกและยกเลิกหมุด → งบ → packing → preview → กลับหน้าแล้วของยังอยู่; ใช้ fake cloud repository แต่ map/native preferences จริง |
+| native_share_test | ผ่าน 1/1 แบบมี CUA ช่วยกด Back: เปิด Android share sheet เห็นข้อความจริงและผล ShareResultStatus.dismissed; ยังไม่ได้ส่งต่อเข้าแอปปลายทางหรือส่งหาผู้รับ |
+
+ภาพ: [แผนที่](evidence/map-picker.png), [งบและกิจกรรม](evidence/trip-budget.png), [Android share sheet](evidence/android-share-sheet.png)
+
+ระหว่างพัฒนาแก้ปัญหา build cache ชนจากการรัน Gradle สองงานพร้อมกัน โดยหยุดงาน build ล้าง generated cache และรันทดสอบทีละงานแล้วผ่าน แก้ emulator duplicate Firebase app ด้วย app แยกชื่อ `emulator`; ไม่ fallback ไป fake เมื่อ live ล้มเหลว
+
+## วิธีรัน
+
+~~~powershell
+flutter pub get
+flutter run -d emulator-5554
+# ค่าเริ่มต้น APP_MODE=live
+~~~
+
+ทดสอบ Emulator: ตั้ง Java 21 ใน PATH → npm ci → npm run emulators แล้ว `flutter run --dart-define=APP_MODE=emulator` (Android emulator host 10.0.2.2) ส่วน `APP_MODE=demo` แสดงป้ายชัดและไม่เก็บ cloud data ข้ามการปิดแอป Release ใช้ได้เฉพาะ live
+
+~~~powershell
+flutter analyze
+flutter test
+npm run test:rules
+flutter test integration_test/firebase_flow_test.dart -d emulator-5554 --dart-define=APP_MODE=emulator
+flutter test integration_test/firebase_flow_test.dart -d emulator-5554 --dart-define=APP_MODE=live
+flutter drive --driver=test_driver/integration_test.dart --target=integration_test/ui_flow_test.dart -d emulator-5554
+flutter build apk --debug
+~~~
+
+ชุดทดสอบ native share เป็น manual opt-in (`RUN_MANUAL_SHARE=true`) ต้องกดยกเลิกบน Android เอง ไม่รวมในคำกล่าวว่า automated suite ผ่าน
+
+## งานที่ยังต้องตรวจ / ข้อจำกัด
+
+- มือถือ Android จริง: keyboard/back/หน้าจอเล็ก, ปิดเปิด process แล้ว session/checklist ยังอยู่, map gestures และเน็ตขาดระหว่างใช้งานจริง
+- เลือกแอปปลายทางที่รับข้อความและตรวจข้อความในแอปปลายทาง โดยไม่สรุปว่าส่งถึงผู้รับจากสถานะ plugin
+- Maps error/retry มีโค้ดรักษาฟอร์ม; ยังไม่ได้จำลอง tile provider ล่มบนมือถือจริง
+- ไม่มี guarantee การย่อวันพร้อมกันหลายอุปกรณ์ตาม BACKEND_ARCHITECTURE.md; client preflight ใช้ข้อมูล server แต่ Rules ไม่วน children ทั้ง collection
+- OSM tiles เป็นบริการ best effort สำหรับการใช้ขนาดเล็ก ไม่ใช้ bulk download/offline maps; cache ใช้ BuiltInMapCachingProvider ของ flutter_map 8.3.2 ตาม HTTP headers
+- Debug APK ใช้ debug signing; iOS/Web, release signing, Play Store และสไลด์ยังไม่ได้ทำ
+- Flutter เตือน firebase_auth/firebase_core ยังใช้ Kotlin Gradle Plugin กับ template AGP 9 compatibility flags; build ปัจจุบันผ่าน แต่ควรตรวจแพ็กเกจก่อนอัปเกรด Flutter ในอนาคต
+- ผลผ่าน Emulator/live ไม่ใช่ผลผ่านมือถือจริง; checklist บางรายการจึงยังไม่ติ๊กครบ Definition of Done
+
+## Git และ APK
+
+Repo ปลายทาง `IMLV1/trip_pocket` ตรวจ Private ผ่าน GitHub UI แล้ว Git author ใช้ค่าที่ผู้พัฒนาตั้งไว้ ไม่มีการเพิ่มผู้ร่วมงานหรือเปลี่ยน visibility
+
+APK ปกติต้อง build จาก main.dart หลัง integration tests (tests ใช้ output path เดียวกัน) ดูบันทึกส่งมอบท้ายไฟล์สำหรับผล build/commit ล่าสุด
+
+### บันทึกส่งมอบ 25 ตุลาคม 2569
+- Final flutter analyze: ไม่มี issues; flutter test: 7/7 ผ่าน
+- Final flutter build apk --debug --no-pub จาก main.dart: ผ่าน
+- APK: build/app/outputs/flutter-apk/app-debug.apk (216094954 bytes)
+- APK SHA256: D7A59F57657CA59658C5B1F57C1DA4391AA4BBF9FC422789E3744F11F575446B
+- ตรวจ private repo ปลายทางแล้ว เตรียม initial commit บน main โดยไม่ force push
+
+### ตรวจ APK และ native share หลังรีสตาร์ต Emulator
+- พบ Android system ANR ระหว่างตรวจ APK ปกติ ทำให้หน้าจอดำ/ควบคุม share sheet ไม่ตอบสนอง แม้ widget tree สร้างครบแล้ว
+- รีสตาร์ตเฉพาะ Emulator แล้ว APK ปกติเปิดหน้า login ภาษาไทยสำเร็จ ดู evidence/live-login.png
+- รัน native_share_test พร้อม RUN_MANUAL_SHARE=true ซ้ำ และใช้ CUA กด Control+Backspace ยกเลิก: ผ่าน 1/1 ได้ dismissed ภายใน 19 วินาที
+- ปัญหา timeout สองรอบก่อนหน้าเป็นผลระหว่าง Android system ค้าง ไม่ใช้เป็นหลักฐานว่าแอปยกเลิกแชร์ไม่ได้
+- ชุด native นี้มีผู้ช่วยกด UI จึงแยกจาก automated Flutter 7 tests; ยังไม่ทดสอบแอปผู้รับหรือมือถือจริง
+- สร้างและติดตั้ง APK ปกติรอบสุดท้ายหลัง native test ผ่านแล้ว

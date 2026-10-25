@@ -1,0 +1,42 @@
+# Flutter / Dart generated files
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+build/
+coverage/
+
+# Local IDE / operating system files
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+android/local.properties
+
+# Local credentials / configuration
+.env
+.env.*
+!.env.example
+*.jks
+*.keystore
+key.properties
+*service-account*.json
+*serviceAccount*.json
+
+# Temporary previews / local test output
+tmp/
+*.log
+firebase-debug.log*
+firestore-debug.log*
+ui-debug.log*
+
+# Emulator and JS test tooling
+node_modules/
+.firebase/
+android/.gradle/
+android/.kotlin/
+ios/Pods/
+ios/.symlinks/
+ios/Flutter/ephemeral/
+*.test-results.json

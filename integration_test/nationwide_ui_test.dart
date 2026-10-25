@@ -51,6 +51,7 @@ void main() {
       );
       await tester.pumpAndSettle();
       await binding.convertFlutterSurfaceToImage();
+      await tester.pump();
       await binding.takeScreenshot('ux-login');
       runApp(
         UncontrolledProviderScope(
@@ -65,7 +66,7 @@ void main() {
       await binding.takeScreenshot('ux-plan');
       await tester.tap(find.byKey(const Key('tab-map')));
       await tester.pumpAndSettle();
-      await binding.convertFlutterSurfaceToImage();
+
       final semantics = tester.ensureSemantics();
 
       final wat = catalogue
@@ -85,6 +86,14 @@ void main() {
       await tester.pump(const Duration(milliseconds: 500));
       await tester.pumpAndSettle();
       expect(find.byType(PoiMapLayer), findsOneWidget);
+      // The layer debounces viewport updates independently of Flutter animations.
+      for (
+        var n = 0;
+        n < 15 && find.bySemanticsLabel('แนะนำ ${wat.name}').evaluate().isEmpty;
+        n++
+      ) {
+        await tester.pump(const Duration(milliseconds: 200));
+      }
       expect(find.bySemanticsLabel('แนะนำ ${wat.name}'), findsOneWidget);
       await tester.pump(const Duration(seconds: 1));
       await binding.takeScreenshot('ux-nationwide-map');

@@ -4,6 +4,8 @@
 
 ## เริ่มอ่าน
 
+- [UI/UX รุ่นใหม่](UI_UX_REFRESH.md) — design system, แท็บแผน/แผนที่/เตรียมของ และการทดสอบ
+
 - [ค้นหาทั่วไทยและหมุดแนะนำ](FEATURE_NATIONWIDE_PLACES.md) — ฐาน OSM 66,975 แห่ง/77 จังหวัด แทนชุดเชียงใหม่เดิม พร้อมผลตรวจและสิทธิ์ข้อมูล
 
 - [คู่มือตรวจ P7](P7_TEST_GUIDE.md) — Emulator, cold restart และ native share

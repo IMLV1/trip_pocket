@@ -278,3 +278,13 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - ค้นหาสถานที่เปิดเป็นรายการทันที สลับแผนที่และเปิดตัวกรองได้ ลดข้อมูลที่ต้องเลื่อนผ่านก่อนเจอผลค้น
 - flutter analyze ไม่มี issues; Flutter tests 33/33 ผ่าน รวม regression login/CRUD/account isolation และเพิ่มตรวจ packing draft เมื่อสลับแท็บ
 - ปรับ integration scripts ให้ใช้แท็บใหม่แล้ว แต่ยังไม่อ้าง Android UI ผ่านจนรันจริง
+
+### UI/UX milestone 2 — verification
+
+- flutter analyze ไม่มี issues; Flutter tests 35/35 ผ่าน (เพิ่มจอ 320×568 ตัวอักษร 1.5 เท่า, ปุ่มแสดงรหัสผ่าน และค้นหาขณะ keyboard inset 230)
+- Android Emulator API 37: nationwide_ui_test ผ่านด้วย production loader/catalogue 66,975 แห่ง/77 จังหวัด เลือกหมุดกรุงเทพ ค้นป่าตอง เพิ่มเป็นจุดที่สอง แก้จุดที่บันทึกแล้วโดยไม่สร้างซ้ำ และเช็กลิสต์หลังสลับแท็บ
+- Android Emulator: v21_ui_test ผ่าน: native map tiles แสดงจริง, ค่าเดินทาง 50 บาทรวมไม่ซ้ำ, สลับลำดับแล้วราคา segment เดิมไม่ถูกนับ, เพิ่มจากค้นหา/แตะแผนที่ และ preview แชร์
+- UI tests ใช้ demo/fake cloud (แถบเหลือง) แค็ตตาล็อก production จริง/fixture เชียงใหม่ใน regression ตามชื่อ test; ไม่ใช่ผล Firebase live ใหม่
+- ภาพตรวจหน้าตาจริง: ux-login.png, ux-trip-list.png, ux-plan.png, ux-nationwide-map.png, ux-nationwide-search.png, ux-packing.png ใน docs/evidence; ภาพ map ทั่วไทยยังเป็นช่วง tiles โหลดไม่ครบ ส่วน v21-daily-map.png มี tiles แสดงจริง
+- ไม่มี schema/Rules เปลี่ยน จึงไม่รัน Rules/live SDK ใหม่ งานค้างด้านอุปกรณ์: มือถือจริง/iOS ยังไม่ได้ตรวจ
+- คู่มือ UI_UX_REFRESH.md และ frontend contract อัปเดตตรงกับโค้ด กำลังสร้าง APK ปกติจาก main.dart (default APP_MODE=live) กลับหลัง integration tests

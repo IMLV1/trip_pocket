@@ -320,3 +320,11 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - รอบ live แรกตรวจ pin/clear ผ่าน แต่ชุด regression หยุดที่ชนิดข้อผิดพลาด: Android method channel ห่อ StateError เป็น FirebaseException(unknown) จึงปรับ matcher รับ wrapper และเพิ่ม assertion อ่านจาก server ว่าข้อมูล/ลำดับเดิมไม่ถูกทับ ทั้ง stale reorder และ save บน deleting parent; รันซ้ำผ่านทั้งหมด ไม่ได้ลดการตรวจความปลอดภัย
 - test สร้างบัญชี/ทริปเฉพาะรอบและล้างใน finally; ไม่แก้ข้อมูลทริปของผู้ใช้ ไม่มี billing/Go/paid API
 - Flutter analysis ไม่มี issues, unit/widget 38/38, Rules Emulator 10/10 ผ่านตามรอบก่อนหน้า กำลังคืน APK ปกติ main.dart/live หลัง SDK target
+
+### ส่งมอบหมุดพื้นที่หลัก
+
+- สร้าง APK ปกติ main.dart/default live สำเร็จ ติดตั้งและสั่งเปิดบน emulator-5554 ผ่าน Flutter CLI แล้ว (engine/VM service เชื่อมได้) ไม่ส่ง integration-test APK ให้ผู้ใช้
+- APK: build/app/outputs/flutter-apk/app-debug.apk — 217383006 bytes, debug signing
+- SHA256: 518DB78F22CAA3882DCFFA4A5465D39203665E855D07E5798D9D9D629627B577
+- Commit/push เป็นช่วง: fe1e595 ฟีเจอร์/schema/Rules/tests, 5a489d2 ผล live SDK และ assertion พฤติกรรม แล้วบันทึกส่งมอบนี้ ไป main ของ repository เดิม ไม่แก้สิทธิ์ Private
+- ข้อจำกัด: มือถือจริง/iOS ยังไม่ได้ตรวจ พื้น tiles ต้องใช้อินเทอร์เน็ตและในภาพหลักฐานยังโหลดไม่ครบ หมุดทริปเก่าต้องเลือกเพิ่มเอง ไม่มีการเดาพิกัดจากชื่อ

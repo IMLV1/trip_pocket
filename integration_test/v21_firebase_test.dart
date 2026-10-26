@@ -161,8 +161,13 @@ void main() {
         );
         await expectLater(
           repo.reorderActivities(uid, t.id, stale.reversed.toList()),
-          throwsStateError,
+          throwsA(anyOf(isA<StateError>(), isA<FirebaseException>())),
         );
+        // Android's method channel can wrap a callback StateError as FirebaseException.
+        // Assert the safety property on server data, rather than just its Dart type.
+        final afterRejectedOrder = await read();
+        expect(afterRejectedOrder.map((a) => a.id), ['b', 'old']);
+        expect(afterRejectedOrder.first.title, 'changed');
         await packing.save(uid, t.id, [
           const PackingItem('pack', 'charger', false),
         ]);
@@ -173,8 +178,10 @@ void main() {
         });
         await expectLater(
           repo.saveActivity(uid, t.id, b, create: false),
-          throwsStateError,
+          throwsA(anyOf(isA<StateError>(), isA<FirebaseException>())),
         );
+        final afterRejectedSave = await read();
+        expect(afterRejectedSave.first.title, 'changed');
         await repo.resumePendingDeletes(uid);
         expect(
           (await parent.get(const GetOptions(source: Source.server))).exists,

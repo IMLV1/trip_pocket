@@ -311,3 +311,12 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - ผู้ใช้ยืนยันเผยแพร่ Rules ณ ขั้นตอน Publish แล้ว เผยแพร่ผ่าน Firebase Console สำเร็จ 26 ต.ค. 2569 16:00 น. (แสดงใน Console); CLI ไม่ได้ authenticate จึงใช้ Console เดิม ไม่สร้าง credential ใหม่
 - firestore.rules SHA256: F9BA01CB6AE66A9BFD01DECC406894EF041AF2316001AF9160CAD1E45C6E7B12; หลักฐาน docs/evidence/firebase-trip-pin-rules.png
 - คู่มือ FEATURE_TRIP_DESTINATION_PIN.md; ยังไม่อ้าง live SDK ผ่านหรือ APK ส่งมอบรุ่นนี้จนตรวจจริง
+
+### หมุดพื้นที่หลัก — verification
+
+- Android Emulator trip_destination_ui_test ผ่านรอบสุดท้าย: production catalogue ค้นวัดอรุณ → ยืนยันหมุด → preview → บันทึก → เปิดแก้ตำแหน่งเดิม → ยกเลิกไม่ทับเดิม → เปลี่ยน/บันทึก → ล้างหมุดได้; ไม่สร้าง activity และงบ 2,500 บาทคงเดิม ปุ่มดูจุดหมายทั้งหมดกลับมาที่หมุดพื้นที่หลักได้
+- UI test ใช้ fake cloud; screenshot แสดงหมุดจริงบนพิกัดที่เลือก แต่พื้น tiles ยังโหลดไม่ครบในภาพ ไม่มีการอ้าง offline tiles
+- Firebase live SDK บน Android Emulator ผ่าน: เก็บ/อ่าน destinationLatitude/Longitude จาก Source.server จริง ล้างเป็น null pair ได้และยอดเงินคงเดิม รวม legacy activity upgrade/reorder/stale rejection/resumable deletion/cross-account denial เดิม
+- รอบ live แรกตรวจ pin/clear ผ่าน แต่ชุด regression หยุดที่ชนิดข้อผิดพลาด: Android method channel ห่อ StateError เป็น FirebaseException(unknown) จึงปรับ matcher รับ wrapper และเพิ่ม assertion อ่านจาก server ว่าข้อมูล/ลำดับเดิมไม่ถูกทับ ทั้ง stale reorder และ save บน deleting parent; รันซ้ำผ่านทั้งหมด ไม่ได้ลดการตรวจความปลอดภัย
+- test สร้างบัญชี/ทริปเฉพาะรอบและล้างใน finally; ไม่แก้ข้อมูลทริปของผู้ใช้ ไม่มี billing/Go/paid API
+- Flutter analysis ไม่มี issues, unit/widget 38/38, Rules Emulator 10/10 ผ่านตามรอบก่อนหน้า กำลังคืน APK ปกติ main.dart/live หลัง SDK target

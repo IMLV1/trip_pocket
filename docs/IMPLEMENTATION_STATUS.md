@@ -297,3 +297,17 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - SHA256: 3BF5EEF0CE52CE505E64111FAC7A86A243A6C320D46486D38AB328C624946C87
 - Commit เป็นช่วงและ push main: 0518850 design/UI/navigation, 1f9fb9e ผลตรวจ responsive/Android และเอกสาร/evidence ตามด้วยบันทึกส่งมอบนี้ ไม่เปลี่ยนสิทธิ์ Private ของ repository
 - งานค้าง: มือถือจริง/iOS และ native share recipient ไม่ได้ตรวจซ้ำในรอบ UI; ผล native share รุ่นเดิมยังบันทึกใน P7 การทดสอบ UI ใหม่ใช้ fake cloud ตามที่ระบุ ไม่อ้างเป็นการยืนยัน Firebase live รอบใหม่
+
+## เริ่มหมุดพื้นที่หลักของทริป — 26 ตุลาคม 2569
+
+ปรับสัญญา frontend/backend/database ก่อนแก้ schema: optional paired coordinates สำหรับ trip destination, legacy ไม่เดาพิกัด, ค้น/เลือก/ยืนยัน/preview และแสดงในแผนที่แยกจากกิจกรรม กำลังพัฒนา ยังไม่อ้างผ่าน
+
+### หมุดพื้นที่หลัก — milestone 1
+
+- ฟอร์มค้น/เลือก/ยืนยันหมุด พร้อม preview และแสดงหมุดพื้นที่หลักในแท็บแผนที่ แก้ไข/ล้างได้ แยกจาก activities และไม่กระทบงบ
+- เพิ่ม optional coordinate pair, อ่าน legacy โดยไม่เดาพิกัด, คู่ null ล้างได้, ownership/deletion flow เดิม
+- flutter analyze ไม่มี issues; Flutter tests 38/38 ผ่าน; Rules Emulator tests 10/10 ผ่าน รวม legacy/null/pin/invalid/cross-account/deleting
+- Android trip_destination_ui_test รอบแรกผ่านด้วย production catalogue และ fake cloud; กำลังตรวจเพิ่มปุ่มกลับดูหมุดทั้งหมดหลังแก้ camera fit และยังรอ live SDK ใหม่
+- ผู้ใช้ยืนยันเผยแพร่ Rules ณ ขั้นตอน Publish แล้ว เผยแพร่ผ่าน Firebase Console สำเร็จ 26 ต.ค. 2569 16:00 น. (แสดงใน Console); CLI ไม่ได้ authenticate จึงใช้ Console เดิม ไม่สร้าง credential ใหม่
+- firestore.rules SHA256: F9BA01CB6AE66A9BFD01DECC406894EF041AF2316001AF9160CAD1E45C6E7B12; หลักฐาน docs/evidence/firebase-trip-pin-rules.png
+- คู่มือ FEATURE_TRIP_DESTINATION_PIN.md; ยังไม่อ้าง live SDK ผ่านหรือ APK ส่งมอบรุ่นนี้จนตรวจจริง

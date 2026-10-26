@@ -1,3 +1,5 @@
+import 'package:latlong2/latlong.dart';
+import '../../places/destination_preview.dart';
 import '../../places/day_plan.dart';
 import '../../places/curated_places.dart';
 import '../../places/recommendations_sheet.dart';
@@ -161,6 +163,20 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                         const SizedBox(height: 20),
+                        if (page == 0 && t.hasDestinationPin) ...[
+                          const SectionTitle(
+                            'พื้นที่หลักของทริป',
+                            subtitle: 'หมุดพื้นที่หลักแยกจากจุดแวะรายวัน',
+                          ),
+                          DestinationPreview(
+                            point: LatLng(
+                              t.destinationLatitude!,
+                              t.destinationLongitude!,
+                            ),
+                            label: t.destination,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         AsyncContent(
                           value: ref.watch(activitiesProvider(tripKey)),
                           retry: () =>

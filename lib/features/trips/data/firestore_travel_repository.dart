@@ -15,14 +15,9 @@ class FirestoreTravelRepository implements TravelRepository {
   DateTime? stamp(dynamic value) => value is Timestamp ? value.toDate() : null;
   Trip trip(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
-    return Trip(
-      id: doc.id,
-      title: d['title'],
-      destination: d['destination'],
-      startDate: d['startDate'],
-      endDate: d['endDate'],
-      budgetSatang: d['budgetSatang'],
-      status: d['status'],
+    return Trip.fromFields(
+      doc.id,
+      d,
       createdAt: stamp(d['createdAt']),
       updatedAt: stamp(d['updatedAt']),
     );

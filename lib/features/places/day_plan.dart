@@ -1,3 +1,4 @@
+import 'package:latlong2/latlong.dart';
 import 'curated_places.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -62,6 +63,13 @@ class _DayPlanState extends ConsumerState<DayPlan> {
         if (widget.showMap)
           DailyMap(
             activities: list,
+            destination: widget.trip.hasDestinationPin
+                ? LatLng(
+                    widget.trip.destinationLatitude!,
+                    widget.trip.destinationLongitude!,
+                  )
+                : null,
+            destinationLabel: widget.trip.destination,
             onChoosePlace: disabled
                 ? null
                 : (p) => context.push(

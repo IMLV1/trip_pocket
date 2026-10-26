@@ -1,3 +1,8 @@
+import 'package:latlong2/latlong.dart';
+import '../../places/place_picker_sheet.dart';
+import '../../places/curated_places.dart';
+import '../../places/recommendations_sheet.dart';
+import '../../places/destination_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -49,7 +54,46 @@ class _TripEditorState extends ConsumerState<TripEditor> {
       );
   late String start = widget.initial?.startDate ?? dateKey(DateTime.now()),
       end = widget.initial?.endDate ?? start;
-  bool busy = false;
+  bool busy = false, selecting = false;
+  late LatLng? destinationPoint = widget.initial?.hasDestinationPin == true
+      ? LatLng(
+          widget.initial!.destinationLatitude!,
+          widget.initial!.destinationLongitude!,
+        )
+      : null;
+  Future<void> chooseDestination({bool search = false}) async {
+    if (busy || selecting) return;
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() => selecting = true);
+    try {
+      CuratedPlace? place;
+      if (search) {
+        place = await showModalBottomSheet<CuratedPlace>(
+          context: context,
+          isScrollControlled: true,
+          useSafeArea: true,
+          builder: (_) =>
+              RecommendationsSheet(remaining: parseMoney(budget.text) ?? 0),
+        );
+        if (place == null || !mounted) return;
+      }
+      if (!mounted) return;
+      final point = await pickPlace(context, place?.point ?? destinationPoint);
+      if (point == null || !mounted) return;
+      setState(() {
+        destinationPoint = point;
+        if (place != null) destination.text = place.name;
+        if (destination.text.trim().isEmpty) {
+          destination.text = 'พื้นที่ที่เลือก';
+        }
+      });
+    } catch (e) {
+      if (mounted) showError(context, e);
+    } finally {
+      if (mounted) setState(() => selecting = false);
+    }
+  }
+
   @override
   void dispose() {
     title.dispose();
@@ -77,7 +121,7 @@ class _TripEditorState extends ConsumerState<TripEditor> {
   }
 
   Future<void> save() async {
-    if (busy || !form.currentState!.validate()) return;
+    if (busy || selecting || !form.currentState!.validate()) return;
     if (end.compareTo(start) < 0) {
       showError(context, StateError('วันสิ้นสุดต้องไม่ก่อนวันเริ่ม'));
       return;
@@ -92,6 +136,8 @@ class _TripEditorState extends ConsumerState<TripEditor> {
               id: id,
               title: title.text,
               destination: destination.text,
+              destinationLatitude: destinationPoint?.latitude,
+              destinationLongitude: destinationPoint?.longitude,
               startDate: start,
               endDate: end,
               budgetSatang: parseMoney(budget.text)!,
@@ -137,8 +183,62 @@ class _TripEditorState extends ConsumerState<TripEditor> {
                   key: const Key('destination'),
                   controller: destination,
                   enabled: !busy,
-                  decoration: const InputDecoration(labelText: 'จุดหมาย'),
+                  decoration: const InputDecoration(
+                    labelText: 'จังหวัด / พื้นที่ที่จะไป',
+                    hintText: 'เช่น เชียงใหม่ หรือชื่อสถานที่',
+                    helperText: 'ชื่อนี้เป็นป้ายกำกับ เปลี่ยนชื่อไม่ย้ายหมุด',
+                  ),
                   validator: textError,
+                ),
+                const SizedBox(height: 12),
+                FilledButton.tonalIcon(
+                  key: const Key('search-destination'),
+                  onPressed: busy || selecting
+                      ? null
+                      : () => chooseDestination(search: true),
+                  icon: const Icon(Icons.search),
+                  label: const Text('ค้นหาสถานที่ / จังหวัด'),
+                ),
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
+                  key: const Key('pick-destination'),
+                  onPressed: busy || selecting ? null : chooseDestination,
+                  icon: const Icon(Icons.map_outlined),
+                  label: Text(
+                    selecting
+                        ? 'กำลังเปิดแผนที่…'
+                        : destinationPoint == null
+                        ? 'เลือกพื้นที่บนแผนที่'
+                        : 'เปลี่ยนตำแหน่งหมุด',
+                  ),
+                ),
+                if (destinationPoint != null) ...[
+                  const SizedBox(height: 12),
+                  DestinationPreview(
+                    key: const Key('destination-preview'),
+                    point: destinationPoint!,
+                    label: destination.text,
+                  ),
+                  Text(
+                    '${destinationPoint!.latitude.toStringAsFixed(4)}, ${destinationPoint!.longitude.toStringAsFixed(4)}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                  TextButton(
+                    key: const Key('clear-destination-pin'),
+                    onPressed: busy || selecting
+                        ? null
+                        : () => setState(() => destinationPoint = null),
+                    child: const Text('เอาหมุดพื้นที่หลักออก'),
+                  ),
+                ] else
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      'ยังไม่มีหมุดพื้นที่หลัก • ค้นหาหรือแตะแผนที่เพื่อระบุตำแหน่ง',
+                    ),
+                  ),
+                const Text(
+                  'หมุดนี้ระบุพื้นที่หลักของทริป ส่วนร้านอาหาร ที่พัก และจุดแวะเพิ่มในแผนรายวันได้',
                 ),
                 const SizedBox(height: 12),
                 ListTile(
@@ -169,7 +269,7 @@ class _TripEditorState extends ConsumerState<TripEditor> {
                 const SizedBox(height: 24),
                 FilledButton(
                   key: const Key('save-trip'),
-                  onPressed: busy ? null : save,
+                  onPressed: busy || selecting ? null : save,
                   child: Text(busy ? 'กำลังบันทึก…' : 'บันทึกทริป'),
                 ),
               ],

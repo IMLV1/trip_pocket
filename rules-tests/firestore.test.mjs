@@ -40,3 +40,25 @@ test('V2 reorder batch and resumable child cleanup retain owner restrictions',as
   await updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()});await assertFails(updateDoc(doc(d,tripPath+'/activities/v0'),{orderIndex:1,updatedAt:serverTimestamp()}));
   batch=writeBatch(d);for(let i=0;i<100;i++)batch.delete(doc(d,tripPath+'/activities/v'+i));await assertSucceeds(batch.commit());await assertSucceeds(deleteDoc(p));
 });
+
+test('trip destination pin accepts legacy/null/pair and rejects malformed or cross-account edits',async()=>{
+ const d=db(),p=doc(d,tripPath);
+ await assertSucceeds(setDoc(p,trip()));
+ await assertSucceeds(updateDoc(p,{destinationLatitude:18.78,destinationLongitude:98.98,updatedAt:serverTimestamp()}));
+ const pinned=await getDoc(p);if(pinned.data().destinationLatitude!==18.78)throw Error('pin not persisted');
+ for(const change of [
+  {destinationLatitude:91,destinationLongitude:98.98},
+  {destinationLatitude:18.78,destinationLongitude:-181},
+  {destinationLatitude:NaN,destinationLongitude:98.98},
+  {destinationLatitude:Infinity,destinationLongitude:98.98},
+  {destinationLatitude:'18.78',destinationLongitude:98.98},
+  {destinationLatitude:null,destinationLongitude:98.98},
+  {destinationLatitude:18.78},
+  {destinationLongitude:98.98}
+ ])await assertFails(setDoc(p,{...trip(),...change}));
+ await assertFails(updateDoc(doc(db('other'),tripPath),{destinationLatitude:13.7,destinationLongitude:100.5,updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(p,{destinationLatitude:null,destinationLongitude:null,updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(p,{destinationLatitude:18.78,destinationLongitude:98.98,updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(p));
+});

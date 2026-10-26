@@ -130,6 +130,7 @@ void main() {
       await tester.enterText(find.byKey(const Key('destination')), 'เชียงใหม่');
       await tester.enterText(find.byKey(const Key('budget')), '2500.50');
       await tester.ensureVisible(find.byKey(const Key('save-trip')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('save-trip')));
       await tester.pump();
       expect(
@@ -171,6 +172,7 @@ void main() {
       await tester.enterText(find.byKey(const Key('destination')), 'เชียงใหม่');
       await tester.enterText(find.byKey(const Key('budget')), '3000');
       await tester.ensureVisible(find.byKey(const Key('save-trip')));
+      await tester.pumpAndSettle();
       await tester.pumpAndSettle();
       expect(
         tester.getBottomRight(find.byKey(const Key('save-trip'))).dy,

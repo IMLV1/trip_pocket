@@ -19,12 +19,16 @@ Color categoryColor(String category) => switch (category) {
 
 class DailyMap extends ConsumerStatefulWidget {
   final List<TripActivity> activities;
+  final LatLng? destination;
+  final String destinationLabel;
   final void Function(TripActivity) onSelect;
   final void Function(LatLng)? onAdd;
   final void Function(CuratedPlace)? onChoosePlace;
   const DailyMap({
     super.key,
     required this.activities,
+    this.destination,
+    this.destinationLabel = '',
     required this.onSelect,
     this.onAdd,
     this.onChoosePlace,
@@ -67,6 +71,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
     final points = widget.activities
         .map((a) => LatLng(a.latitude, a.longitude))
         .toList();
+    if (widget.destination != null) points.add(widget.destination!);
     if (points.isEmpty) points.add(const LatLng(15, 101));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -95,7 +100,10 @@ class _DailyMapState extends ConsumerState<DailyMap> {
             ),
             options: MapOptions(
               initialCenter: points.first,
-              initialZoom: widget.activities.isEmpty ? 5 : 13,
+              initialZoom:
+                  widget.activities.isEmpty && widget.destination == null
+                  ? 5
+                  : 13,
               onTap: (tap, p) async {
                 if (widget.onAdd == null) return;
                 final boundary = await ThailandBoundary.load();
@@ -129,7 +137,8 @@ class _DailyMapState extends ConsumerState<DailyMap> {
                 );
                 if (confirmed == true && mounted) widget.onAdd?.call(p);
               },
-              initialCameraFit: widget.activities.isEmpty
+              initialCameraFit:
+                  widget.activities.isEmpty && widget.destination == null
                   ? CameraFit.bounds(
                       bounds: LatLngBounds(
                         const LatLng(5.6, 97.3),
@@ -176,6 +185,23 @@ class _DailyMapState extends ConsumerState<DailyMap> {
                 ),
               MarkerLayer(
                 markers: [
+                  if (widget.destination != null)
+                    Marker(
+                      point: widget.destination!,
+                      width: 52,
+                      height: 52,
+                      child: Semantics(
+                        label: 'พื้นที่หลักของทริป ${widget.destinationLabel}',
+                        child: Tooltip(
+                          message: 'พื้นที่หลัก: ${widget.destinationLabel}',
+                          child: const Icon(
+                            Icons.location_pin,
+                            size: 50,
+                            color: Color(0xff126b5e),
+                          ),
+                        ),
+                      ),
+                    ),
                   if (fix != null)
                     Marker(
                       point: fix!.point,
@@ -271,7 +297,8 @@ class _DailyMapState extends ConsumerState<DailyMap> {
             TextButton(
               onPressed: () => controller.fitCamera(
                 CameraFit.bounds(
-                  bounds: widget.activities.isEmpty
+                  bounds:
+                      widget.activities.isEmpty && widget.destination == null
                       ? LatLngBounds(
                           const LatLng(5.6, 97.3),
                           const LatLng(20.5, 105.7),

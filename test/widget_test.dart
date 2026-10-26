@@ -46,6 +46,7 @@ void main() {
     await tester.enterText(find.byKey(const Key('destination')), 'เชียงใหม่');
     await tester.enterText(find.byKey(const Key('budget')), '3000.10');
     await tester.ensureVisible(find.byKey(const Key('save-trip')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('save-trip')));
     await tester.pumpAndSettle();
     expect(find.text('เชียงใหม่'), findsOneWidget);

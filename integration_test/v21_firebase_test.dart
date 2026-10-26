@@ -54,9 +54,40 @@ void main() {
         startDate: '2026-11-06',
         endDate: '2026-11-08',
         budgetSatang: 300000,
+        destinationLatitude: 18.78,
+        destinationLongitude: 98.98,
       );
       try {
         await repo.saveTrip(uid, t, create: true);
+        final persisted = repo.trip(
+          await repo
+              .trips(uid)
+              .doc(t.id)
+              .get(const GetOptions(source: Source.server)),
+        );
+        expect(persisted.destinationLatitude, 18.78);
+        expect(persisted.destinationLongitude, 98.98);
+        // Explicitly removing a pin writes a null pair and keeps the budget.
+        await repo.saveTrip(
+          uid,
+          Trip(
+            id: t.id,
+            title: t.title,
+            destination: t.destination,
+            startDate: t.startDate,
+            endDate: t.endDate,
+            budgetSatang: t.budgetSatang,
+          ),
+          create: false,
+        );
+        final cleared = repo.trip(
+          await repo
+              .trips(uid)
+              .doc(t.id)
+              .get(const GetOptions(source: Source.server)),
+        );
+        expect(cleared.hasDestinationPin, isFalse);
+        expect(cleared.budgetSatang, t.budgetSatang);
         final parent = repo.trips(uid).doc(t.id),
             legacy = repo
                 .trips(uid)

@@ -3,6 +3,7 @@ import '../../../core/validation.dart';
 class Trip {
   final String id, title, destination, startDate, endDate, status;
   final int budgetSatang;
+  final double? destinationLatitude, destinationLongitude;
   final DateTime? createdAt, updatedAt;
   const Trip({
     required this.id,
@@ -11,11 +12,44 @@ class Trip {
     required this.startDate,
     required this.endDate,
     required this.budgetSatang,
+    this.destinationLatitude,
+    this.destinationLongitude,
     this.status = 'active',
     this.createdAt,
     this.updatedAt,
   });
+  factory Trip.fromFields(
+    String id,
+    Map<String, dynamic> d, {
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) => Trip(
+    id: id,
+    title: d['title'],
+    destination: d['destination'],
+    startDate: d['startDate'],
+    endDate: d['endDate'],
+    budgetSatang: d['budgetSatang'],
+    status: d['status'],
+    destinationLatitude: (d['destinationLatitude'] as num?)?.toDouble(),
+    destinationLongitude: (d['destinationLongitude'] as num?)?.toDouble(),
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+  );
+  bool get hasDestinationPin =>
+      destinationLatitude != null && destinationLongitude != null;
   void validate() {
+    requireValid(
+      (destinationLatitude == null && destinationLongitude == null) ||
+          (hasDestinationPin &&
+              destinationLatitude!.isFinite &&
+              destinationLongitude!.isFinite &&
+              destinationLatitude! >= -90 &&
+              destinationLatitude! <= 90 &&
+              destinationLongitude! >= -180 &&
+              destinationLongitude! <= 180),
+      'พิกัดพื้นที่หลักไม่ถูกต้อง',
+    );
     requireValid(
       textError(title) == null && textError(destination) == null,
       'ชื่อและจุดหมายต้องมี 1–100 ตัวอักษร',
@@ -35,6 +69,8 @@ class Trip {
   Map<String, dynamic> fields() => {
     'title': title.trim(),
     'destination': destination.trim(),
+    'destinationLatitude': destinationLatitude,
+    'destinationLongitude': destinationLongitude,
     'startDate': startDate,
     'endDate': endDate,
     'budgetSatang': budgetSatang,

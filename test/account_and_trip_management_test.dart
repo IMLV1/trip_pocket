@@ -175,4 +175,20 @@ void main() {
       expect(find.text('ไม่พบชื่อทริปที่ค้นหา'), findsOneWidget);
     },
   );
+  testWidgets('end date picker excludes the start date', (tester) async {
+    await open(tester);
+    await tester.tap(find.text('สร้างทริป'));
+    await tester.pumpAndSettle();
+    final startTile = tester.widget<ListTile>(
+      find.byKey(const Key('trip-start-date')),
+    );
+    final start = DateTime.parse((startTile.subtitle! as Text).data!);
+    await tap(tester, 'trip-end-date');
+    final dialog = tester.widget<DatePickerDialog>(
+      find.byType(DatePickerDialog),
+    );
+    expect(dialog.firstDate, start.add(const Duration(days: 1)));
+    expect(dialog.initialDate!.isAfter(start), isTrue);
+    expect(dialog.firstDate.isAfter(start), isTrue);
+  });
 }

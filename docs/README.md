@@ -62,3 +62,6 @@ MVP มีระบบสมาชิก CRUD ทริปและกิจก�
 ## วิธีรักษาเอกสารให้ตรงกัน
 
 Database Design เป็นสัญญาข้อมูลฉบับละเอียด Backend Architecture อธิบายการเชื่อมต่อและ workflow ส่วน Frontend Architecture เป็นสัญญาหน้าจอ หากตัดสินใจเปลี่ยน schema, route หรือขอบเขต ให้แก้เอกสารที่เกี่ยวข้องและข้อเสนอในงานเดียวกัน แผนงานใช้เช็กบ็อกซ์ที่ติ๊กเมื่อมีหลักฐานทดสอบแล้วเท่านั้น
+
+- [บัญชี โปรไฟล์ และการกู้รหัสผ่าน](FEATURE_ACCOUNT_PROFILE.md): Firebase Auth/Google identity และข้อจำกัดการตั้งค่า native
+- [รายงานตรวจ Git ทั้ง repository](REPOSITORY_AUDIT.md)

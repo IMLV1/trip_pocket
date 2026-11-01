@@ -178,6 +178,21 @@ void main() {
         await packing.save(uid, tripId, [
           const PackingItem('p', 'charger', true),
         ]);
+        final serverDoc = tripRepo.trips(uid).doc(tripId);
+        final denied = throwsA(
+          isA<FirebaseException>().having(
+            (e) => e.code,
+            'code',
+            'permission-denied',
+          ),
+        );
+        await expectLater(
+          serverDoc.update({
+            'endDate': t.startDate,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }),
+          denied,
+        );
         await tripRepo.completeTrip(uid, tripId);
         await tripRepo.completeTrip(uid, tripId);
         final stored = tripRepo.trip(
@@ -187,6 +202,14 @@ void main() {
               .get(const GetOptions(source: Source.server)),
         );
         expect(stored.completed, isTrue);
+        await expectLater(
+          serverDoc.update({
+            'completed': false,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }),
+          denied,
+        );
+
         expect(stored.budgetSatang, 12345);
         expect((await packing.load(uid, tripId)).single.checked, isTrue);
         await tripRepo.saveTrip(
@@ -242,11 +265,12 @@ void main() {
         }
         await repository.signIn(email, password);
       } finally {
-        if (auth.currentUser?.uid != uid)
+        if (auth.currentUser?.uid != uid) {
           await auth.signInWithEmailAndPassword(
             email: email,
             password: password,
           );
+        }
         await tripRepo.deleteTrip(uid, tripId);
         await auth.currentUser!.delete();
         await auth.signOut();

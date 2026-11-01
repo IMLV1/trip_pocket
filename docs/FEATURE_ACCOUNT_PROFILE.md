@@ -13,3 +13,10 @@
 - Firebase live provider configuration และ Rules strict dates ต้องเตรียม/ทดสอบก่อนเผยแพร่และขอยืนยันเมื่อกฎเครื่องมือกำหนด ทดสอบ UI/Emulator/Google interactive/live แยกกัน ไม่อ้าง Google sign-in ผ่านหากไม่ได้เลือกบัญชีจริง
 
 แหล่ง API ที่ตรวจ: https://firebase.google.com/docs/auth/flutter/manage-users, https://firebase.google.com/docs/auth/flutter/federated-auth และ google_sign_in 7.2.0 จาก flutter.dev บน pub.dev
+## Native Firebase configuration
+
+Google provider เปิดแล้วใน project trippocket-382b7 (Spark) ชื่อสาธารณะ TripPocket ใช้ support email เจ้าของโปรเจกต์ ไม่ขอ Gmail/contacts scope Android config มี OAuth client type 1 สำหรับ debug SHA-1 และ type 3 สำหรับ server client; iOS config มี CLIENT_ID/REVERSED_CLIENT_ID และ Info.plist ตั้ง GIDClientID/GIDServerClientID/CFBundleURLSchemes แล้ว
+
+SHA-1 ที่ลงทะเบียนเป็น debug certificate ของเครื่องพัฒนาเท่านั้น เมื่อทำ signed release หรือใช้ Play App Signing ต้องเพิ่ม SHA-1 ของ certificate นั้นและดาวน์โหลด config ใหม่ก่อนทดสอบ Google บน build นั้น ห้ามนำ private keystore ขึ้น Git
+
+Windows ตรวจโครงสร้าง plist/IDs ได้ แต่ไม่แทนการ build ด้วย Xcode หรือทดสอบ Google callback บน iOS การล็อกอินด้วยบัญชี Google จริงให้เจ้าของบัญชียืนยันเอง ไม่เก็บ Google password ในแอป

@@ -352,3 +352,12 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - Google fixture ไม่ใช่ Google OAuth จริง; live SDK และ UI รอบใหม่ยังไม่อ้างผ่าน
 - ผู้ใช้อนุญาตตั้งค่า Firebase จริงแล้ว เปิด Google provider สำเร็จ ใช้ TripPocket/support email เจ้าของ เพิ่ม SHA-1 debug และดาวน์โหลด native OAuth configs; ยังไม่เปิด Billing
 - อัปเดต Android google-services.json และ iOS plist/URL scheme จาก config จริง ตรวจ project/bundle/client type แล้ว; iOS ยังไม่ได้ build บน Windows
+
+### บัญชีและการจัดการทริป — live verification
+
+- เผยแพร่ Firestore Rules ผ่าน Console สำเร็จ 2 พ.ย. 2569 เวลา 02:29 ตามหน้าประวัติ Console หลังผู้ใช้อนุญาต; SHA256 C0E6260DD8BDCB198FBA73848181FDBF6309E8DB4DC306D18F693B95D8A1F0A9
+- Android Emulator API 37: account_management_firebase_test พร้อม LIVE_ACCOUNT_TEST=true ผ่านกับ Firebase project trippocket-382b7 จริง: แก้ชื่อ/reload UID เดิม, reauthenticate ด้วยรหัสผิดถูก, เปลี่ยนรหัสและล็อกอินใหม่, complete ซ้ำได้/แก้รายละเอียดหลังจบ, budget/checklist คงเดิม และ cross-account denied
+- ตรวจ Rules จริงด้วย direct SDK update: endDate เท่ากับ startDate และ completed true -> false ถูกปฏิเสธ permission-denied; อ่าน Source.server ตรวจสถานะจริงแล้ว
+- สร้างและล้างเฉพาะบัญชี/ทริปทดสอบใน finally ไม่ใช้ข้อมูลบัญชีเจ้าของ และไม่เปิด billing
+- Android UI 3 scenarios ผ่านด้วย fake repositories: reset validation/generic response, profile/password confirmation, search/cancel/confirm complete/list separation
+- live test ไม่ส่งอีเมลไป example.com และไม่ใช้ Google fixture กับ live Auth; reset OOB code ผ่านเฉพาะ Auth Emulator, การรับอีเมลจริงและ Google interactive ยังไม่ได้ตรวจ

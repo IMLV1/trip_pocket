@@ -198,3 +198,12 @@ P5/P6 แยกงานได้หลังสัญญาข้อมูล�
 - [x] แสดงหมุดพื้นที่หลักแยกในแผนที่รายวัน เปลี่ยน/ล้างหมุดได้ ยกเลิกไม่ทับ draft
 - [x] Flutter 38, Rules 10, Android workflow และ live Firebase SDK ผ่านตามสถานะ
 - [x] Rules เผยแพร่หลังผู้ใช้ยืนยัน และ APK ปกติส่งมอบพร้อม hash ใน IMPLEMENTATION_STATUS.md
+
+## บัญชีและการจัดการทริป — 2 พฤศจิกายน 2569
+
+- [x] ลืมรหัสผ่านด้วย Firebase Auth, แก้ชื่อ/รูปจาก Google และเปลี่ยนรหัสผ่านด้วย reauthentication
+- [x] วันเริ่มก่อนวันจบ: domain/form/Rules พร้อมอ่านและลบทริปเก่าวันเดียวกันได้
+- [x] ค้นชื่อทริป และยืนยันจบทริป แยกกำลังจะไป/จบทริปแล้ว โดยไม่ลบรายละเอียด
+- [x] Rules Emulator 12 กลุ่ม และ live SDK profile/password/completion/ownership ผ่านตาม IMPLEMENTATION_STATUS.md
+- [x] เปิด Google provider/เพิ่ม debug SHA-1/native configs และเผยแพร่ Rules หลังผู้ใช้อนุญาต
+- [ ] Google interactive ด้วยบัญชีจริง, รับ reset email จริง และ iOS build/runtime (ยังไม่ได้ทดสอบ)

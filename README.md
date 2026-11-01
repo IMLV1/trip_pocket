@@ -1,69 +1,169 @@
 # TripPocket
 
-แอป Flutter ภาษาไทยสำหรับวางแผนเที่ยวส่วนตัว ใช้ Firebase Authentication และ Cloud Firestore โดยตรง เป้าหมาย Android
+แอป Flutter ภาษาไทยสำหรับวางแผนเที่ยวส่วนตัวในประเทศไทย สร้างทริป จัดจุดหมายรายวันบนแผนที่ คุมงบ เตรียมของ และแชร์แผนเป็นข้อความ ใช้ Firebase Authentication และ Cloud Firestore เป็น backend โดยตรง รองรับ Android และ iOS
 
-## ใช้งาน
+อยากรู้ว่าแต่ละหน้าและแต่ละส่วนของโค้ดทำอะไร อ่าน [คู่มืออธิบายหน้าจอและโค้ด](docs/CODE_GUIDE.md)
 
-ต้องมี Flutter 3.44.6 / Dart 3.12.2 และ Android SDK พร้อมอุปกรณ์หรือ emulator
+## ความสามารถ
 
-~~~powershell
+- **บัญชี:** สมัครและเข้าสู่ระบบด้วยอีเมลหรือ Google, ลืมรหัสผ่าน, แก้ชื่อที่แสดง, ใช้รูปจาก Google และเปลี่ยนรหัสผ่าน
+- **ทริป:** สร้าง แก้ไข ลบ ค้นหาชื่อ ปักหมุดพื้นที่หลัก และกดจบทริปเพื่อแยกไปหมวดจบทริปแล้ว
+- **แผนรายวัน:** เพิ่มหลายจุดหมายต่อวัน เรียงลำดับเอง แบ่งหมวด และแก้ไขจากรายการหรือหมุดบนแผนที่
+- **ค้นหาทั่วไทย:** 67,074 สถานที่จาก OpenStreetMap ครบ 77 จังหวัด ค้นหาได้แบบออฟไลน์ กรองตามจังหวัด อำเภอ/เขต ตำบล/แขวง และหมวด พร้อมไอคอนแนะนำบนแผนที่
+- **งบ:** ตั้งงบทริป กรอกค่ากิจกรรมและค่าเดินทางเอง แอปสรุปยอดและบอกจำนวนรายการที่ยังไม่ทราบราคา
+- **แผนที่และนำทาง:** ดูหมุดรายวัน อ่านตำแหน่งของฉันเมื่อกด และเปิด Google Maps ภายนอกเพื่อนำทาง
+- **เช็กลิสต์เตรียมของ:** เก็บเฉพาะเครื่อง แยกตามบัญชีและทริป ใช้ได้แม้ออฟไลน์
+- **แชร์แผน:** ดูตัวอย่างข้อความก่อนส่งผ่าน share sheet ของระบบ
+
+## เทคโนโลยี
+
+| เรื่อง | ที่ใช้ |
+|---|---|
+| แอป | Flutter, Dart `^3.12.2`, Material 3 |
+| State / Navigation | Riverpod แบบไม่ใช้ code generation, go_router |
+| Backend | Firebase Authentication, Cloud Firestore, Firestore Security Rules |
+| แผนที่ | flutter_map, latlong2, พื้นแผนที่ OpenStreetMap |
+| ในเครื่อง | SharedPreferences, ฐานสถานที่ใน `assets/` |
+| ความสามารถของเครื่อง | geolocator, url_launcher, share_plus, google_sign_in |
+
+ไม่มี Go server, REST API ของตัวเอง หรือ API แบบเสียเงิน และไม่ได้เปิด Billing
+
+## เริ่มใช้งาน
+
+ต้องมี Flutter 3.44 ขึ้นไป ร่วมกับ Android SDK หรือ Xcode และอุปกรณ์หรือ emulator/simulator
+
+```bash
 flutter pub get
-flutter run -d emulator-5554
-~~~
+```
 
-โหมดปกติเชื่อม Firebase จริง project `trippocket-382b7` บน Spark ฟรี เปิด Email/Password และใช้ Firestore Standard ที่ Bangkok (`asia-southeast3`) แล้ว Android package คือ `com.imlv1.trippocket`
+```bash
+flutter run
+```
 
-สมัครบัญชีของตนเองในแอป → สร้างทริป → เพิ่มกิจกรรม เลือกและยืนยันหมุด → ตรวจงบ → เช็กของ → preview และเปิด share sheet
+ค่าเริ่มต้นคือโหมด `live` ซึ่งเชื่อม Firebase จริง project `trippocket-382b7` บน Spark ฟรี Firestore อยู่ที่ Bangkok (`asia-southeast3`) รหัสแอป Android และ iOS คือ `com.imlv1.trippocket`
 
-## โหมดทดสอบ
+ลำดับการใช้งานหลัก: สมัครบัญชี → สร้างทริป → เพิ่มจุดหมาย เลือกและยืนยันหมุด → ตรวจงบ → เช็กของ → ดูตัวอย่างและแชร์ → จบทริป
 
-~~~powershell
+## โหมดการทำงาน
+
+เลือกด้วย `--dart-define=APP_MODE=<โหมด>` ส่วน Release ยอมรับเฉพาะ `live`
+
+| โหมด | ข้อมูลอยู่ที่ไหน | ใช้เมื่อ |
+|---|---|---|
+| `live` | Firebase จริง | ใช้งานจริง |
+| `emulator` | Firebase Emulator project `demo-trippocket` | ทดสอบ Auth และ Firestore โดยไม่เขียน project จริง |
+| `demo` | ทริปอยู่ในหน่วยความจำและหายเมื่อปิดแอป เช็กลิสต์ยังเก็บในเครื่อง | ลอง UI โดยไม่ต้องเปิด Firebase |
+
+ลองโหมด demo:
+
+```bash
+flutter run --dart-define=APP_MODE=demo
+```
+
+ลองโหมด emulator ต้องเปิด emulator ก่อน แล้วรันแอปจากอีก terminal:
+
+```bash
 npm ci
+```
+
+```bash
 npm run emulators
-# อีก terminal
+```
+
+```bash
 flutter run --dart-define=APP_MODE=emulator
-~~~
+```
 
-Android Emulator ใช้ host `10.0.2.2` ports Auth 9099 / Firestore 8080; มือถือจริงระบุ `--dart-define=EMULATOR_HOST=<IP เครื่องพัฒนา>` โหมด emulator ใช้ Firebase app แยกชื่อและ project `demo-trippocket` ไม่เขียน project จริง
-
-ลอง UI โดยไม่เปิด Firebase: `flutter run --dart-define=APP_MODE=demo` มีป้ายโหมดจำลองชัดเจน ทริป demo อยู่ในหน่วยความจำและหายเมื่อปิดแอป เช็กลิสต์ยังเก็บในเครื่อง Release ยอมรับเฉพาะ live
+ค่าเริ่มต้นของ host คือ `10.0.2.2` สำหรับ Android Emulator ส่วน iOS Simulator ให้เพิ่ม `--dart-define=EMULATOR_HOST=localhost` และมือถือจริงให้ใช้ IP เครื่องพัฒนา Port ที่ใช้คือ Auth 9099 และ Firestore 8080
 
 ## ตรวจสอบ
 
-~~~powershell
+```bash
 flutter analyze
+```
+
+```bash
 flutter test
+```
+
+```bash
 npm run test:rules
-flutter test integration_test/firebase_flow_test.dart -d emulator-5554 --dart-define=APP_MODE=emulator
-flutter test integration_test/ui_flow_test.dart -d emulator-5554
+```
+
+```bash
+flutter test integration_test/ui_flow_test.dart -d <device-id>
+```
+
+```bash
+flutter test integration_test/firebase_flow_test.dart -d <device-id> --dart-define=APP_MODE=emulator
+```
+
+Rules test ต้องมี Java 21 ใน PATH รายการชุดทดสอบทั้งหมดอยู่ใน [คู่มือโค้ด](docs/CODE_GUIDE.md#ชุดทดสอบ) ถ้าจะทดสอบกับ Firebase จริงให้ใช้เฉพาะบัญชีทดสอบ และอย่าใช้ข้อมูลส่วนตัว
+
+## Build
+
+```bash
 flutter build apk --debug
-~~~
+```
 
-Rules emulator ต้องมี Java 21 ใน PATH เช่น Android Studio jbr หากต้องการทดสอบ live ให้เปลี่ยน APP_MODE เป็น live ใน firebase_flow_test เท่านั้น ซึ่งสร้างบัญชี/ทริปทดสอบและล้างเมื่อจบ อย่าใช้ข้อมูลส่วนตัวกับชุดทดสอบ
+APK อยู่ที่ `build/app/outputs/flutter-apk/app-debug.apk` การ build integration test ใช้ path เดียวกัน จึงต้อง build จาก `lib/main.dart` ใหม่ก่อนแจก
 
-APK อยู่ที่ `build/app/outputs/flutter-apk/app-debug.apk` การ build integration test จะใช้ path เดียวกัน จึงต้อง build main ใหม่ก่อนแจก APK
+```bash
+flutter build ios --simulator --debug
+```
 
-## ค้นหาทั่วไทย • ฟรี
+iOS ตั้งขั้นต่ำเป็น 15.0
 
-เพิ่มจุดหมายหลายจุดต่อวันจากแผนที่หรือค้นหาจากฐาน OpenStreetMap ทั่วไทย เรียงหมุด แยกหมวดและค่าเดินทาง อ่านตำแหน่งของฉันเมื่อกด และเปิด Google Maps นำทาง ไม่ใช้ Places/Routes API หรือเปิด Billing
+## โครงสร้างโปรเจกต์
 
-ค้นหา 67,074 สถานที่จากข้อมูลชุมชน ครบ 77 จังหวัด พร้อมไอคอนแนะนำบนแผนที่และตัวกรองจังหวัด/หมวด พิกัดแนะนำต้องยืนยันก่อนเพิ่ม ราคาไม่ทราบไม่ถือว่าฟรี ยอดกิจกรรมและค่าเดินทางเป็นยอดรวมทั้งกลุ่มที่ผู้ใช้กรอก ไม่คำนวณต่อรถหรือค่าโดยสารทั่วประเทศ
+```text
+lib/
+├── main.dart        เริ่มแอปและเลือกโหมด
+├── app/             router และ providers
+├── core/            design system, validation, widget กลาง
+└── features/        auth, trips, activities, places, packing, sharing
+assets/              ฐานสถานที่ ขอบเขตประเทศ ฟอนต์
+test/                unit และ widget tests
+integration_test/    ทดสอบบนอุปกรณ์
+rules-tests/         ทดสอบ Firestore Rules
+tools/               สร้างฐานสถานที่ใหม่
+docs/                เอกสารออกแบบ คู่มือ รายงาน และสไลด์
+```
 
-ดู [ค้นหาทั่วไทยและผลตรวจ](docs/FEATURE_NATIONWIDE_PLACES.md), [คู่มือตรวจ V2.1](docs/V21_TEST_GUIDE.md) และ [สัญญาส่วนขยาย](docs/FEATURE_THAILAND_TRIP_PLANNER.md)
+## หลักการข้อมูล
 
-## ความสามารถและข้อจำกัด
+- ข้อมูล cloud แยกตาม uid และบังคับสิทธิ์ด้วย Firestore Rules ไม่ใช่แค่ฝั่งแอป
+- เงินเก็บเป็นสตางค์จำนวนเต็ม วันเก็บเป็น `YYYY-MM-DD` เวลาเก็บเป็นนาทีตั้งแต่เที่ยงคืน และยอดรวมคำนวณจากกิจกรรมทุกครั้ง
+- ราคาที่ไม่ทราบไม่ถือว่าฟรี ค่าเดินทางของช่วงที่จุดหรือเวลาเปลี่ยนแล้วจะไม่ถูกนับ
+- ลบทริปตามลำดับ deleting → กิจกรรม → ทริป → ข้อมูลในเครื่อง และทำต่อจากหน้ารายการได้ถ้าหลุดกลางทาง
+- ตำแหน่งปัจจุบันอ่านเมื่อผู้ใช้กดเท่านั้น ไม่บันทึกลงบัญชีและไม่ติดตามเบื้องหลัง
+- ข้อความแชร์ไม่รวมหมายเหตุ พิกัด หรือเช็กลิสต์ และไม่ให้สิทธิ์ฐานข้อมูลแก่ผู้รับ
 
-- 6 ประเภทหน้าจอ: login, register, รายการทริป, ฟอร์มทริป, รายละเอียด, ฟอร์มกิจกรรม
-- ข้อมูล cloud แยก uid, ตรวจสิทธิ์ด้วย Firestore Rules และ validation ฝั่งแอป
-- เงินเป็นสตางค์จำนวนเต็ม วันเป็น YYYY-MM-DD เวลาเป็นนาทีตั้งแต่เที่ยงคืน
-- ลบทริปแบบ deleting → children → parent → local cleanup และลองต่อได้จากรายการ
-- เช็กลิสต์เฉพาะเครื่อง แยกบัญชี/ทริป; JSON เสียจะแจ้งโดยไม่เขียนทับ
-- แชร์ข้อความหลัง preview โดยไม่รวมหมายเหตุ พิกัด หรือเช็กลิสต์ ผล share sheet ไม่ยืนยันการส่งถึงผู้รับ
-- แผนที่ OSM Standard มี attribution ที่มองเห็นและลิงก์ลิขสิทธิ์ ใช้ cache ของ flutter_map ตาม HTTP headers ไม่รองรับดาวน์โหลดแผนที่ออฟไลน์ ใช้เพื่อโครงงานขนาดเล็ก; เปลี่ยน URL ผ่าน TILE_URL และตรวจเงื่อนไข provider ใหม่ด้วย
-- การย่อวันตรวจ children จาก server แต่ไม่รับประกันการแก้พร้อมกันหลายอุปกรณ์
-- ตั้งค่า Firebase ให้ Android และ iOS แล้ว ส่วน Web ต้องลงทะเบียน app และสร้าง config เพิ่มก่อนใช้ live; ผลบน iOS ดู [รายงานทดสอบ](docs/TEST_REPORT_MAC_IOS.md)
-- ยังใช้ debug signing สำหรับ APK ทดสอบ ไม่ใช่ไฟล์พร้อมลง Play Store
+## ข้อจำกัด
 
-ผลทดสอบจริงและงานค้างอยู่ใน [IMPLEMENTATION_STATUS](docs/IMPLEMENTATION_STATUS.md), คู่มือสาธิต [DEMO_GUIDE](docs/DEMO_GUIDE.md), คู่มือรันตรวจ P7 [P7_TEST_GUIDE](docs/P7_TEST_GUIDE.md) และ [เอกสารออกแบบ](docs/README.md)
+- ผล share sheet ไม่ยืนยันว่าข้อความถึงผู้รับ
+- ไม่มีเส้นทางถนนหรือค่าโดยสารในแอป ค่าเดินทางเป็นยอดรวมที่ผู้ใช้กรอกเอง
+- ข้อมูลสถานที่มาจากชุมชน ไม่ยืนยันว่าร้านยังเปิด ไม่มีราคาและเวลาเปิดปิด และหมุดอาจไม่ใช่ทางเข้า
+- พื้นแผนที่ต้องใช้อินเทอร์เน็ตและไม่รองรับดาวน์โหลดออฟไลน์ ใช้ OSM Standard สำหรับโครงงานขนาดเล็ก ถ้าเปลี่ยน provider ผ่าน `TILE_URL` ต้องตรวจเงื่อนไขใหม่
+- การย่อวันทริปตรวจกิจกรรมจาก server แต่ไม่รับประกันการแก้พร้อมกันหลายอุปกรณ์
+- เช็กลิสต์ไม่ตามไปอุปกรณ์อื่น
+- Web ต้องลงทะเบียน app และสร้าง config เพิ่มก่อนใช้ live
+- APK ยังใช้ debug signing ไม่ใช่ไฟล์พร้อมลง Play Store
+- งานที่ยังไม่ได้ยืนยันอยู่ใน [IMPLEMENTATION_STATUS](docs/IMPLEMENTATION_STATUS.md)
 
-Firebase client config ใน source เป็นข้อมูลเชื่อมต่อแอป ไม่ใช่ Admin credential; ห้ามใส่ service account, signing key หรือรหัสผ่านผู้ใช้ใน repo การ deploy ครั้งต่อไปทำเมื่อได้รับมอบหมายพร้อมตรวจ Rules tests ก่อน
+## ข้อมูลและลิขสิทธิ์
+
+แผนที่และฐานสถานที่ใช้ข้อมูล © OpenStreetMap contributors ภายใต้ ODbL และต้องแสดง attribution ตามที่แอปทำไว้ ที่มาและเงื่อนไขทั้งหมดอยู่ใน [THAILAND_POIS_LICENSE](assets/THAILAND_POIS_LICENSE.txt) ส่วนการสร้างฐานใหม่ใช้ [build_poi_catalog.py](tools/build_poi_catalog.py)
+
+Firebase client config ใน source เป็นข้อมูลเชื่อมต่อแอป ไม่ใช่ Admin credential ห้ามใส่ service account, signing key หรือรหัสผ่านผู้ใช้ใน repo และก่อน deploy Rules ต้องผ่าน Rules tests
+
+## เอกสาร
+
+- [คู่มืออธิบายหน้าจอและโค้ด](docs/CODE_GUIDE.md)
+- [สารบัญเอกสารออกแบบ](docs/README.md)
+- [สถานะและผลทดสอบ](docs/IMPLEMENTATION_STATUS.md)
+- [คู่มือสาธิต](docs/DEMO_GUIDE.md)
+- [ค้นหาทั่วไทย](docs/FEATURE_NATIONWIDE_PLACES.md)
+- [บัญชีและโปรไฟล์](docs/FEATURE_ACCOUNT_PROFILE.md)
+- [รายงานทดสอบบน Mac และ iOS](docs/TEST_REPORT_MAC_IOS.md)
+- [สไลด์นำเสนอ](docs/slides/TripPocket-slides.html)

@@ -62,4 +62,3 @@
 - ไฟล์สไลด์: [docs/slides/TripPocket-slides.html](slides/TripPocket-slides.html)
 - โลโก้: [docs/slides/images/logo.svg](slides/images/logo.svg) ใช้ในสไลด์เท่านั้น ไอคอนของแอปยังเป็นไอคอนมาตรฐานของ Flutter
 - รูปในสไลด์ถ่ายจากโหมด demo และครอปแถบแจ้งเตือนด้านบนออก
-- ข้อความเรื่อง Android ในสไลด์อ้างอิงจาก [IMPLEMENTATION_STATUS](IMPLEMENTATION_STATUS.md)

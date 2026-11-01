@@ -361,3 +361,23 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - สร้างและล้างเฉพาะบัญชี/ทริปทดสอบใน finally ไม่ใช้ข้อมูลบัญชีเจ้าของ และไม่เปิด billing
 - Android UI 3 scenarios ผ่านด้วย fake repositories: reset validation/generic response, profile/password confirmation, search/cancel/confirm complete/list separation
 - live test ไม่ส่งอีเมลไป example.com และไม่ใช้ Google fixture กับ live Auth; reset OOB code ผ่านเฉพาะ Auth Emulator, การรับอีเมลจริงและ Google interactive ยังไม่ได้ตรวจ
+
+### บัญชีและการจัดการทริป — final regression
+
+- Flutter analyze --no-pub: No issues found; Flutter unit/widget tests 43/43 ผ่าน
+- Android Emulator account_management_ui_test รอบสุดท้าย 4/4 ผ่าน (ใช้ scenario ร่วมกับ widget tests): ลืมรหัสผ่าน, profile/password, search/completion/list isolation และ DatePicker วันจบเริ่มได้ตั้งแต่ start + 1 วัน
+- รอบเพิ่ม test พบ nullable initialDate และ lint braces ใน integration cleanup แก้เฉพาะ test แล้วรัน analyze/tests ผ่าน ไม่ใช่บั๊กการบันทึกข้อมูล
+- Firebase Auth/Firestore Emulators ที่ใช้ทดสอบหยุดแล้ว; live SDK รอบนี้ผ่านตามบันทึกข้างต้น
+- ตรวจ GitHub หน้า IMLV1/trip_pocket แสดง Private หลัง push b6ce1c5 แล้ว ไม่มีการเปลี่ยน visibility
+- กำลังสร้าง APK ปกติ lib/main.dart/default live แทน integration target; จะบันทึกผล build/install และ hash เมื่อเสร็จ
+
+### ส่งมอบบัญชีและการจัดการทริป
+
+- สร้าง APK ปกติจาก lib/main.dart/default APP_MODE=live สำเร็จ และติดตั้ง/สั่งเปิดบน emulator-5554 ผ่าน Flutter CLI แล้ว engine/VM service เชื่อมได้ จากนั้น detach โดยคงแอปไว้
+- APK: build/app/outputs/flutter-apk/app-debug.apk (debug signing สำหรับทดสอบ)
+- Size: 217510459 bytes
+- SHA256: 356D712E4FB1D23DDF37CAEF7C80F7F3D6F78C6D35673383958605F6A071FA19
+- Windows screenshot ของหน้าต่าง Emulator รอบนี้จับพื้น Flutter เป็นสีดำ จึงไม่ใช้ภาพนั้นยืนยันหน้าตา normal APK; หลักฐานพฤติกรรม UI คือ integration scenarios 4/4 และ SDK Emulator/live ที่ผ่านข้างต้น
+- Commit/push เป็นช่วง: 3b2d596 implementation/native config, b6ce1c5 live SDK/security/UI tests ตามด้วยรายงานส่งมอบนี้; GitHub ยังคง Private
+- ค้างการทดสอบที่ต้องเจ้าของบัญชียืนยัน: Google sign-in/link และรูปจริง, การรับ reset email จริงใน mailbox; Windows ยังไม่ build/test iOS และยังไม่ได้ตรวจมือถือจริง ไม่อ้างผลเหล่านี้ผ่าน
+- Build มีคำเตือน upstream firebase_auth/firebase_core เรื่อง Kotlin Gradle Plugin สำหรับ Flutter รุ่นอนาคต แต่ build รุ่นปัจจุบันสำเร็จ ไม่ปรับ native toolchain เพิ่มนอกขอบเขตนี้

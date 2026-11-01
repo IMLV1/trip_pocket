@@ -190,7 +190,8 @@ class PlaceCatalog {
         matches.length,
       );
     }
-    final size = math.pow(2, 10 - zoom).toDouble() * .04;
+    // About 58 logical px per cell, wider than the 48 px cluster marker.
+    final size = math.pow(2, 10 - zoom).toDouble() * .08;
     final cells = <String, List<CuratedPlace>>{};
     for (final p in matches) {
       cells

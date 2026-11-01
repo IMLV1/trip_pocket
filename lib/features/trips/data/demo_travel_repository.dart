@@ -1,3 +1,5 @@
+// ที่เก็บทริปแบบจำลองในหน่วยความจำสำหรับโหมด demo ข้อมูลหายเมื่อปิดแอป
+
 import 'dart:async';
 import '../domain/trip.dart';
 import '../domain/travel_repository.dart';

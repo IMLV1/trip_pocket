@@ -1,3 +1,6 @@
+// หน้าเข้าสู่ระบบและสมัครสมาชิก ใช้หน้าเดียวกันโดยดูจากค่า register
+// ล็อกอินสำเร็จแล้วแอปเปลี่ยนหน้าเองผ่าน sessionProvider
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

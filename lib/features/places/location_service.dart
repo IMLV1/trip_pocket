@@ -1,3 +1,6 @@
+// ขอสิทธิ์และอ่านตำแหน่งปัจจุบันหนึ่งครั้งเมื่อผู้ใช้กด
+// ไม่บันทึกพิกัดและไม่ติดตามเบื้องหลัง
+
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

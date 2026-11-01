@@ -1,3 +1,5 @@
+// แปลง error จาก Firebase และแอปเป็นข้อความภาษาไทยสำหรับผู้ใช้
+
 import 'package:firebase_core/firebase_core.dart';
 
 String errorText(Object e) {

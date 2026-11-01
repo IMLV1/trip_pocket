@@ -1,3 +1,6 @@
+// ชั้นจัดการบัญชี: ล็อกอิน สมัคร ออกจากระบบ ลืมรหัสผ่าน แก้ชื่อ เปลี่ยนรหัส และ Google
+// มีทั้งแบบ Firebase จริงและแบบจำลองสำหรับโหมด demo
+
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/validation.dart';

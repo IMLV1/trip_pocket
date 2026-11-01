@@ -1,3 +1,6 @@
+// ระบบดีไซน์ของแอป: สี, theme, การแสดงวันที่ และ widget กลาง
+// เช่น ป้าย หัวข้อ แผงว่าง หัวฟอร์ม และลายเส้นทางบนการ์ด
+
 import 'package:flutter/material.dart';
 
 abstract final class TripColors {

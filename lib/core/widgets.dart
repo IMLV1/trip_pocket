@@ -1,3 +1,6 @@
+// widget กลาง: แสดงสถานะโหลด/ผิดพลาด, ยืนยันการลบ, แจ้ง error
+// โครงหน้าแบบเลื่อน และหน้าที่ใช้เมื่อหาข้อมูลไม่พบ
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'errors.dart';

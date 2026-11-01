@@ -1,3 +1,6 @@
+// รายการจุดหมายของหนึ่งวัน: เรียงลำดับ กำหนดการเดินทาง นำทาง แก้ไข และลบ
+// มี TravelEditor สำหรับกรอกวิธีเดินทางและค่าเดินทางของแต่ละช่วง
+
 import 'package:latlong2/latlong.dart';
 import 'curated_places.dart';
 import 'package:flutter/material.dart';

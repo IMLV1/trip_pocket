@@ -1,3 +1,6 @@
+// หน้าลืมรหัสผ่าน: ขอลิงก์ตั้งรหัสใหม่ทางอีเมล
+// ข้อความผลลัพธ์เหมือนกันเสมอ เพื่อไม่เปิดเผยว่าอีเมลนี้มีบัญชีหรือไม่
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

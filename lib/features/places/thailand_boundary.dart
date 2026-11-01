@@ -1,3 +1,5 @@
+// โหลดขอบเขตประเทศไทยและตรวจว่าหมุดอยู่ในไทยหรือไม่
+
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';

@@ -1,3 +1,6 @@
+// หน้ารายการทริป: แยกกำลังจะไปกับจบทริปแล้ว ค้นหาชื่อ สร้างทริป และออกจากระบบ
+// ตอนเปิดหน้าจะทำการลบทริปที่ค้างอยู่ต่อ
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

@@ -1,3 +1,6 @@
+// หน้าเพิ่มและแก้ไขจุดหมาย: กรอกชื่อ หมวด วัน เวลา ค่าใช้จ่าย หมายเหตุ และเลือกหมุด
+// สถานที่จากการค้นหาต้องยืนยันตำแหน่งบนแผนที่ก่อนบันทึก
+
 import '../../places/recommendations_sheet.dart';
 import '../../places/thailand_boundary.dart';
 import '../../places/curated_places.dart';

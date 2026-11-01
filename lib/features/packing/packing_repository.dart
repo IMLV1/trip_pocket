@@ -1,3 +1,6 @@
+// เก็บเช็กลิสต์ในเครื่องด้วย SharedPreferences แยกตามบัญชีและทริป
+// มีคิวล้างข้อมูลตอนลบทริป และไม่เขียนทับเมื่อข้อมูลเดิมเสียหาย
+
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 

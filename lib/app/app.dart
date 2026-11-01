@@ -1,3 +1,6 @@
+// โครงหลักของแอป: ฟังสถานะล็อกอิน แล้วสร้าง router ใหม่ทุกครั้งที่บัญชีเปลี่ยน
+// รวม route ทุกหน้า ตั้งภาษาไทย และแสดงแถบเตือนเมื่อไม่ได้อยู่โหมด live
+
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/profile_screen.dart';
 import '../features/auth/change_password_screen.dart';

@@ -1,3 +1,5 @@
+// UI เช็กลิสต์เตรียมของในแท็บเตรียมของ: เพิ่ม ติ๊ก ลบ และแสดงความคืบหน้า
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';

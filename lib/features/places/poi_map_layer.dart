@@ -1,3 +1,6 @@
+// ชั้นไอคอนสถานที่แนะนำบนแผนที่ คำนวณใหม่หลังแผนที่หยุดขยับ
+// มี chooseSuggestedPlace สำหรับดูรายละเอียดและยืนยันสถานที่
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

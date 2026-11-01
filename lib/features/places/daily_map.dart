@@ -1,3 +1,6 @@
+// แผนที่รายวันในแท็บแผนที่: แสดงหมุดจุดหมาย หมุดพื้นที่หลัก และสถานที่แนะนำ
+// แตะแผนที่เพื่อเพิ่มจุด และอ่านตำแหน่งของฉันเมื่อกดปุ่มเท่านั้น
+
 import 'curated_places.dart';
 import 'poi_map_layer.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

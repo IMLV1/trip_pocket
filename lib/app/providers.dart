@@ -1,3 +1,6 @@
+// รวม Riverpod providers กลาง: repository, session, ทริป, กิจกรรม และเช็กลิสต์
+// ค่า repository ถูกกำหนดจริงใน main.dart ด้วย override
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/auth_repository.dart';
 import '../features/trips/domain/travel_repository.dart';

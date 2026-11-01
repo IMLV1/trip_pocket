@@ -1,3 +1,5 @@
+// หน้าตัวอย่างข้อความแชร์ และการเปิด share sheet ของระบบ
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/widgets.dart';

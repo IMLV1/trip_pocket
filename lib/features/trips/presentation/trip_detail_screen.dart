@@ -1,3 +1,6 @@
+// หน้ารายละเอียดทริป มี 3 แท็บ: แผนเที่ยว แผนที่ และเตรียมของ
+// รวมการ์ดงบ การแชร์ การจบทริป และเมนูแก้ไขหรือลบทริป
+
 import 'package:latlong2/latlong.dart';
 import '../../places/destination_preview.dart';
 import '../../places/day_plan.dart';

@@ -1,3 +1,6 @@
+// หน้าสร้างและแก้ไขทริป: ชื่อ จุดหมาย หมุดพื้นที่หลัก วันที่ และงบประมาณ
+// วันสิ้นสุดต้องอยู่หลังวันเริ่มอย่างน้อย 1 วัน
+
 import 'package:latlong2/latlong.dart';
 import '../../places/place_picker_sheet.dart';
 import '../../places/curated_places.dart';

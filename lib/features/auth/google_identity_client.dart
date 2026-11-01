@@ -1,3 +1,6 @@
+// ห่อการเข้าสู่ระบบ Google ไว้หลัง interface เพื่อให้ทดสอบด้วย fake ได้
+// ถ้าผู้ใช้ยกเลิกจะคืนค่า null แทนการโยน error
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 

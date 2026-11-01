@@ -1,3 +1,5 @@
+// แผ่นแผนที่สำหรับแตะเลือกหมุดในไทย คืนพิกัดเมื่อกดยืนยันเท่านั้น
+
 import 'thailand_boundary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

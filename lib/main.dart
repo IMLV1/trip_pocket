@@ -1,3 +1,6 @@
+// จุดเริ่มต้นของแอป: อ่าน APP_MODE (live, emulator, demo) เริ่ม Firebase ตามโหมด
+// สร้าง repository แล้วส่งเข้า Riverpod ถ้าเริ่มไม่สำเร็จจะแสดงหน้าข้อความ error
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

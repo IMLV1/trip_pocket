@@ -1,3 +1,6 @@
+// สร้างลิงก์ Google Maps Directions แล้วเปิดแอปภายนอก
+// ถ้าเปิดไม่ได้จะลองเปิดในเบราว์เซอร์ก่อนแจ้ง error
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../activities/domain/trip_activity.dart';

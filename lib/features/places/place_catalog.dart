@@ -1,3 +1,6 @@
+// ฐานสถานที่ทั่วไทยจาก assets/thailand_pois.json
+// มีการค้นหาและกรองสำหรับรายการ และการเลือกสถานที่ตามมุมมองแผนที่พร้อมจัดกลุ่ม
+
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';

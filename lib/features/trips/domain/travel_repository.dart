@@ -1,3 +1,5 @@
+// interface ของงานทริปและกิจกรรม หน้าจอเรียกผ่านตัวนี้จึงสลับ Firestore กับ demo ได้
+
 import 'trip.dart';
 import '../../activities/domain/trip_activity.dart';
 

@@ -1,3 +1,6 @@
+// ที่เก็บทริปและกิจกรรมบน Cloud Firestore: อ่านแบบ realtime บันทึก เรียงลำดับ จบทริป และลบ
+// การลบทริปแบ่งเป็นขั้นตอนและทำต่อได้ถ้าหลุดกลางทาง
+
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../domain/trip.dart';

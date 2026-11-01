@@ -1,3 +1,6 @@
+// โมเดลทริป: การตรวจค่าและการแปลงเป็น field สำหรับบันทึก
+// DataSnapshot บอกว่าข้อมูลมาจาก cache หรือยังรอยืนยันการเขียน
+
 import '../../../core/validation.dart';
 
 class Trip {

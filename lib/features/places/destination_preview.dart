@@ -1,3 +1,5 @@
+// แผนที่ขนาดเล็กแบบดูอย่างเดียว แสดงหมุดพื้นที่หลักของทริป
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';

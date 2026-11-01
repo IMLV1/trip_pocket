@@ -1,3 +1,6 @@
+// สร้างข้อความแชร์จากทริปและกิจกรรม
+// ไม่รวมหมายเหตุ พิกัด หรือเช็กลิสต์
+
 import '../trips/domain/trip.dart';
 import '../activities/domain/trip_activity.dart';
 import '../../core/validation.dart';

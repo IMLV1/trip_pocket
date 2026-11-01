@@ -1,3 +1,6 @@
+// หน้าโปรไฟล์: แก้ชื่อที่แสดง เชื่อม Google เพื่อใช้รูป และไปหน้าเปลี่ยนรหัสผ่าน
+// มี ProfileAvatar สำหรับแสดงรูปหรือตัวอักษรแรกของชื่อ
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';

@@ -1,3 +1,6 @@
+// โมเดลสถานที่และค่าตั้งต้นของฟอร์มจุดหมาย (ActivitySeed)
+// ชุดข้อมูลเชียงใหม่ในไฟล์นี้ใช้เฉพาะการทดสอบ ของจริงอยู่ใน place_catalog.dart
+
 import 'package:latlong2/latlong.dart';
 import '../activities/domain/trip_activity.dart';
 

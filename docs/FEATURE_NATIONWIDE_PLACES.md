@@ -5,7 +5,7 @@
 ## สิ่งที่ใช้ได้
 
 - ค้นชื่อไทย/อังกฤษ คำประเภทจากแท็ก เช่น คาเฟ่/โรงแรม และจังหวัด ในเครื่อง
-- กรองได้ 77 จังหวัด และหมวดท่องเที่ยว อาหาร ที่พัก อื่น ๆ
+- กรองได้ 77 จังหวัด อำเภอ/เขต ตำบล/แขวง (แบบไล่ระดับ) และหมวดท่องเที่ยว อาหาร ที่พัก อื่น ๆ
 - หน้ารายวันแสดงหมุดแนะนำสีน้ำเงิน แยกจากเลขหมุดของทริป พร้อมสวิตช์และตัวกรองหมวด
 - เมื่อซูมออก รวมสถานที่ใกล้กันเป็นกลุ่มจำนวน แตะเพื่อซูมเข้า; เมื่อ zoom >=12 แสดงสูงสุด 100 ไอคอนในพื้นที่ พร้อมแจ้งเมื่อมีผลมากกว่าที่แสดง
 - แตะไอคอน → รายละเอียด/แหล่งข้อมูล → เพิ่มจุดหมายนี้ → ตรวจหมุดในฟอร์ม → บันทึก ไม่เขียนเข้าแผนอัตโนมัติ
@@ -15,10 +15,10 @@
 ## ชุดข้อมูล
 
 ต้นทาง: https://download.geofabrik.de/asia/thailand.html
-OSM data timestamp: 2026-10-24T20:20:51Z
-Input SHA256: e8373240cf0be47cc641f2c8627e674064d8c47f4ff2a11f6a33fcbfc9a50949
+OSM data timestamp: 2026-10-31T21:23:06Z
+Input SHA256: 970a2b35e47b3738edf8b42cc7d7b622ae885a608647753f55fb02c4e38173ee
 
-assets/thailand_pois.json มี 66,975 แห่ง: อาหาร 33,612 ท่องเที่ยว 16,601 ที่พัก 14,979 อื่น ๆ 1,783 พบข้อมูลกระจายครบ 77 จังหวัด ไม่หมายความว่ามีทุกสถานที่หรือทุกร้านยังเปิดอยู่
+assets/thailand_pois.json มี 67,074 แห่ง: อาหาร 33,651 ท่องเที่ยว 16,652 ที่พัก 14,985 อื่น ๆ 1,786 พบข้อมูลกระจายครบ 77 จังหวัด ไม่หมายความว่ามีทุกสถานที่หรือทุกร้านยังเปิดอยู่
 
 เลือกเฉพาะสถานที่มีชื่อจาก OSM nodes/ways/areas ใช้ name:th ก่อน name/name:en จุดพื้นที่ใช้ representative point ซึ่งอาจไม่ใช่ทางเข้า จังหวัดมาจาก administrative boundaries ที่มี ISO3166-2=TH-* และ point-in-polygon ไม่เดาจากจังหวัดที่ใกล้ที่สุด กรองประเทศด้วย Natural Earth boundary ตามสัญญาเดิม ซึ่งเกาะเล็ก/แนวชายแดนอาจไม่ครบ
 
@@ -35,10 +35,13 @@ assets/thailand_pois.json มี 66,975 แห่ง: อาหาร 33,612 ท
 - https://www.openstreetmap.org/copyright
 - https://opendatacommons.org/licenses/odbl/1-0/
 
+อำเภอและตำบลมาจาก ADM3 ของ OCHA COD-AB Thailand (กรมแผนที่ทหาร, CC BY-IGO) https://data.humdata.org/dataset/cod-ab-tha ไม่ใช้ขอบเขต OSM เพราะระดับตำบลครอบคลุมเพียง 42% ของสถานที่ สถานที่แต่ละแห่งได้ค่าจากการจับพิกัดกับขอบเขต และรับเฉพาะเมื่อจังหวัดตรงกับ OSM ระบุได้ 99.8% ส่วนที่เหลือเว้นว่างและยังค้นด้วยจังหวัดได้ ฐานเป็น format 2 มีคอลัมน์ district และ subdistrict เพิ่ม
+
 ~~~powershell
 python -m pip install -r tools/requirements-poi.txt
 # ดาวน์โหลด country extract หนึ่งครั้ง ไม่ commit PBF ลง Git
-python tools/build_poi_catalog.py path/to/thailand.osm.pbf assets/thailand_pois.json
+# ดาวน์โหลด tha_admin3.geojson จาก HDX หนึ่งครั้ง ไม่ commit ลง Git
+python tools/build_poi_catalog.py path/to/thailand.osm.pbf path/to/tha_admin3.geojson assets/thailand_pois.json
 ~~~
 
 ต้องตรวจ metadata, count, provinces และชุดทดสอบก่อนอัปเดตฐานรุ่นใหม่ ไม่เปิด automatic country-wide API scraping

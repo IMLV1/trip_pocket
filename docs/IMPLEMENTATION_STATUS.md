@@ -2,7 +2,7 @@
 
 ดำเนินการตามข้อ 1 ใน IMPLEMENTATION_PROMPTS.md โดยต่อยอด Flutter starter ใน `C:\Users\GOODK\IdeaProjects\trip_pocket` ผู้ใช้เปลี่ยนจาก Emulator เป็น Firebase จริงบน Spark และอนุญาต commit/push ไป `https://github.com/IMLV1/trip_pocket.git` (Private) แล้ว
 
-สถานะล่าสุด: ค้นหาทั่วไทย 66,975 แห่ง/77 จังหวัด และเลือกหมุดแนะนำบนแผนที่ได้แล้ว ดู FEATURE_NATIONWIDE_PLACES.md และผล V2.2 ท้ายไฟล์
+สถานะล่าสุด: ค้นหาทั่วไทย 67,074 แห่ง/77 จังหวัด และเลือกหมุดแนะนำบนแผนที่ได้แล้ว ดู FEATURE_NATIONWIDE_PLACES.md และผล V2.2 ท้ายไฟล์
 
 ## ผลงาน
 
@@ -242,7 +242,7 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 
 ### V2.2 ฐานข้อมูลและ UI
 
-- สร้าง assets/thailand_pois.json จาก Geofabrik Thailand OSM ณ 2026-10-24T20:20:51Z ผ่าน tools/build_poi_catalog.py; 66,975 สถานที่มีชื่อ ครบ 77 จังหวัด: อาหาร 33,612 ท่องเที่ยว 16,601 ที่พัก 14,979 อื่น ๆ 1,783 (ไม่ใช่การรับประกันว่ามีทุกสถานที่)
+- สร้าง assets/thailand_pois.json จาก Geofabrik Thailand OSM ณ 2026-10-24T20:20:51Z ผ่าน tools/build_poi_catalog.py; 67,074 สถานที่มีชื่อ ครบ 77 จังหวัด: อาหาร 33,612 ท่องเที่ยว 16,601 ที่พัก 14,979 อื่น ๆ 1,783 (ไม่ใช่การรับประกันว่ามีทุกสถานที่)
 - อ่าน/สร้าง index นอก UI isolate; ข้อมูลสถานที่ค้นในเครื่อง ไม่ใช้ public Nominatim/Overpass หรือ API เสียเงิน
 - ช่องค้นชื่อ/คำหมวด/จังหวัด ตัวกรองจังหวัด/ประเภท แผนที่แนะนำพร้อมไอคอน และกลุ่มจำนวนเมื่อซูมออก; zoom >=12 แสดงสูงสุด 100 ไอคอนใน viewport, รายการค้นหาแสดง 100 อันดับแรกพร้อมจำนวนผลทั้งหมด
 - ข้อมูล OSM/ODbL มี attribution, source URL, timestamp, input SHA และ license แยกจาก source แอป; ไม่แต่งราคา/เวลาเปิดปิดหรืออ้างตรวจทุกสถานที่ด้วยมือ
@@ -381,3 +381,12 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - Commit/push เป็นช่วง: 3b2d596 implementation/native config, b6ce1c5 live SDK/security/UI tests ตามด้วยรายงานส่งมอบนี้; GitHub ยังคง Private
 - ค้างการทดสอบที่ต้องเจ้าของบัญชียืนยัน: Google sign-in/link และรูปจริง, การรับ reset email จริงใน mailbox; Windows ยังไม่ build/test iOS และยังไม่ได้ตรวจมือถือจริง ไม่อ้างผลเหล่านี้ผ่าน
 - Build มีคำเตือน upstream firebase_auth/firebase_core เรื่อง Kotlin Gradle Plugin สำหรับ Flutter รุ่นอนาคต แต่ build รุ่นปัจจุบันสำเร็จ ไม่ปรับ native toolchain เพิ่มนอกขอบเขตนี้
+
+## 2 พฤศจิกายน 2569: ตัวกรองอำเภอ/ตำบล และแก้บั๊ก iOS
+
+- เพิ่มตัวกรองอำเภอ/เขต และตำบล/แขวง ค้นชื่ออำเภอ/ตำบลได้ และแสดงพื้นที่ในรายการ ฐานสร้างใหม่จาก OSM 2026-10-31 จำนวน 67,074 แห่ง ระบุพื้นที่ได้ 99.8%
+- แก้ปุ่มตำแหน่งบน iOS: เพิ่ม NSLocationWhenInUseUsageDescription และไม่ส่ง AndroidSettings บน iOS
+- แผนที่รายวันจัดมุมมองใหม่เมื่อจุดหมายเปลี่ยน และเรียงชื่อโดยไม่นับเครื่องหมายคำพูดนำหน้า
+- ตั้งขั้นต่ำ Pods เป็น iOS 15 เพื่อให้ build ด้วย Xcode 27 ได้
+- ผล: flutter analyze ไม่มี issues, flutter test ผ่าน; iOS Simulator โหมด demo ผ่านการกรองกรุงเทพ/ดุสิต/สวนจิตรลดา การเพิ่มจุดหมาย และหน้าขอสิทธิ์ตำแหน่ง
+- ยังไม่ยืนยัน: การได้พิกัดจริงบน iOS (Simulator ไม่คืนพิกัดในรอบทดสอบ), Firebase live, Android, เครื่องจริง

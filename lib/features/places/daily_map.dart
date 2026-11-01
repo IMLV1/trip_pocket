@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'location_service.dart';
 import '../../core/widgets.dart';
 import 'thailand_boundary.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
@@ -41,6 +42,34 @@ class _DailyMapState extends ConsumerState<DailyMap> {
   final controller = MapController();
   LocationFix? fix;
   bool locating = false;
+  List<LatLng> get points => [
+    ...widget.activities.map((a) => LatLng(a.latitude, a.longitude)),
+    if (widget.destination != null) widget.destination!,
+  ];
+
+  @override
+  void didUpdateWidget(DailyMap old) {
+    super.didUpdateWidget(old);
+    final before = [
+      ...old.activities.map((a) => LatLng(a.latitude, a.longitude)),
+      if (old.destination != null) old.destination!,
+    ];
+    final after = points;
+    if (after.isNotEmpty && !listEquals(before, after)) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) fitStops(after);
+      });
+    }
+  }
+
+  void fitStops(List<LatLng> stops) => controller.fitCamera(
+    CameraFit.bounds(
+      bounds: LatLngBounds.fromPoints(stops),
+      padding: const EdgeInsets.all(36),
+      maxZoom: 15,
+    ),
+  );
+
   @override
   void dispose() {
     controller.dispose();
@@ -68,10 +97,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
   int attempt = 0;
   @override
   Widget build(BuildContext context) {
-    final points = widget.activities
-        .map((a) => LatLng(a.latitude, a.longitude))
-        .toList();
-    if (widget.destination != null) points.add(widget.destination!);
+    final points = this.points;
     if (points.isEmpty) points.add(const LatLng(15, 101));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,

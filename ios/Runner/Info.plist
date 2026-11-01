@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>TripPocket ใช้ตำแหน่งปัจจุบันเพื่อแสดงบนแผนที่เมื่อคุณกดปุ่ม "ตำแหน่งของฉัน" เท่านั้น และไม่บันทึกตำแหน่งนี้</string>
 	<key>GIDClientID</key>
 	<string>488059345725-v6v0ho0ivmqnn0e3s0f9uhp1ra013rpf.apps.googleusercontent.com</string>
 	<key>GIDServerClientID</key>

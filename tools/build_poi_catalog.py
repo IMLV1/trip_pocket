@@ -1,7 +1,9 @@
 """Derive a named Thai POI catalogue from a Geofabrik OSM extract (ODbL).
 
 pip install osmium shapely
-python tools/build_poi_catalog.py thailand.osm.pbf assets/thailand_pois.json
+python tools/build_poi_catalog.py thailand.osm.pbf tha_admin3.geojson assets/thailand_pois.json
+The second input is the ADM3 layer of OCHA COD-AB Thailand (CC BY-IGO):
+https://data.humdata.org/dataset/cod-ab-tha
 No public geocoding/Overpass API is queried. Raw input is not bundled.
 """
 import argparse
@@ -79,9 +81,21 @@ class Catalogue(osmium.SimpleHandler):
             self.geometry_errors += 1
 
 
+def province_key(name):
+    return name.removeprefix('จังหวัด').strip()
+
+
+def load_subdistricts(path):
+    features = json.loads(path.read_text(encoding='utf-8'))['features']
+    # The dataset notes that this one Thai district name is wrong upstream.
+    district = lambda p: 'ป้อมปราบศัตรูพ่าย' if p['adm2_pcode'] == 'TH1008' else p['adm2_name1']
+    return [(f['properties']['adm1_name1'], district(f['properties']), f['properties']['adm3_name1'], shape(f['geometry'])) for f in features]
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('input', type=Path)
+    parser.add_argument('admin', type=Path)
     parser.add_argument('output', type=Path)
     parser.add_argument('--boundary', type=Path, default=Path('assets/thailand.geojson'))
     args = parser.parse_args()
@@ -91,6 +105,8 @@ def main():
     handler.apply_file(str(args.input), locations=True, idx='flex_mem')
     country = shape(json.loads(args.boundary.read_text(encoding='utf-8'))['geometry'])
     tree = STRtree([p[2] for p in handler.provinces])
+    subdistricts = load_subdistricts(args.admin)
+    admin_tree = STRtree([s[3] for s in subdistricts])
     rows, seen = [], set()
     for row in handler.pois.values():
         point = Point(row[4], row[3])
@@ -101,22 +117,34 @@ def main():
             row[5] = province
             row[6] = (row[6] + ' ' + english).strip()
             break
+        # Boundary sources disagree slightly, so only accept a matching province.
+        row += ['', '']
+        for index in admin_tree.query(point, predicate='intersects'):
+            parent, district, subdistrict, _ = subdistricts[int(index)]
+            if province_key(parent) == province_key(row[5]):
+                row[7], row[8] = district, subdistrict
+                break
         key = (row[1], row[2], row[3], row[4])
         if key not in seen:
             seen.add(key)
             rows.append(row)
     rows.sort(key=lambda r: r[0])
     metadata = {
-        'format': 1, 'country': 'TH', 'dataTimestamp': timestamp,
+        'format': 2, 'country': 'TH', 'dataTimestamp': timestamp,
         'source': 'https://download.geofabrik.de/asia/thailand.html',
+        'adminSource': 'https://data.humdata.org/dataset/cod-ab-tha',
+        'adminAttribution': 'Royal Thai Survey Department via OCHA HDX (CC BY-IGO)',
+        'adminInputSha256': hashlib.file_digest(args.admin.open('rb'), 'sha256').hexdigest(),
         'license': 'ODbL-1.0', 'licenseUrl': 'https://opendatacommons.org/licenses/odbl/1-0/',
         'attribution': '© OpenStreetMap contributors',
         'inputSha256': hashlib.file_digest(args.input.open('rb'), 'sha256').hexdigest(),
-        'columns': ['id', 'name', 'category', 'latitude', 'longitude', 'province', 'aliases'],
+        'columns': ['id', 'name', 'category', 'latitude', 'longitude', 'province', 'aliases', 'district', 'subdistrict'],
         'count': len(rows), 'categories': dict(collections.Counter(r[2] for r in rows)),
         'provinceCount': len(set(r[5] for r in rows if r[5])),
+        'districtCount': len(set((r[5], r[7]) for r in rows if r[7])),
+        'subdistrictCount': len(set((r[5], r[7], r[8]) for r in rows if r[8])),
         'geometryErrors': handler.geometry_errors,
-        'notes': 'Named community POIs only. Representative points may not be entrances. Approximate country boundary filter; small islands/borders may be incomplete. No prices or opening times verified.',
+        'notes': 'Named community POIs only. Representative points may not be entrances. Areas are point-in-polygon estimates and may be blank near borders. Approximate country boundary filter; small islands/borders may be incomplete. No prices or opening times verified.',
     }
     if len(rows) < 10000 or metadata['provinceCount'] < 70:
         raise RuntimeError(f'Unexpectedly incomplete catalogue: {metadata}')

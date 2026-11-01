@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
@@ -27,11 +28,16 @@ class LocationService {
        read =
            read ??
            (() => Geolocator.getCurrentPosition(
-             locationSettings: AndroidSettings(
-               forceLocationManager: true,
-               accuracy: LocationAccuracy.high,
-               timeLimit: Duration(seconds: 20),
-             ),
+             locationSettings: defaultTargetPlatform == TargetPlatform.android
+                 ? AndroidSettings(
+                     forceLocationManager: true,
+                     accuracy: LocationAccuracy.high,
+                     timeLimit: const Duration(seconds: 20),
+                   )
+                 : const LocationSettings(
+                     accuracy: LocationAccuracy.high,
+                     timeLimit: Duration(seconds: 20),
+                   ),
            ));
   Future<LocationFix> locate() async {
     if (!await enabled()) {

@@ -14,7 +14,7 @@ final placeCatalogProvider = FutureProvider<PlaceCatalog>((ref) async {
 PlaceCatalog decodePlaceCatalog(String text) {
   final data = jsonDecode(text) as Map<String, dynamic>;
   final metadata = data['metadata'] as Map<String, dynamic>;
-  if (metadata['format'] != 1 || metadata['country'] != 'TH') {
+  if (metadata['format'] != 2 || metadata['country'] != 'TH') {
     throw const FormatException('Unsupported place catalogue');
   }
   final date = (metadata['dataTimestamp'] as String).substring(0, 10);
@@ -23,7 +23,7 @@ PlaceCatalog decodePlaceCatalog(String text) {
         final r = row as List;
         final id = r[0] as String;
         final type = {'n': 'node', 'w': 'way', 'r': 'relation'}[id[0]];
-        if (r.length != 7 ||
+        if (r.length != 9 ||
             type == null ||
             !RegExp(r'^[nwr][0-9]+$').hasMatch(id)) {
           throw const FormatException('Invalid catalogue row');
@@ -44,6 +44,8 @@ PlaceCatalog decodePlaceCatalog(String text) {
           'https://www.openstreetmap.org/$type/${id.substring(1)}',
           province: (r[5] as String).isEmpty ? 'ประเทศไทย' : r[5] as String,
           aliases: r[6] as String,
+          district: r[7] as String,
+          subdistrict: r[8] as String,
           checkedAt: date,
           community: true,
         );
@@ -81,40 +83,64 @@ class PlaceCatalog {
   final List<CuratedPlace> places;
   final String dataTimestamp;
   late final List<String> provinces;
+  final _districts = <String, Set<String>>{};
+  final _subdistricts = <String, Set<String>>{};
   final _text = <String, String>{};
   final _grid = <String, List<CuratedPlace>>{};
   PlaceCatalog(this.places, {this.dataTimestamp = '2026-10-26'}) {
     final names = <String>{};
     for (final p in places) {
-      _text[p.id] = normalizePlaceQuery('${p.name} ${p.province} ${p.aliases}');
+      _text[p.id] = normalizePlaceQuery(
+        '${p.name} ${p.province} ${p.district} ${p.subdistrict} ${p.aliases}',
+      );
       names.add(p.province);
+      if (p.district.isNotEmpty) {
+        _districts.putIfAbsent(p.province, () => {}).add(p.district);
+        if (p.subdistrict.isNotEmpty) {
+          _subdistricts
+              .putIfAbsent('${p.province}/${p.district}', () => {})
+              .add(p.subdistrict);
+        }
+      }
       _grid.putIfAbsent(_cell(p.latitude, p.longitude), () => []).add(p);
     }
     provinces = names.where((p) => p != 'ประเทศไทย').toList()..sort();
   }
+  List<String> districtsOf(String province) =>
+      (_districts[province]?.toList() ?? <String>[])..sort();
+  List<String> subdistrictsOf(String province, String district) =>
+      (_subdistricts['$province/$district']?.toList() ?? <String>[])..sort();
   String _cell(double lat, double lon) =>
       '${(lat * 4).floor()}/${(lon * 4).floor()}';
   bool _matches(
     CuratedPlace p,
     String category,
     String province,
+    String district,
+    String subdistrict,
     List<String> tokens,
   ) =>
       (category == 'all' || p.category == category) &&
       (province.isEmpty || p.province == province) &&
+      (district.isEmpty || p.district == district) &&
+      (subdistrict.isEmpty || p.subdistrict == subdistrict) &&
       tokens.every((t) => _text[p.id]!.contains(t));
 
   PlaceResults search({
     String query = '',
     String category = 'all',
     String province = '',
+    String district = '',
+    String subdistrict = '',
     LatLng? near,
     int limit = 100,
   }) {
     final normalized = normalizePlaceQuery(query);
     final tokens = normalized.isEmpty ? <String>[] : normalized.split(' ');
     final matches = places
-        .where((p) => _matches(p, category, province, tokens))
+        .where(
+          (p) => _matches(p, category, province, district, subdistrict, tokens),
+        )
         .toList();
     if (near != null) {
       // Rank a shortlist without recomputing haversine distances inside sort.
@@ -133,8 +159,11 @@ class PlaceCatalog {
         return d != 0 ? d : a.id.compareTo(b.id);
       });
     } else {
+      // Leading quotes in community names would otherwise sort first.
+      String sortName(CuratedPlace p) =>
+          p.name.replaceFirst(RegExp(r'''^["'“‘(\[]+'''), '');
       matches.sort((a, b) {
-        final d = a.name.compareTo(b.name);
+        final d = sortName(a).compareTo(sortName(b));
         return d != 0 ? d : a.id.compareTo(b.id);
       });
     }
@@ -152,6 +181,8 @@ class PlaceCatalog {
     required double zoom,
     String category = 'all',
     String province = '',
+    String district = '',
+    String subdistrict = '',
     String query = '',
   }) {
     final normalized = normalizePlaceQuery(query);
@@ -170,7 +201,7 @@ class PlaceCatalog {
             p.latitude <= north &&
             p.longitude >= west &&
             p.longitude <= east &&
-            _matches(p, category, province, tokens)) {
+            _matches(p, category, province, district, subdistrict, tokens)) {
           matches.add(p);
         }
       }

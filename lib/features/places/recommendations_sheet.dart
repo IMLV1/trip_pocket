@@ -20,7 +20,8 @@ class RecommendationsSheet extends ConsumerStatefulWidget {
 }
 
 class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
-  String category = 'all', query = '', province = '';
+  String category = 'all', query = '', province = '', district = '';
+  String subdistrict = '';
   bool showMap = false, filters = false;
   String? resultKey;
   PlaceResults? result;
@@ -69,7 +70,7 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                   key: const Key('place-search'),
                   onChanged: (v) => setState(() => query = v),
                   decoration: const InputDecoration(
-                    labelText: 'ค้นหาชื่อสถานที่หรือจังหวัด',
+                    labelText: 'ค้นหาชื่อสถานที่ จังหวัด อำเภอ หรือตำบล',
                     hintText: 'เช่น วัดอรุณ • ภูเก็ต • คาเฟ่',
                     prefixIcon: Icon(Icons.search),
                   ),
@@ -89,13 +90,15 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                       ),
                       data: (catalog) {
                         final key =
-                            '${identityHashCode(catalog)}/$query/$category/$province';
+                            '${identityHashCode(catalog)}/$query/$category/$province/$district/$subdistrict';
                         if (resultKey != key) {
                           resultKey = key;
                           result = catalog.search(
                             query: query,
                             category: category,
                             province: province,
+                            district: district,
+                            subdistrict: subdistrict,
                             near: query.trim().isEmpty && widget.anchor != null
                                 ? LatLng(
                                     widget.anchor!.latitude,
@@ -123,7 +126,13 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                                         label: Text(
                                           province.isEmpty
                                               ? 'ตัวกรองสถานที่'
-                                              : province,
+                                              : [
+                                                  subdistrict,
+                                                  district,
+                                                  province,
+                                                ].firstWhere(
+                                                  (e) => e.isNotEmpty,
+                                                ),
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                       ),
@@ -169,11 +178,61 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                                           child: Text(p),
                                         ),
                                     ],
-                                    onChanged: (v) =>
-                                        setState(() => province = v!),
+                                    onChanged: (v) => setState(() {
+                                      province = v!;
+                                      district = '';
+                                      subdistrict = '';
+                                    }),
                                     decoration: const InputDecoration(
                                       labelText: 'จังหวัด',
                                     ),
+                                  ),
+                                ),
+                              if (filters && province.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.fromLTRB(
+                                    16,
+                                    8,
+                                    16,
+                                    0,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: AreaDropdown(
+                                          key: ValueKey(
+                                            'poi-district/$province',
+                                          ),
+                                          label: 'อำเภอ/เขต',
+                                          allLabel: 'ทุกอำเภอ',
+                                          value: district,
+                                          options: catalog.districtsOf(
+                                            province,
+                                          ),
+                                          onChanged: (v) => setState(() {
+                                            district = v;
+                                            subdistrict = '';
+                                          }),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: AreaDropdown(
+                                          key: ValueKey(
+                                            'poi-subdistrict/$province/$district',
+                                          ),
+                                          label: 'ตำบล/แขวง',
+                                          allLabel: 'ทุกตำบล',
+                                          value: subdistrict,
+                                          options: catalog.subdistrictsOf(
+                                            province,
+                                            district,
+                                          ),
+                                          onChanged: (v) =>
+                                              setState(() => subdistrict = v),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               if (filters)
@@ -222,11 +281,13 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                                         borderRadius: BorderRadius.circular(20),
                                         child: DiscoveryMap(
                                           key: ValueKey(
-                                            '$query/$province/$category',
+                                            '$query/$province/$district/$subdistrict/$category',
                                           ),
                                           results: matches.places,
                                           category: category,
                                           province: province,
+                                          district: district,
+                                          subdistrict: subdistrict,
                                           query: query,
                                           anchor: widget.anchor,
                                           onSelected: select,
@@ -238,7 +299,7 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                                       child: Padding(
                                         padding: EdgeInsets.all(20),
                                         child: Text(
-                                          'ไม่พบในข้อมูล ลองคำสั้นลง เปลี่ยนจังหวัด/หมวด หรือเลือกหมุดเอง',
+                                          'ไม่พบในข้อมูล ลองคำสั้นลง เปลี่ยนพื้นที่/หมวด หรือเลือกหมุดเอง',
                                         ),
                                       ),
                                     )
@@ -274,7 +335,7 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                                             ),
                                             title: Text(p.name),
                                             subtitle: Text(
-                                              '${activityCategories[p.category]} • ${p.province}\nยังไม่ทราบราคา',
+                                              '${activityCategories[p.category]} • ${placeArea(p)}\nยังไม่ทราบราคา',
                                             ),
                                             trailing: IconButton(
                                               key: ValueKey(
@@ -313,7 +374,7 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
                                   ),
                                 ),
                                 child: const Text(
-                                  '© OpenStreetMap contributors • ODbL',
+                                  '© OpenStreetMap contributors • ODbL • เขตปกครอง: กรมแผนที่ทหาร/OCHA',
                                   style: TextStyle(fontSize: 11),
                                 ),
                               ),
@@ -330,9 +391,38 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
   }
 }
 
+class AreaDropdown extends StatelessWidget {
+  final String label, allLabel, value;
+  final List<String> options;
+  final ValueChanged<String> onChanged;
+  const AreaDropdown({
+    super.key,
+    required this.label,
+    required this.allLabel,
+    required this.value,
+    required this.options,
+    required this.onChanged,
+  });
+  @override
+  Widget build(BuildContext context) => DropdownButtonFormField<String>(
+    initialValue: value,
+    isExpanded: true,
+    items: [
+      DropdownMenuItem(value: '', child: Text(allLabel)),
+      for (final o in options)
+        DropdownMenuItem(
+          value: o,
+          child: Text(o, overflow: TextOverflow.ellipsis),
+        ),
+    ],
+    onChanged: options.isEmpty ? null : (v) => onChanged(v!),
+    decoration: InputDecoration(labelText: label),
+  );
+}
+
 class DiscoveryMap extends StatelessWidget {
   final List<CuratedPlace> results;
-  final String category, province, query;
+  final String category, province, district, subdistrict, query;
   final TripActivity? anchor;
   final void Function(CuratedPlace) onSelected;
   const DiscoveryMap({
@@ -340,6 +430,8 @@ class DiscoveryMap extends StatelessWidget {
     required this.results,
     required this.category,
     required this.province,
+    this.district = '',
+    this.subdistrict = '',
     required this.query,
     this.anchor,
     required this.onSelected,
@@ -383,6 +475,8 @@ class DiscoveryMap extends StatelessWidget {
         PoiMapLayer(
           category: category,
           province: province,
+          district: district,
+          subdistrict: subdistrict,
           query: query,
           onSelected: onSelected,
         ),

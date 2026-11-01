@@ -29,7 +29,7 @@ Future<CuratedPlace?> chooseSuggestedPlace(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(place.name, style: Theme.of(c).textTheme.titleLarge),
-          Text('${activityCategories[place.category]} • ${place.province}'),
+          Text('${activityCategories[place.category]} • ${placeArea(place)}'),
           Text(
             place.community
                 ? 'ข้อมูลชุมชน OpenStreetMap ณ ${place.checkedAt} ไม่ได้ยืนยันว่าร้านยังเปิดอยู่'
@@ -72,12 +72,14 @@ Future<CuratedPlace?> chooseSuggestedPlace(
 
 class PoiMapLayer extends ConsumerStatefulWidget {
   final void Function(CuratedPlace)? onSelected;
-  final String category, province, query;
+  final String category, province, district, subdistrict, query;
   const PoiMapLayer({
     super.key,
     this.onSelected,
     this.category = 'all',
     this.province = '',
+    this.district = '',
+    this.subdistrict = '',
     this.query = '',
   });
   @override
@@ -118,7 +120,7 @@ class _PoiMapLayerState extends ConsumerState<PoiMapLayer> {
       data: (catalog) {
         final bounds = camera.visibleBounds;
         final key =
-            '${identityHashCode(catalog)}/${bounds.south}/${bounds.north}/${bounds.west}/${bounds.east}/${camera.zoom}/${widget.category}/${widget.province}/${widget.query}';
+            '${identityHashCode(catalog)}/${bounds.south}/${bounds.north}/${bounds.west}/${bounds.east}/${camera.zoom}/${widget.category}/${widget.province}/${widget.district}/${widget.subdistrict}/${widget.query}';
         if (key != lastKey) {
           lastKey = key;
           timer?.cancel();
@@ -133,6 +135,8 @@ class _PoiMapLayerState extends ConsumerState<PoiMapLayer> {
                   zoom: camera.zoom,
                   category: widget.category,
                   province: widget.province,
+                  district: widget.district,
+                  subdistrict: widget.subdistrict,
                   query: widget.query,
                 ),
               );

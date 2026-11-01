@@ -6,8 +6,14 @@ https://www.openstreetmap.org/copyright
 
 Source: Geofabrik Thailand OpenStreetMap extract
 https://download.geofabrik.de/asia/thailand.html
-OSM data timestamp: 2026-10-24T20:20:51Z
-Original input SHA256: e8373240cf0be47cc641f2c8627e674064d8c47f4ff2a11f6a33fcbfc9a50949
+OSM data timestamp: 2026-10-31T21:23:06Z
+Original input SHA256: 970a2b35e47b3738edf8b42cc7d7b622ae885a608647753f55fb02c4e38173ee
+
+District and subdistrict names: Royal Thai Survey Department, via OCHA Common
+Operational Datasets (COD-AB Thailand), CC BY-IGO
+https://data.humdata.org/dataset/cod-ab-tha
+https://creativecommons.org/licenses/by/3.0/igo/
+ADM3 input SHA256 (zip): 02370dc5bd824563de71fd71cc1ee0b88df717c935a09bd7f15611560ef8bfd1
 
 The named POI selection, representative coordinates, category and province assignment
 are a derived database distributed under ODbL-1.0, independently of the app's source-code license.
@@ -15,5 +21,6 @@ The complete derived catalogue is included as assets/thailand_pois.json in the a
 which is a ZIP archive. Recipients may extract, copy, adapt and redistribute that data
 under ODbL. See tools/build_poi_catalog.py for the reproducible transformation.
 No prices, opening hours, reviews or ratings have been verified or inferred.
+District and subdistrict are estimated from coordinates, not verified addresses.
 Community data can be missing or outdated; representative points may not be entrances.
 Country filtering uses a generalised Natural Earth boundary; border/island coverage may be incomplete.

@@ -4,7 +4,7 @@ import '../activities/domain/trip_activity.dart';
 class CuratedPlace {
   final String id, name, category, source;
   final double latitude, longitude;
-  final String province, checkedAt, aliases;
+  final String province, district, subdistrict, checkedAt, aliases;
   final bool community;
   const CuratedPlace(
     this.id,
@@ -14,6 +14,8 @@ class CuratedPlace {
     this.longitude,
     this.source, {
     this.province = 'เชียงใหม่',
+    this.district = '',
+    this.subdistrict = '',
     this.checkedAt = '2026-10-26',
     this.aliases = '',
     this.community = false,
@@ -22,6 +24,12 @@ class CuratedPlace {
   // Editorial approximate points, not an API geocode or verified entrance.
   LatLng get point => LatLng(latitude, longitude);
 }
+
+String placeArea(CuratedPlace p) => [
+  p.subdistrict,
+  p.district,
+  p.province,
+].where((e) => e.isNotEmpty).join(' • ');
 
 class ActivitySeed {
   final CuratedPlace? place;

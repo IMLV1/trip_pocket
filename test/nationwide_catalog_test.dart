@@ -95,6 +95,46 @@ void main() {
     },
   );
   test(
+    'district and subdistrict filters narrow food search in every province',
+    () {
+      final filled = catalog.places
+          .where((p) => p.subdistrict.isNotEmpty)
+          .length;
+      expect(filled / catalog.places.length, greaterThan(.95));
+      for (final province in catalog.provinces) {
+        final districts = catalog.districtsOf(province);
+        expect(districts, isNotEmpty, reason: province);
+        final food = catalog.search(province: province, category: 'food');
+        final district = food.places.first.district;
+        final inDistrict = catalog.search(
+          province: province,
+          district: district,
+          category: 'food',
+        );
+        expect(inDistrict.total, greaterThan(0));
+        expect(inDistrict.total, lessThanOrEqualTo(food.total));
+        expect(inDistrict.places.every((p) => p.district == district), isTrue);
+        final subdistrict = inDistrict.places.first.subdistrict;
+        expect(
+          catalog.subdistrictsOf(province, district),
+          contains(subdistrict),
+        );
+        final inSubdistrict = catalog.search(
+          province: province,
+          district: district,
+          subdistrict: subdistrict,
+          category: 'food',
+        );
+        expect(inSubdistrict.total, greaterThan(0));
+        expect(inSubdistrict.total, lessThanOrEqualTo(inDistrict.total));
+        expect(
+          inSubdistrict.places.every((p) => p.subdistrict == subdistrict),
+          isTrue,
+        );
+      }
+    },
+  );
+  test(
     'nation view clusters POIs and a city view caps individual markers honestly',
     () {
       final nation = catalog.window(

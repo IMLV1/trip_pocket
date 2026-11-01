@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" aria-label="TripPocket logo">
+<rect width="512" height="512" rx="112" fill="#1A3A38"/>
+<circle cx="256" cy="256" r="150" fill="none" stroke="#F4A261" stroke-width="36"/>
+<path d="M340 172 L288 288 L172 340 L224 224 Z" fill="#F4A261"/>
+<circle cx="256" cy="256" r="24" fill="#1A3A38"/>
+</svg>

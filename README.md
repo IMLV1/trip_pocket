@@ -61,7 +61,7 @@ APK อยู่ที่ `build/app/outputs/flutter-apk/app-debug.apk` กา�
 - แชร์ข้อความหลัง preview โดยไม่รวมหมายเหตุ พิกัด หรือเช็กลิสต์ ผล share sheet ไม่ยืนยันการส่งถึงผู้รับ
 - แผนที่ OSM Standard มี attribution ที่มองเห็นและลิงก์ลิขสิทธิ์ ใช้ cache ของ flutter_map ตาม HTTP headers ไม่รองรับดาวน์โหลดแผนที่ออฟไลน์ ใช้เพื่อโครงงานขนาดเล็ก; เปลี่ยน URL ผ่าน TILE_URL และตรวจเงื่อนไข provider ใหม่ด้วย
 - การย่อวันตรวจ children จาก server แต่ไม่รับประกันการแก้พร้อมกันหลายอุปกรณ์
-- รุ่นนี้ตั้งค่า Firebase เฉพาะ Android; iOS/Web ต้องลงทะเบียน app และสร้าง config เพิ่มก่อนใช้ live
+- ตั้งค่า Firebase ให้ Android และ iOS แล้ว ส่วน Web ต้องลงทะเบียน app และสร้าง config เพิ่มก่อนใช้ live; ผลบน iOS ดู [รายงานทดสอบ](docs/TEST_REPORT_MAC_IOS.md)
 - ยังใช้ debug signing สำหรับ APK ทดสอบ ไม่ใช่ไฟล์พร้อมลง Play Store
 
 ผลทดสอบจริงและงานค้างอยู่ใน [IMPLEMENTATION_STATUS](docs/IMPLEMENTATION_STATUS.md), คู่มือสาธิต [DEMO_GUIDE](docs/DEMO_GUIDE.md), คู่มือรันตรวจ P7 [P7_TEST_GUIDE](docs/P7_TEST_GUIDE.md) และ [เอกสารออกแบบ](docs/README.md)

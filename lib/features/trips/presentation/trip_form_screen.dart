@@ -53,7 +53,9 @@ class _TripEditorState extends ConsumerState<TripEditor> {
         text: moneyInput(widget.initial?.budgetSatang ?? 0),
       );
   late String start = widget.initial?.startDate ?? dateKey(DateTime.now()),
-      end = widget.initial?.endDate ?? start;
+      end =
+          widget.initial?.endDate ??
+          dateKey(DateTime.parse(start).add(const Duration(days: 1)));
   bool busy = false, selecting = false;
   late LatLng? destinationPoint = widget.initial?.hasDestinationPin == true
       ? LatLng(
@@ -103,16 +105,33 @@ class _TripEditorState extends ConsumerState<TripEditor> {
   }
 
   Future<void> pick(bool first) async {
+    final minimum = first
+        ? DateTime(1900)
+        : DateTime.parse(start).add(const Duration(days: 1));
+    final maximum = first ? DateTime(2100, 12, 30) : DateTime(2100, 12, 31);
+    if (minimum.isAfter(maximum)) {
+      showError(context, StateError('กรุณาเลือกวันเริ่มก่อน 31 ธันวาคม 2100'));
+      return;
+    }
+    final old = DateTime.parse(first ? start : end);
+    final initial = old.isBefore(minimum)
+        ? minimum
+        : old.isAfter(maximum)
+        ? maximum
+        : old;
     final value = await showDatePicker(
       context: context,
-      initialDate: DateTime.parse(first ? start : end),
-      firstDate: DateTime(1900),
-      lastDate: DateTime(2100, 12, 31),
+      initialDate: initial,
+      firstDate: minimum,
+      lastDate: maximum,
     );
     if (value != null && mounted) {
       setState(() {
         if (first) {
           start = dateKey(value);
+          if (end.compareTo(start) <= 0) {
+            end = dateKey(value.add(const Duration(days: 1)));
+          }
         } else {
           end = dateKey(value);
         }
@@ -122,8 +141,11 @@ class _TripEditorState extends ConsumerState<TripEditor> {
 
   Future<void> save() async {
     if (busy || selecting || !form.currentState!.validate()) return;
-    if (end.compareTo(start) < 0) {
-      showError(context, StateError('วันสิ้นสุดต้องไม่ก่อนวันเริ่ม'));
+    if (end.compareTo(start) <= 0) {
+      showError(
+        context,
+        StateError('วันสิ้นสุดต้องหลังวันเริ่มอย่างน้อย 1 วัน'),
+      );
       return;
     }
     setState(() => busy = true);
@@ -134,6 +156,7 @@ class _TripEditorState extends ConsumerState<TripEditor> {
             widget.uid,
             Trip(
               id: id,
+              completed: widget.initial?.completed ?? false,
               title: title.text,
               destination: destination.text,
               destinationLatitude: destinationPoint?.latitude,
@@ -242,12 +265,14 @@ class _TripEditorState extends ConsumerState<TripEditor> {
                 ),
                 const SizedBox(height: 12),
                 ListTile(
+                  key: const Key('trip-start-date'),
                   title: const Text('วันเริ่ม'),
                   subtitle: Text(start),
                   trailing: const Icon(Icons.calendar_month),
                   onTap: busy ? null : () => pick(true),
                 ),
                 ListTile(
+                  key: const Key('trip-end-date'),
                   title: const Text('วันสิ้นสุด'),
                   subtitle: Text(end),
                   trailing: const Icon(Icons.calendar_month),

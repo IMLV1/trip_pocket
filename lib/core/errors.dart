@@ -6,6 +6,13 @@ String errorText(Object e) {
       'invalid-credential' ||
       'wrong-password' ||
       'user-not-found' => 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+      'requires-recent-login' =>
+        'กรุณาเข้าสู่ระบบใหม่เพื่อยืนยันตัวตนก่อนทำรายการ',
+      'operation-not-allowed' => 'ยังไม่ได้เปิดวิธีเข้าสู่ระบบนี้ใน Firebase',
+      'credential-already-in-use' ||
+      'account-exists-with-different-credential' =>
+        'บัญชีนี้เชื่อมกับวิธีเข้าสู่ระบบอื่นอยู่ กรุณาเข้าด้วยวิธีเดิมก่อน',
+      'provider-already-linked' => 'บัญชี Google นี้เชื่อมต่อแล้ว',
       'email-already-in-use' => 'อีเมลนี้มีบัญชีแล้ว',
       'weak-password' => 'รหัสผ่านไม่ปลอดภัยพอ',
       'network-request-failed' ||

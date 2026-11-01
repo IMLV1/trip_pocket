@@ -42,6 +42,46 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
     }
   }
 
+  Future<void> finishTrip() async {
+    if (busy) return;
+    final accepted = await showDialog<bool>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('ยืนยันจบทริป?'),
+        content: const Text(
+          'ทริปจะย้ายไปหมวดจบทริปแล้ว คุณยังเปิดดูและแก้รายละเอียดได้ ข้อมูลจะไม่ถูกลบ',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c, false),
+            child: const Text('ยกเลิก'),
+          ),
+          FilledButton(
+            key: const Key('confirm-complete-trip'),
+            onPressed: () => Navigator.pop(c, true),
+            child: const Text('ยืนยันจบทริป'),
+          ),
+        ],
+      ),
+    );
+    if (accepted != true || !mounted) return;
+    setState(() => busy = true);
+    try {
+      await ref
+          .read(travelRepositoryProvider)
+          .completeTrip(widget.uid, widget.tripId);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('จบทริปแล้ว ดูได้ในหมวดจบทริปแล้ว')),
+        );
+      }
+    } catch (e) {
+      if (mounted) showError(context, e);
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -162,6 +202,14 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                           '${t.destination} • ${prettyDate(t.startDate)} – ${prettyDate(t.endDate, year: true)}',
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
+                        if (t.completed)
+                          const Padding(
+                            padding: EdgeInsets.only(top: 12),
+                            child: SoftBadge(
+                              'จบทริปแล้ว',
+                              icon: Icons.task_alt,
+                            ),
+                          ),
                         const SizedBox(height: 20),
                         if (page == 0 && t.hasDestinationPin) ...[
                           const SectionTitle(
@@ -200,6 +248,18 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
                                     'กำลังรอยืนยันการบันทึกจากเซิร์ฟเวอร์',
                                   ),
                                 if (page == 0) ...[
+                                  if (!t.completed)
+                                    Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 16,
+                                      ),
+                                      child: OutlinedButton.icon(
+                                        key: const Key('complete-trip'),
+                                        onPressed: disabled ? null : finishTrip,
+                                        icon: const Icon(Icons.flag_outlined),
+                                        label: const Text('จบทริป'),
+                                      ),
+                                    ),
                                   Container(
                                     padding: const EdgeInsets.all(24),
                                     decoration: BoxDecoration(

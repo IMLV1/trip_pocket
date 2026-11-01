@@ -3,6 +3,7 @@ import '../../../core/validation.dart';
 class Trip {
   final String id, title, destination, startDate, endDate, status;
   final int budgetSatang;
+  final bool completed;
   final double? destinationLatitude, destinationLongitude;
   final DateTime? createdAt, updatedAt;
   const Trip({
@@ -14,6 +15,7 @@ class Trip {
     required this.budgetSatang,
     this.destinationLatitude,
     this.destinationLongitude,
+    this.completed = false,
     this.status = 'active',
     this.createdAt,
     this.updatedAt,
@@ -31,6 +33,7 @@ class Trip {
     endDate: d['endDate'],
     budgetSatang: d['budgetSatang'],
     status: d['status'],
+    completed: d['completed'] as bool? ?? false,
     destinationLatitude: (d['destinationLatitude'] as num?)?.toDouble(),
     destinationLongitude: (d['destinationLongitude'] as num?)?.toDouble(),
     createdAt: createdAt,
@@ -57,8 +60,8 @@ class Trip {
     requireValid(
       validDate(startDate) &&
           validDate(endDate) &&
-          startDate.compareTo(endDate) <= 0,
-      'ช่วงวันที่ไม่ถูกต้อง',
+          startDate.compareTo(endDate) < 0,
+      'วันสิ้นสุดต้องหลังวันเริ่มอย่างน้อย 1 วัน',
     );
     requireValid(
       budgetSatang >= 0 && budgetSatang <= maxMoney,
@@ -75,6 +78,7 @@ class Trip {
     'endDate': endDate,
     'budgetSatang': budgetSatang,
     'status': status,
+    'completed': completed,
   };
 }
 

@@ -49,6 +49,21 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  Future<void> googleLogin() async {
+    if (busy) return;
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      await ref.read(authRepositoryProvider).signInWithGoogle();
+    } catch (e) {
+      if (mounted) setState(() => error = errorText(e));
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('TripPocket')),
@@ -148,6 +163,17 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                 ),
                 validator: passwordError,
               ),
+              if (!widget.register)
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    key: const Key('forgot-password'),
+                    onPressed: busy
+                        ? null
+                        : () => context.push('/forgot-password'),
+                    child: const Text('ลืมรหัสผ่าน?'),
+                  ),
+                ),
               if (widget.register) ...[
                 const SizedBox(height: 16),
                 TextFormField(
@@ -182,6 +208,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ? 'สมัครสมาชิก'
                       : 'เข้าสู่ระบบ',
                 ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: const Key('google-sign-in'),
+                onPressed: busy ? null : googleLogin,
+                icon: const Icon(Icons.account_circle_outlined),
+                label: const Text('เข้าสู่ระบบด้วย Google'),
               ),
               TextButton(
                 onPressed: busy

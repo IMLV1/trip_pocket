@@ -46,6 +46,10 @@ class DemoTravelRepository implements TravelRepository {
   Future<void> saveTrip(String uid, Trip trip, {required bool create}) async {
     trip.validate();
     requireValid(
+      !(user(uid)[trip.id]?.completed ?? false) || trip.completed,
+      'ทริปนี้จบแล้ว กรุณาโหลดข้อมูลใหม่',
+    );
+    requireValid(
       children(uid, trip.id).values.every(
         (a) =>
             a.date.compareTo(trip.startDate) >= 0 &&
@@ -100,6 +104,21 @@ class DemoTravelRepository implements TravelRepository {
   @override
   Future<void> deleteActivity(String uid, String tripId, String id) async {
     children(uid, tripId).remove(id);
+    _changes.add(null);
+  }
+
+  @override
+  Future<void> completeTrip(String uid, String tripId) async {
+    final old = user(uid)[tripId];
+    requireValid(old != null && old.status == 'active', 'ทริปไม่พร้อมแก้ไข');
+    if (old!.completed) return;
+    old.validate();
+    user(uid)[tripId] = Trip.fromFields(
+      tripId,
+      {...old.fields(), 'completed': true},
+      createdAt: old.createdAt,
+      updatedAt: old.updatedAt,
+    );
     _changes.add(null);
   }
 

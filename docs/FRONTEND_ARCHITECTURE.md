@@ -206,3 +206,15 @@ Trip เพิ่ม destinationLatitude/destinationLongitude (nullable number �
 Rules อนุญาต legacy ที่ไม่มีคู่ หรือ null ทั้งคู่ หรือ number ทั้งคู่ที่ finite/อยู่ใน bounds พิกัดโลก ปฏิเสธคู่ไม่ครบ/ชนิดผิด/นอก bounds และยังคง uid ownership, timestamps, active/deleting เดิม Boundary ประเทศไทยตรวจใน picker ฝั่งแอปตามข้อจำกัดเดิม ไม่ใช้ Rules เป็น polygon validator ไม่มี GPS tracking/บริการเสียเงิน
 
 ไม่ export พิกัดพื้นที่หลักในข้อความแชร์ ยังใช้ allowlist เดิม และไม่เปลี่ยนยอดทริปเก่า ตรวจ Flutter/Rules, Android และ live SDK ก่อนส่ง APK ที่ใช้ Firebase จริง
+
+## Account profile — 2 พฤศจิกายน 2569
+
+เพิ่ม /forgot-password (ก่อน login), /profile และ /change-password (หลัง login) ตาม FEATURE_ACCOUNT_PROFILE.md ใช้ design system เดิม ปุ่มโปรไฟล์อยู่หน้ารายการทริป การแก้ชื่อ/รูปไม่เปลี่ยน uid, navigation, trip หรือ checklist keys
+
+## ค้นหาชื่อทริป — 2 พฤศจิกายน 2569
+
+ผู้ใช้เพิ่มปุ่มค้นหาชื่อทริปในหน้าทริปของฉัน เปิดช่องค้นหา กรอง title ในรายการที่ repository โหลดเฉพาะ uid ปัจจุบัน ไม่ query ข้อมูลบัญชีอื่น ไม่เพิ่ม Firestore index/collection ล้างหรือปิดการค้นหาเพื่อกลับรายการทั้งหมด กรณีไม่พบแยกจากยังไม่มีทริป ไม่แก้หรือลบข้อมูลจริง
+
+## ยืนยันจบทริป — 2 พฤศจิกายน 2569
+
+รายละเอียดมีปุ่มจบทริปพร้อม confirmation ย้ายหมวดเมื่อยืนยัน แสดง badge จบแล้ว หน้ารายการมีตัวเลือกกำลังจะไป/จบทริปแล้ว และค้นชื่อได้ในหมวดปัจจุบัน ยังแก้รายละเอียด/ลบตาม workflow เดิม ไม่บอกว่าการจบทริปทำให้ข้อมูลถูกลบหรือแก้ไม่ได้

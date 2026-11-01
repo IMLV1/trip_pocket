@@ -1,3 +1,6 @@
+import '../features/auth/forgot_password_screen.dart';
+import '../features/auth/profile_screen.dart';
+import '../features/auth/change_password_screen.dart';
 import '../core/design_system.dart';
 import '../features/places/curated_places.dart';
 import 'package:flutter/material.dart';
@@ -57,12 +60,23 @@ class _SessionAppState extends ConsumerState<SessionApp> {
     initialLocation: widget.uid == null ? '/login' : '/trips',
     redirect: (c, s) {
       final auth =
-          s.matchedLocation == '/login' || s.matchedLocation == '/register';
+          s.matchedLocation == '/login' ||
+          s.matchedLocation == '/register' ||
+          s.matchedLocation == '/forgot-password';
       if (widget.uid == null && !auth) return '/login';
       if (widget.uid != null && auth) return '/trips';
       return null;
     },
     routes: [
+      GoRoute(
+        path: '/forgot-password',
+        builder: (c, s) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(path: '/profile', builder: (c, s) => const ProfileScreen()),
+      GoRoute(
+        path: '/change-password',
+        builder: (c, s) => const ChangePasswordScreen(),
+      ),
       GoRoute(path: '/login', builder: (c, s) => const AuthScreen()),
       GoRoute(
         path: '/register',

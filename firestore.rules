@@ -15,17 +15,19 @@ service cloud.firestore {
   }
   function validTrip(d) {
    return d.keys().hasAll(['title','destination','startDate','endDate','budgetSatang','status','createdAt','updatedAt'])
-    && d.keys().hasOnly(['title','destination','startDate','endDate','budgetSatang','status','createdAt','updatedAt','destinationLatitude','destinationLongitude'])
+    && d.keys().hasOnly(['title','destination','startDate','endDate','budgetSatang','status','createdAt','updatedAt','destinationLatitude','destinationLongitude','completed'])
+    && d.get('completed', false) is bool
     && validTripPin(d)
     && text(d.title,100) && text(d.destination,100) && date(d.startDate) && date(d.endDate)
-    && d.startDate <= d.endDate && money(d.budgetSatang) && d.status in ['active','deleting']
+    && (d.startDate < d.endDate || (d.status == 'deleting' && d.startDate == d.endDate)) && money(d.budgetSatang) && d.status in ['active','deleting']
     && d.createdAt is timestamp && d.updatedAt == request.time;
   }
   match /users/{uid}/trips/{tripId} {
    allow read: if owner(uid);
-   allow create: if owner(uid) && validTrip(request.resource.data) && request.resource.data.status == 'active' && request.resource.data.createdAt == request.time;
+   allow create: if owner(uid) && validTrip(request.resource.data) && request.resource.data.status == 'active' && request.resource.data.get('completed', false) == false && request.resource.data.createdAt == request.time;
    allow update: if owner(uid) && validTrip(request.resource.data)
     && request.resource.data.createdAt == resource.data.createdAt && resource.data.status == 'active'
+    && (!resource.data.get('completed', false) || request.resource.data.get('completed', false))
     && (request.resource.data.status == 'active' || request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status','updatedAt']));
    allow delete: if owner(uid) && resource.data.status == 'deleting';
    match /activities/{activityId} {

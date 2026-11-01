@@ -220,3 +220,15 @@ Rules อนุญาต legacy ที่ไม่มีคู่ หรือ n
 ใช้ไฟล์ที่ดาวน์โหลดจาก Firebase Console จริงที่ ios/Runner/GoogleService-Info.plist และเพิ่ม PBXFileReference / Runner group / PBXBuildFile / Runner Resources ใน ios/Runner.xcodeproj/project.pbxproj เพื่อให้ไฟล์ถูก bundle เข้าแอป Firebase.initializeApp() ใน main.dart อ่าน native config เดิม ไม่เพิ่ม FirebaseApp.configure() ฝั่ง Swift หรือ native SDK ซ้ำกับ Flutter plugins
 
 ตรวจ plist syntax, project/bundle/app IDs, คู่ reference และ Resources target ด้วยไฟล์จริงแล้ว Windows ไม่มี Xcode จึงยังไม่ได้ build/run iOS และไม่อ้างผล Firebase บน iPhone ผ่าน ต้องตรวจบน Mac/Xcode พร้อม signing ก่อนใช้งานจริง ไม่มี Rules/schema/billing เปลี่ยน
+
+## Strict trip dates — 2 พฤศจิกายน 2569
+
+สร้าง/บันทึก active trip ต้อง startDate < endDate ตามคำขอผู้ใช้ กฎวันในฟอร์ม/domain/Rules ต้องตรงกัน Legacy วันเดียวกันยังอ่านและลบแบบ resumable ได้ ไม่แก้ข้อมูลเก่าเมื่ออ่าน รายละเอียด exception deleting-only และการทดสอบอยู่ใน DATABASE_DESIGN.md
+
+## Account profile — 2 พฤศจิกายน 2569
+
+profile ใช้ Firebase Authentication displayName/photoURL/providerData ไม่เพิ่ม Firestore profile schema ใช้ userChanges สำหรับ Session และ reauthenticate ก่อนเปลี่ยน password Google link ต้องรักษา uid/ตรวจอีเมล ห้ามสลับไปเจ้าของ credential อื่น รายละเอียด privacy/recovery/test plan: FEATURE_ACCOUNT_PROFILE.md
+
+## ยืนยันจบทริป — 2 พฤศจิกายน 2569
+
+ตาม DATABASE_DESIGN.md เพิ่ม completed flag แยกจาก deletion status. completeTrip transaction ต้อง owner/active, idempotent, รักษา child/local data และ saveTrip ไม่ล้าง flag เดิม รายการแยกกำลังจะไป/จบแล้วผ่าน client filter uid-scoped ไม่เพิ่ม server/API หรือ billing

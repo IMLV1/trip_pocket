@@ -101,6 +101,12 @@ class FirestoreTravelRepository implements TravelRepository {
       final old = await tx.get(ref);
       requireValid(create || old.exists, 'ไม่พบทริป');
       requireValid(!old.exists || old['status'] == 'active', 'ทริปกำลังลบ');
+      requireValid(
+        !old.exists ||
+            !(old.data()?['completed'] as bool? ?? false) ||
+            value.completed,
+        'ทริปนี้จบแล้ว กรุณาโหลดข้อมูลใหม่',
+      );
       // Stable ID makes a retry update the same document after an uncertain result.
       tx.set(ref, {
         ...value.fields(),
@@ -182,6 +188,25 @@ class FirestoreTravelRepository implements TravelRepository {
       final p = await tx.get(parent);
       requireValid(p.exists && p['status'] == 'active', 'ทริปไม่พร้อมแก้ไข');
       tx.delete(parent.collection('activities').doc(id));
+    });
+  }
+
+  @override
+  Future<void> completeTrip(String uid, String tripId) async {
+    final parent = trips(uid).doc(tripId);
+    await db.runTransaction((tx) async {
+      final old = await tx.get(parent);
+      requireValid(
+        old.exists && old['status'] == 'active',
+        'ทริปไม่พร้อมแก้ไข',
+      );
+      final value = trip(old);
+      if (value.completed) return;
+      value.validate();
+      tx.update(parent, {
+        'completed': true,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
     });
   }
 

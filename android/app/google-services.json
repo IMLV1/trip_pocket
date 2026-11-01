@@ -12,7 +12,20 @@
           "package_name": "com.imlv1.trippocket"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "488059345725-l2mj0s1gr2d03jnh3p8jiv54j6n3ccnl.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.imlv1.trippocket",
+            "certificate_hash": "465c5a915a689e9f1a685b5e5e2f9faba88f29d6"
+          }
+        },
+        {
+          "client_id": "488059345725-5aptkh29dc86og5adq0lrc9rhg0at1m3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyB4J1qFc6bGIacv9p8ZA52uv4vUjADLR8Y"
@@ -20,7 +33,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "488059345725-5aptkh29dc86og5adq0lrc9rhg0at1m3.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "488059345725-v6v0ho0ivmqnn0e3s0f9uhp1ra013rpf.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.imlv1.trippocket"
+              }
+            }
+          ]
         }
       }
     }

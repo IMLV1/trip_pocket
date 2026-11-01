@@ -62,3 +62,34 @@ test('trip destination pin accepts legacy/null/pair and rejects malformed or cro
  await assertFails(updateDoc(p,{destinationLatitude:18.78,destinationLongitude:98.98,updatedAt:serverTimestamp()}));
  await assertSucceeds(deleteDoc(p));
 });
+
+test('strict trip dates reject same-day active writes but allow legacy resumable deletion',async()=>{
+ const d=db(),p=doc(d,tripPath);
+ await assertFails(setDoc(p,{...trip(),endDate:'2026-11-06'}));
+ await assertSucceeds(setDoc(p,trip()));
+ await assertFails(updateDoc(p,{endDate:'2026-11-06',updatedAt:serverTimestamp()}));
+ // Seed a genuine legacy same-day parent without bypassing rules for client operations.
+ await env.withSecurityRulesDisabled(async c=>{await setDoc(doc(c.firestore(),tripPath),{...trip(),endDate:'2026-11-06',createdAt:Timestamp.fromMillis(1),updatedAt:Timestamp.fromMillis(1)});});
+ await assertSucceeds(getDoc(p));
+ await assertFails(updateDoc(p,{title:'still same-day',updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(p,{status:'deleting',title:'changed',updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(doc(d,tripPath+'/activities/a'),{...activity(),date:'2026-11-06'}));
+ await assertSucceeds(updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(doc(d,tripPath+'/activities/a')));
+ await assertSucceeds(deleteDoc(p));
+});
+
+test('completed trip flag is owner-only, typed, monotonic and compatible with resumable deletion',async()=>{
+ const d=db(),p=doc(d,tripPath);
+ await assertFails(setDoc(p,{...trip(),completed:true}));
+ await assertFails(setDoc(p,{...trip(),completed:'yes'}));
+ await assertSucceeds(setDoc(p,trip()));
+ await assertSucceeds(updateDoc(p,{completed:true,updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(doc(db('other'),tripPath),{completed:true,updatedAt:serverTimestamp()}));
+ await assertFails(updateDoc(p,{completed:false,updatedAt:serverTimestamp()}));
+ await assertSucceeds(updateDoc(p,{title:'แก้ชื่อหลังจบทริป',completed:true,updatedAt:serverTimestamp()}));
+ await assertSucceeds(setDoc(doc(d,tripPath+'/activities/a'),activity()));
+ await assertSucceeds(updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()}));
+ await assertSucceeds(deleteDoc(doc(d,tripPath+'/activities/a')));
+ await assertSucceeds(deleteDoc(p));
+});

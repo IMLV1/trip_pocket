@@ -336,3 +336,19 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - ตรวจ XML plist และ PROJECT_ID/BUNDLE_ID/GOOGLE_APP_ID ตรงกับ project/Runner; ตรวจ file reference, build file และ resource membership แล้ว git diff --check ผ่าน
 - ไม่แก้ Dart/SDK packages/schema/Rules/billing จึงไม่รัน Flutter regression หรือ Rules tests ซ้ำสำหรับงาน native configuration นี้
 - ข้อจำกัด: เครื่อง Windows ไม่มี Xcode จึงยังไม่ได้ build iOS, code signing หรือทดสอบ Auth/Firestore บน iPhone; ผล Android/live รุ่นก่อนหน้าไม่ใช่ผล iOS
+
+## เริ่มบัญชีผู้ใช้และ strict dates — 2 พฤศจิกายน 2569
+
+- ปิดงาน audit ทุก refs/reflog/objects และภาพแล้ว รายงาน REPOSITORY_AUDIT.md commit 9f2814a ไม่มีการลบข้อมูลหรือ rewrite history
+- วันทริปใหม่/active save ต้องเริ่มก่อนจบเท่านั้น Domain/form/Rules ปรับแล้ว; Flutter tests 39/39 ผ่าน กำลังตรวจ Rules และ legacy deletion
+- เริ่ม reset password / Firebase profile / Google photo link / change password ตาม FEATURE_ACCOUNT_PROFILE.md ยังไม่อ้างผลทดสอบหรือ live provider พร้อมจนตรวจจริง
+
+### บัญชีและการจัดการทริป — milestone 1
+
+- เพิ่มลืมรหัสผ่าน, แก้ชื่อ Firebase Auth, เชื่อม Google เพื่อรูปโปรไฟล์, เปลี่ยนรหัสผ่านด้วย reauthentication; ไม่อ่าน Gmail และไม่บันทึกรหัสผ่านลง Firestore
+- เพิ่มค้นหาชื่อทริป, ยืนยันจบทริป และแยกกำลังจะไป/จบทริปแล้ว; completed เป็น optional bool อ่านข้อมูลเก่าเป็น false และยังแก้รายละเอียด/ลบได้
+- Flutter analyze ไม่มี issues; unit/widget 42/42 ผ่าน; Firestore Rules Emulator 12/12 ผ่าน รวม strict dates, legacy deletion, completed และแยกบัญชี
+- Android Emulator API 37: account_management_firebase_test ผ่านด้วย Auth/Firestore Emulator จริง รวม reset OOB code, reauthentication, Google fixture cancel/ผิดอีเมล/link UID เดิม, ชื่อ/รูป และ completion/budget/checklist/cross-account
+- Google fixture ไม่ใช่ Google OAuth จริง; live SDK และ UI รอบใหม่ยังไม่อ้างผ่าน
+- ผู้ใช้อนุญาตตั้งค่า Firebase จริงแล้ว เปิด Google provider สำเร็จ ใช้ TripPocket/support email เจ้าของ เพิ่ม SHA-1 debug และดาวน์โหลด native OAuth configs; ยังไม่เปิด Billing
+- อัปเดต Android google-services.json และ iOS plist/URL scheme จาก config จริง ตรวจ project/bundle/client type แล้ว; iOS ยังไม่ได้ build บน Windows

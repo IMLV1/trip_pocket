@@ -24,6 +24,7 @@ abstract class TravelRepository {
     List<TripActivity> ordered,
   );
   Future<void> deleteActivity(String uid, String tripId, String activityId);
+  Future<void> completeTrip(String uid, String tripId);
   Future<void> deleteTrip(String uid, String tripId);
   Future<void> resumePendingDeletes(String uid);
 }

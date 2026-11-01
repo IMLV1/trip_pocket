@@ -300,3 +300,15 @@ Trip เพิ่ม destinationLatitude/destinationLongitude (nullable number �
 Rules อนุญาต legacy ที่ไม่มีคู่ หรือ null ทั้งคู่ หรือ number ทั้งคู่ที่ finite/อยู่ใน bounds พิกัดโลก ปฏิเสธคู่ไม่ครบ/ชนิดผิด/นอก bounds และยังคง uid ownership, timestamps, active/deleting เดิม Boundary ประเทศไทยตรวจใน picker ฝั่งแอปตามข้อจำกัดเดิม ไม่ใช้ Rules เป็น polygon validator ไม่มี GPS tracking/บริการเสียเงิน
 
 ไม่ export พิกัดพื้นที่หลักในข้อความแชร์ ยังใช้ allowlist เดิม และไม่เปลี่ยนยอดทริปเก่า ตรวจ Flutter/Rules, Android และ live SDK ก่อนส่ง APK ที่ใช้ Firebase จริง
+
+## Strict trip dates — 2 พฤศจิกายน 2569
+
+ผู้ใช้กำหนดให้วันเริ่มก่อนวันสิ้นสุดเท่านั้น: startDate < endDate สำหรับการสร้าง/บันทึกทริป active ทุกครั้ง ไม่รับวันเดียวกัน ฟอร์มใหม่ตั้งวันสิ้นสุดเป็นวันถัดไป เลือกวันเริ่มที่เลื่อนเลยวันสิ้นสุดเดิมจะขยับวันสิ้นสุดเป็นวันถัดไป และตัวเลือกวันสิ้นสุดเริ่มหลังวันเริ่ม 1 วัน
+
+ทริปเก่าที่ startDate == endDate ยังอ่าน/ดูแผนเดิมได้ แต่ต้องปรับวันก่อน save active; การลบแบบ resumable ต้องยังทำได้ Rules จึงอนุญาตคู่วันเท่ากันเฉพาะ request status deleting โดยข้อจำกัด transition/diff/timestamps เดิมยังบังคับอยู่ ไม่อนุญาตสร้าง deleting หรือเปลี่ยนฟิลด์อื่นพร้อมเริ่มลบ ไม่มี migration/ย้ายกิจกรรมเอง
+
+## ยืนยันจบทริปและแยกรายการ — 2 พฤศจิกายน 2569
+
+ผู้ใช้เพิ่มปุ่มยืนยันจบทริปและแยกรายการกำลังจะไป/จบทริปแล้ว เพิ่ม trip.completed เป็น optional bool (legacy ไม่มี = false) โดยคง status active/deleting เพื่อไม่เปลี่ยน resumable deletion flow. การจบทริปต้องยืนยันก่อน transaction completed=true และ updatedAt server time ทำซ้ำได้โดยไม่สร้างข้อมูลซ้ำ ไม่ลบทริป/กิจกรรม/เช็กลิสต์และไม่เปลี่ยนยอดเงิน
+
+หน้ารายการกรอง completed ในข้อมูล uid เดิมร่วมกับคำค้น ไม่เพิ่ม Firestore index. ทริปจบแล้วยังดู/แก้รายละเอียด/ลบได้ แต่ save ต้องรักษา completed=true ไม่ย้ายกลับ upcoming โดยเงียบ Rules ตรวจ bool/create=false และไม่อนุญาต true กลับ false. complete เฉพาะ parent active ของเจ้าของบัญชี กฎช่วงวัน strict ยังบังคับ; legacy วันเดียวกันต้องแก้วันก่อนทำรายการ active แต่ยังลบได้

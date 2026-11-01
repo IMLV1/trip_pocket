@@ -328,3 +328,11 @@ V2.1 ตามขอบเขตที่ผู้ใช้เลือกเส
 - SHA256: 518DB78F22CAA3882DCFFA4A5465D39203665E855D07E5798D9D9D629627B577
 - Commit/push เป็นช่วง: fe1e595 ฟีเจอร์/schema/Rules/tests, 5a489d2 ผล live SDK และ assertion พฤติกรรม แล้วบันทึกส่งมอบนี้ ไป main ของ repository เดิม ไม่แก้สิทธิ์ Private
 - ข้อจำกัด: มือถือจริง/iOS ยังไม่ได้ตรวจ พื้น tiles ต้องใช้อินเทอร์เน็ตและในภาพหลักฐานยังโหลดไม่ครบ หมุดทริปเก่าต้องเลือกเพิ่มเอง ไม่มีการเดาพิกัดจากชื่อ
+
+## Firebase iOS setup — 2 พฤศจิกายน 2569
+
+- ลงทะเบียน TripPocket iOS ใน Firebase project เดิม trippocket-382b7 แล้ว Bundle ID com.imlv1.trippocket; App ID 1:488059345725:ios:8f897289980e7264a28354
+- ดาวน์โหลด GoogleService-Info.plist จริงจาก Console และใส่ ios/Runner/GoogleService-Info.plist พร้อมลิงก์เข้า Runner Resources ใน Xcode project ไม่ใช่เพียงวางไฟล์ไว้ในโฟลเดอร์
+- ตรวจ XML plist และ PROJECT_ID/BUNDLE_ID/GOOGLE_APP_ID ตรงกับ project/Runner; ตรวจ file reference, build file และ resource membership แล้ว git diff --check ผ่าน
+- ไม่แก้ Dart/SDK packages/schema/Rules/billing จึงไม่รัน Flutter regression หรือ Rules tests ซ้ำสำหรับงาน native configuration นี้
+- ข้อจำกัด: เครื่อง Windows ไม่มี Xcode จึงยังไม่ได้ build iOS, code signing หรือทดสอบ Auth/Firestore บน iPhone; ผล Android/live รุ่นก่อนหน้าไม่ใช่ผล iOS

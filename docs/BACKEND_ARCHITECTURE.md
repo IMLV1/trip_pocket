@@ -212,3 +212,11 @@ Trip เพิ่ม destinationLatitude/destinationLongitude (nullable number �
 Rules อนุญาต legacy ที่ไม่มีคู่ หรือ null ทั้งคู่ หรือ number ทั้งคู่ที่ finite/อยู่ใน bounds พิกัดโลก ปฏิเสธคู่ไม่ครบ/ชนิดผิด/นอก bounds และยังคง uid ownership, timestamps, active/deleting เดิม Boundary ประเทศไทยตรวจใน picker ฝั่งแอปตามข้อจำกัดเดิม ไม่ใช้ Rules เป็น polygon validator ไม่มี GPS tracking/บริการเสียเงิน
 
 ไม่ export พิกัดพื้นที่หลักในข้อความแชร์ ยังใช้ allowlist เดิม และไม่เปลี่ยนยอดทริปเก่า ตรวจ Flutter/Rules, Android และ live SDK ก่อนส่ง APK ที่ใช้ Firebase จริง
+
+## Firebase iOS configuration — 2 พฤศจิกายน 2569
+
+เพิ่มแอป Apple ชื่อ TripPocket iOS ในโปรเจกต์เดิม trippocket-382b7 (Spark) โดยใช้ Bundle ID com.imlv1.trippocket ตรงกับ Runner Debug/Profile/Release; Firebase App ID 1:488059345725:ios:8f897289980e7264a28354
+
+ใช้ไฟล์ที่ดาวน์โหลดจาก Firebase Console จริงที่ ios/Runner/GoogleService-Info.plist และเพิ่ม PBXFileReference / Runner group / PBXBuildFile / Runner Resources ใน ios/Runner.xcodeproj/project.pbxproj เพื่อให้ไฟล์ถูก bundle เข้าแอป Firebase.initializeApp() ใน main.dart อ่าน native config เดิม ไม่เพิ่ม FirebaseApp.configure() ฝั่ง Swift หรือ native SDK ซ้ำกับ Flutter plugins
+
+ตรวจ plist syntax, project/bundle/app IDs, คู่ reference และ Resources target ด้วยไฟล์จริงแล้ว Windows ไม่มี Xcode จึงยังไม่ได้ build/run iOS และไม่อ้างผล Firebase บน iPhone ผ่าน ต้องตรวจบน Mac/Xcode พร้อม signing ก่อนใช้งานจริง ไม่มี Rules/schema/billing เปลี่ยน

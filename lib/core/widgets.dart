@@ -1,10 +1,10 @@
-// widget กลาง: แสดงสถานะโหลด/ผิดพลาด, ยืนยันการลบ, แจ้ง error
-// โครงหน้าแบบเลื่อน และหน้าที่ใช้เมื่อหาข้อมูลไม่พบ
+// Shared widgets and dialogs.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'errors.dart';
 
+/// Renders an [AsyncValue] with loading, error and retry states.
 class AsyncContent<T> extends StatelessWidget {
   final AsyncValue<T> value;
   final Widget Function(T) data;
@@ -43,6 +43,7 @@ class AsyncContent<T> extends StatelessWidget {
     ),
   );
 
+  /// Wraps [child] in a Scaffold when [screenTitle] is set.
   Widget frame(Widget child) => screenTitle == null
       ? child
       : Scaffold(
@@ -51,6 +52,7 @@ class AsyncContent<T> extends StatelessWidget {
         );
 }
 
+/// Asks for delete confirmation. Returns true if accepted.
 Future<bool> confirmDelete(BuildContext context, String title) async =>
     await showDialog<bool>(
       context: context,
@@ -70,10 +72,13 @@ Future<bool> confirmDelete(BuildContext context, String title) async =>
       ),
     ) ??
     false;
+
+/// Shows [error] in a SnackBar.
 void showError(BuildContext context, Object error) => ScaffoldMessenger.of(
   context,
 ).showSnackBar(SnackBar(content: Text(errorText(error))));
 
+/// Scrollable page body capped at 640 wide.
 class PageBody extends StatelessWidget {
   final List<Widget> children;
   const PageBody({super.key, required this.children});
@@ -90,6 +95,7 @@ class PageBody extends StatelessWidget {
   );
 }
 
+/// Shown when the requested record is missing.
 class UnavailablePage extends StatelessWidget {
   final String title, message;
   final VoidCallback onExit;

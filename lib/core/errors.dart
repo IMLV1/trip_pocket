@@ -1,7 +1,8 @@
-// แปลง error จาก Firebase และแอปเป็นข้อความภาษาไทยสำหรับผู้ใช้
+// Maps errors to user-facing Thai messages.
 
 import 'package:firebase_core/firebase_core.dart';
 
+/// Returns a Thai message suitable for showing to the user.
 String errorText(Object e) {
   if (e is FirebaseException) {
     return switch (e.code) {

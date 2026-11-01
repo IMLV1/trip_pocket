@@ -1,5 +1,4 @@
-// แผนที่รายวันในแท็บแผนที่: แสดงหมุดจุดหมาย หมุดพื้นที่หลัก และสถานที่แนะนำ
-// แตะแผนที่เพื่อเพิ่มจุด และอ่านตำแหน่งของฉันเมื่อกดปุ่มเท่านั้น
+// Map of one trip day.
 
 import 'curated_places.dart';
 import 'poi_map_layer.dart';
@@ -14,6 +13,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../activities/domain/trip_activity.dart';
 
+/// Marker color for a category.
 Color categoryColor(String category) => switch (category) {
   'attraction' => Colors.teal,
   'food' => Colors.deepOrange,
@@ -21,6 +21,7 @@ Color categoryColor(String category) => switch (category) {
   _ => Colors.blueGrey,
 };
 
+/// Map of a day: numbered stops, trip destination and recommendations.
 class DailyMap extends ConsumerStatefulWidget {
   final List<TripActivity> activities;
   final LatLng? destination;
@@ -45,6 +46,8 @@ class _DailyMapState extends ConsumerState<DailyMap> {
   final controller = MapController();
   LocationFix? fix;
   bool locating = false;
+
+  /// All stops, plus the trip destination when set.
   List<LatLng> get points => [
     ...widget.activities.map((a) => LatLng(a.latitude, a.longitude)),
     if (widget.destination != null) widget.destination!,
@@ -65,6 +68,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
     }
   }
 
+  /// Moves the camera to show every stop.
   void fitStops(List<LatLng> stops) => controller.fitCamera(
     CameraFit.bounds(
       bounds: LatLngBounds.fromPoints(stops),
@@ -79,6 +83,7 @@ class _DailyMapState extends ConsumerState<DailyMap> {
     super.dispose();
   }
 
+  /// Reads the location on request and centers the map. The fix is never stored.
   Future<void> locate() async {
     if (locating) return;
     setState(() => locating = true);

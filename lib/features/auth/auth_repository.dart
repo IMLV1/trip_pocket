@@ -1,11 +1,11 @@
-// ชั้นจัดการบัญชี: ล็อกอิน สมัคร ออกจากระบบ ลืมรหัสผ่าน แก้ชื่อ เปลี่ยนรหัส และ Google
-// มีทั้งแบบ Firebase จริงและแบบจำลองสำหรับโหมด demo
+// Account operations, with Firebase and demo implementations.
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../core/validation.dart';
 import 'google_identity_client.dart';
 
+/// App-level view of the signed-in user.
 class Session {
   final String uid, email;
   final String? displayName, photoUrl;
@@ -20,27 +20,50 @@ class Session {
   });
 }
 
+/// Account operations used by the screens.
 abstract class AuthRepository {
+  /// Emits on every sign-in, sign-out or profile change.
   Stream<Session?> watchSession();
+
+  /// The current session, if any.
   Session? get currentSession;
+
+  /// Signs in with email and password.
   Future<void> signIn(String email, String password);
+
+  /// Creates an account.
   Future<void> register(String email, String password);
+
+  /// Signs out.
   Future<void> signOut();
+
+  /// Requests a password reset email.
   Future<void> sendPasswordReset(String email);
+
+  /// Updates the display name.
   Future<void> updateDisplayName(String name);
+
+  /// Changes the password after verifying the current one.
   Future<void> changePassword({
     required String currentPassword,
     required String newPassword,
   });
+
+  /// Links Google for the profile photo. Returns false if cancelled.
   Future<bool> connectGoogleProfile();
+
+  /// Signs in with Google. Returns false if cancelled.
   Future<bool> signInWithGoogle();
 }
 
+/// [AuthRepository] backed by Firebase Authentication.
 class FirebaseAuthRepository implements AuthRepository {
   final FirebaseAuth auth;
   final GoogleIdentityClient google;
   FirebaseAuthRepository(this.auth, {GoogleIdentityClient? google})
     : google = google ?? NativeGoogleIdentityClient();
+
+  /// Maps a Firebase user to a [Session].
   Session? session(User? u) => u == null
       ? null
       : Session(
@@ -53,18 +76,25 @@ class FirebaseAuthRepository implements AuthRepository {
         );
   @override
   Session? get currentSession => session(auth.currentUser);
+
+  /// Returns the current user, or throws if signed out.
   User requireUser() {
     final u = auth.currentUser;
     if (u == null) throw StateError('กรุณาเข้าสู่ระบบอีกครั้ง');
     return u;
   }
 
+  /// Throws if the account changed during an async step.
   void sameUser(String uid) => requireValid(
     auth.currentUser?.uid == uid,
     'บัญชีเปลี่ยนแล้ว กรุณาลองใหม่',
   );
+
+  /// Uses `userChanges` so profile edits are emitted too.
   @override
   Stream<Session?> watchSession() => auth.userChanges().map(session);
+
+  /// Signs in with the trimmed email.
   @override
   Future<void> signIn(String email, String password) async {
     await auth.signInWithEmailAndPassword(
@@ -73,6 +103,7 @@ class FirebaseAuthRepository implements AuthRepository {
     );
   }
 
+  /// Registers with the trimmed email.
   @override
   Future<void> register(String email, String password) async {
     await auth.createUserWithEmailAndPassword(
@@ -81,6 +112,7 @@ class FirebaseAuthRepository implements AuthRepository {
     );
   }
 
+  /// Signs out of Firebase first, then best-effort from Google.
   @override
   Future<void> signOut() async {
     await auth.signOut();
@@ -90,6 +122,7 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (_) {}
   }
 
+  /// Hides `user-not-found` to avoid revealing which emails have accounts.
   @override
   Future<void> sendPasswordReset(String email) async {
     requireValid(emailError(email) == null, 'กรอกอีเมลให้ถูกต้อง');
@@ -101,6 +134,7 @@ class FirebaseAuthRepository implements AuthRepository {
     }
   }
 
+  /// Saves the name, then reloads the user.
   @override
   Future<void> updateDisplayName(String name) async {
     requireValid(
@@ -113,6 +147,7 @@ class FirebaseAuthRepository implements AuthRepository {
     await user.reload();
   }
 
+  /// Reauthenticates, then updates the password.
   @override
   Future<void> changePassword({
     required String currentPassword,
@@ -142,6 +177,7 @@ class FirebaseAuthRepository implements AuthRepository {
     await user.updatePassword(newPassword);
   }
 
+  /// Links a Google account with the same email, keeping any chosen name.
   @override
   Future<bool> connectGoogleProfile() async {
     final user = requireUser();
@@ -177,6 +213,7 @@ class FirebaseAuthRepository implements AuthRepository {
     return true;
   }
 
+  /// Exchanges a Google credential for a Firebase session.
   @override
   Future<bool> signInWithGoogle() async {
     requireValid(auth.currentUser == null, 'ออกจากระบบก่อนเปลี่ยนบัญชี');
@@ -189,40 +226,51 @@ class FirebaseAuthRepository implements AuthRepository {
 }
 
 /// Explicit demo only. No real passwords, tokens or email deliveries.
+/// Demo-only accounts. No real passwords or emails.
 class DemoAuthRepository implements AuthRepository {
   Session? _session;
   final _profiles = <String, Session>{};
   final _events = StreamController<Session?>.broadcast();
   @override
   Session? get currentSession => _session;
+
+  /// Emits the current session, then later changes.
   @override
   Stream<Session?> watchSession() async* {
     yield _session;
     yield* _events.stream;
   }
 
+  /// Updates the session and notifies listeners.
   void emit(Session? s) {
     _session = s;
     if (s != null) _profiles[s.email] = s;
     _events.add(s);
   }
 
+  /// Signs in to a local demo profile.
   @override
   Future<void> signIn(String email, String password) async {
     final e = email.trim().toLowerCase();
     emit(_profiles[e] ?? Session('demo-$e', e));
   }
 
+  /// Same as [signIn] in demo mode.
   @override
   Future<void> register(String email, String password) =>
       signIn(email, password);
+
+  /// Clears the demo session.
   @override
   Future<void> signOut() async => emit(null);
+
+  /// Only validates the email.
   @override
   Future<void> sendPasswordReset(String email) async {
     requireValid(emailError(email) == null, 'กรอกอีเมลให้ถูกต้อง');
   }
 
+  /// Updates the demo profile.
   @override
   Future<void> updateDisplayName(String name) async {
     requireValid(
@@ -243,6 +291,7 @@ class DemoAuthRepository implements AuthRepository {
     );
   }
 
+  /// Only validates the input.
   @override
   Future<void> changePassword({
     required String currentPassword,
@@ -256,11 +305,13 @@ class DemoAuthRepository implements AuthRepository {
     );
   }
 
+  /// Not available in demo mode.
   @override
   Future<bool> connectGoogleProfile() async {
     throw StateError('โหมดจำลองไม่เชื่อม Google จริง');
   }
 
+  /// Not available in demo mode.
   @override
   Future<bool> signInWithGoogle() async {
     throw StateError('โหมดจำลองไม่เข้าสู่ระบบ Google จริง');

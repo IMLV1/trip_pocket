@@ -1,5 +1,4 @@
-// ฐานสถานที่ทั่วไทยจาก assets/thailand_pois.json
-// มีการค้นหาและกรองสำหรับรายการ และการเลือกสถานที่ตามมุมมองแผนที่พร้อมจัดกลุ่ม
+// Nationwide offline place catalogue: search and map windows.
 
 import 'dart:convert';
 import 'dart:math' as math;
@@ -9,11 +8,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'curated_places.dart';
 
+/// Loads the catalogue once, decoding it off the UI isolate.
 final placeCatalogProvider = FutureProvider<PlaceCatalog>((ref) async {
   final text = await rootBundle.loadString('assets/thailand_pois.json');
   return compute(decodePlaceCatalog, text);
 });
 
+/// Parses and validates the bundled catalogue, including its row count.
 PlaceCatalog decodePlaceCatalog(String text) {
   final data = jsonDecode(text) as Map<String, dynamic>;
   final metadata = data['metadata'] as Map<String, dynamic>;
@@ -60,15 +61,18 @@ PlaceCatalog decodePlaceCatalog(String text) {
   return PlaceCatalog(places, dataTimestamp: date);
 }
 
+/// Lowercases, trims and collapses whitespace.
 String normalizePlaceQuery(String text) =>
     text.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
 
+/// A page of results and the total before the limit.
 class PlaceResults {
   final List<CuratedPlace> places;
   final int total;
   const PlaceResults(this.places, this.total);
 }
 
+/// A map marker: one place, or a cluster when [place] is null.
 class PoiGroup {
   final LatLng point;
   final int count;
@@ -76,12 +80,14 @@ class PoiGroup {
   const PoiGroup(this.point, this.count, this.place);
 }
 
+/// Markers for the visible area and the total match count.
 class PoiWindow {
   final List<PoiGroup> groups;
   final int total;
   const PoiWindow(this.groups, this.total);
 }
 
+/// Indexed catalogue with text, admin area and spatial lookups.
 class PlaceCatalog {
   final List<CuratedPlace> places;
   final String dataTimestamp;
@@ -109,12 +115,20 @@ class PlaceCatalog {
     }
     provinces = names.where((p) => p != 'ประเทศไทย').toList()..sort();
   }
+
+  /// Districts of [province], sorted.
   List<String> districtsOf(String province) =>
       (_districts[province]?.toList() ?? <String>[])..sort();
+
+  /// Subdistricts of [district], sorted.
   List<String> subdistrictsOf(String province, String district) =>
       (_subdistricts['$province/$district']?.toList() ?? <String>[])..sort();
+
+  /// Spatial grid key, 0.25 degrees per cell.
   String _cell(double lat, double lon) =>
       '${(lat * 4).floor()}/${(lon * 4).floor()}';
+
+  /// Whether [p] passes every filter and contains every token.
   bool _matches(
     CuratedPlace p,
     String category,
@@ -129,6 +143,7 @@ class PlaceCatalog {
       (subdistrict.isEmpty || p.subdistrict == subdistrict) &&
       tokens.every((t) => _text[p.id]!.contains(t));
 
+  /// Searches for list views, sorted by distance from [near] or by name.
   PlaceResults search({
     String query = '',
     String category = 'all',
@@ -176,6 +191,7 @@ class PlaceCatalog {
     );
   }
 
+  /// Returns visible markers: up to 100 places from zoom 12, clusters below it.
   PoiWindow window({
     required double south,
     required double north,

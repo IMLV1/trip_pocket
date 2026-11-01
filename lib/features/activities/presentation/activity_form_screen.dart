@@ -1,5 +1,4 @@
-// หน้าเพิ่มและแก้ไขจุดหมาย: กรอกชื่อ หมวด วัน เวลา ค่าใช้จ่าย หมายเหตุ และเลือกหมุด
-// สถานที่จากการค้นหาต้องยืนยันตำแหน่งบนแผนที่ก่อนบันทึก
+// Add/edit activity screen.
 
 import '../../places/recommendations_sheet.dart';
 import '../../places/thailand_boundary.dart';
@@ -17,6 +16,7 @@ import '../../trips/domain/trip.dart';
 import '../domain/trip_activity.dart';
 import '../../places/place_picker_sheet.dart';
 
+/// Loads the trip and activity, then shows [ActivityEditor].
 class ActivityFormScreen extends ConsumerWidget {
   final String uid, tripId;
   final String? activityId;
@@ -71,6 +71,7 @@ class ActivityFormScreen extends ConsumerWidget {
   }
 }
 
+/// Activity form. A searched place must have its pin confirmed before saving.
 class ActivityEditor extends ConsumerStatefulWidget {
   final String uid;
   final Trip trip;
@@ -117,6 +118,7 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
     super.dispose();
   }
 
+  /// Validates the pin, assigns a rank and saves. An empty cost means unknown.
   Future<void> save() async {
     if (busy || !form.currentState!.validate()) return;
     if (point == null) {

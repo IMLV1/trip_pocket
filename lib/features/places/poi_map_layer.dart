@@ -1,5 +1,4 @@
-// ชั้นไอคอนสถานที่แนะนำบนแผนที่ คำนวณใหม่หลังแผนที่หยุดขยับ
-// มี chooseSuggestedPlace สำหรับดูรายละเอียดและยืนยันสถานที่
+// Recommended place markers and the place details sheet.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -10,6 +9,7 @@ import 'curated_places.dart';
 import 'place_catalog.dart';
 import '../activities/domain/trip_activity.dart';
 
+/// Icon for a place category.
 IconData placeIcon(String category) => switch (category) {
   'food' => Icons.restaurant,
   'lodging' => Icons.hotel,
@@ -17,6 +17,7 @@ IconData placeIcon(String category) => switch (category) {
   _ => Icons.park,
 };
 
+/// Shows place details. Returns the place if the user adds it.
 Future<CuratedPlace?> chooseSuggestedPlace(
   BuildContext context,
   CuratedPlace place,
@@ -73,6 +74,7 @@ Future<CuratedPlace?> chooseSuggestedPlace(
   ),
 );
 
+/// Recommended place markers. Must be a child of a FlutterMap.
 class PoiMapLayer extends ConsumerStatefulWidget {
   final void Function(CuratedPlace)? onSelected;
   final String category, province, district, subdistrict, query;

@@ -1,10 +1,10 @@
-// สร้างข้อความแชร์จากทริปและกิจกรรม
-// ไม่รวมหมายเหตุ พิกัด หรือเช็กลิสต์
+// Formats a trip as shareable plain text.
 
 import '../trips/domain/trip.dart';
 import '../activities/domain/trip_activity.dart';
 import '../../core/validation.dart';
 
+/// Builds the daily itinerary and budget summary. Omits notes, coordinates and the checklist.
 String formatTripShare(Trip trip, List<TripActivity> activities) {
   final out = StringBuffer(
     'TripPocket: ${trip.title}\nจุดหมาย: ${trip.destination}\n${trip.startDate} ถึง ${trip.endDate}\n',

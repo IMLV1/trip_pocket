@@ -1,5 +1,4 @@
-// หน้าลืมรหัสผ่าน: ขอลิงก์ตั้งรหัสใหม่ทางอีเมล
-// ข้อความผลลัพธ์เหมือนกันเสมอ เพื่อไม่เปิดเผยว่าอีเมลนี้มีบัญชีหรือไม่
+// Password reset request screen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import '../../core/errors.dart';
 import '../../core/validation.dart';
 import '../../core/widgets.dart';
 
+/// Requests a reset link. The result text never reveals whether an account exists.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
   @override
@@ -28,6 +28,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  /// Sends the request and switches to the confirmation view.
   Future<void> send() async {
     if (busy || sent || !form.currentState!.validate()) return;
     setState(() {

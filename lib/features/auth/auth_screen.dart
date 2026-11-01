@@ -1,5 +1,4 @@
-// หน้าเข้าสู่ระบบและสมัครสมาชิก ใช้หน้าเดียวกันโดยดูจากค่า register
-// ล็อกอินสำเร็จแล้วแอปเปลี่ยนหน้าเองผ่าน sessionProvider
+// Sign-in and registration screen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import '../../core/errors.dart';
 import '../../core/widgets.dart';
 import '../../core/design_system.dart';
 
+/// Sign-in form, or registration when [register] is true.
 class AuthScreen extends ConsumerStatefulWidget {
   final bool register;
   const AuthScreen({super.key, this.register = false});
@@ -32,6 +32,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     super.dispose();
   }
 
+  /// Validates, then signs in or registers. Navigation follows the session.
   Future<void> submit() async {
     if (busy || !form.currentState!.validate()) return;
     setState(() {
@@ -52,6 +53,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  /// Signs in with Google.
   Future<void> googleLogin() async {
     if (busy) return;
     setState(() {

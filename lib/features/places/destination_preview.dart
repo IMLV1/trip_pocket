@@ -1,4 +1,4 @@
-// แผนที่ขนาดเล็กแบบดูอย่างเดียว แสดงหมุดพื้นที่หลักของทริป
+// Read-only map preview of the trip destination.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Read-only destination preview; choosing a new point uses the confirmed picker.
+/// Non-interactive map with the destination pin.
 class DestinationPreview extends StatelessWidget {
   final LatLng point;
   final String label;

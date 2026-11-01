@@ -1,8 +1,8 @@
-// ระบบดีไซน์ของแอป: สี, theme, การแสดงวันที่ และ widget กลาง
-// เช่น ป้าย หัวข้อ แผงว่าง หัวฟอร์ม และลายเส้นทางบนการ์ด
+// Colors, theme and small shared UI pieces.
 
 import 'package:flutter/material.dart';
 
+/// App color palette.
 abstract final class TripColors {
   static const ink = Color(0xff173b38);
   static const primary = Color(0xff126b5e);
@@ -13,6 +13,7 @@ abstract final class TripColors {
   static const accent = Color(0xfff4ab6d);
 }
 
+/// Builds the Material 3 theme.
 ThemeData buildTripTheme() {
   final scheme = ColorScheme.fromSeed(seedColor: TripColors.primary).copyWith(
     primary: TripColors.primary,
@@ -230,6 +231,7 @@ ThemeData buildTripTheme() {
   );
 }
 
+/// Formats a YYYY-MM-DD string as a Thai date.
 String prettyDate(String date, {bool year = false}) {
   final d = DateTime.parse(date);
   const months = [
@@ -249,6 +251,7 @@ String prettyDate(String date, {bool year = false}) {
   return '${d.day} ${months[d.month - 1]}${year ? ' ${d.year + 543}' : ''}';
 }
 
+/// Small label with an optional icon.
 class SoftBadge extends StatelessWidget {
   final String text;
   final IconData? icon;
@@ -283,6 +286,7 @@ class SoftBadge extends StatelessWidget {
   );
 }
 
+/// Section heading with an optional subtitle.
 class SectionTitle extends StatelessWidget {
   final String title;
   final String? subtitle;
@@ -310,6 +314,7 @@ class SectionTitle extends StatelessWidget {
   );
 }
 
+/// Placeholder for empty content.
 class EmptyPanel extends StatelessWidget {
   final IconData icon;
   final String title, message;
@@ -355,6 +360,7 @@ class EmptyPanel extends StatelessWidget {
   );
 }
 
+/// Form header with an icon and description.
 class FormIntro extends StatelessWidget {
   final String title, message;
   final IconData icon;
@@ -394,6 +400,7 @@ class FormIntro extends StatelessWidget {
   );
 }
 
+/// Paints the decorative route line on hero cards.
 class RouteMotif extends CustomPainter {
   const RouteMotif();
   @override

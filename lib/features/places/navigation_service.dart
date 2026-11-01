@@ -1,18 +1,23 @@
-// สร้างลิงก์ Google Maps Directions แล้วเปิดแอปภายนอก
-// ถ้าเปิดไม่ได้จะลองเปิดในเบราว์เซอร์ก่อนแจ้ง error
+// Opens directions in external Google Maps.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../activities/domain/trip_activity.dart';
 
+/// URL launcher signature, injectable for tests.
 typedef MapsLauncher = Future<bool> Function(Uri uri, LaunchMode mode);
+
+/// Provides the [NavigationService].
 final navigationProvider = Provider<NavigationService>(
   (ref) => NavigationService((uri, mode) => launchUrl(uri, mode: mode)),
 );
 
+/// Opens directions outside the app.
 class NavigationService {
   final MapsLauncher launch;
   NavigationService(this.launch);
+
+  /// Builds a directions URL. Without [from], Maps starts at the user.
   Uri directions(TripActivity to, {TripActivity? from}) =>
       Uri.https('www.google.com', '/maps/dir/', {
         'api': '1',
@@ -24,6 +29,8 @@ class NavigationService {
           _ => 'driving',
         },
       });
+
+  /// Tries the external app, then an in-app browser. Throws if both fail.
   Future<void> open(TripActivity to, {TripActivity? from}) async {
     final uri = directions(to, from: from);
     var opened = false;

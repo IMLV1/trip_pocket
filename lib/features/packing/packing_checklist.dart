@@ -1,4 +1,4 @@
-// UI เช็กลิสต์เตรียมของในแท็บเตรียมของ: เพิ่ม ติ๊ก ลบ และแสดงความคืบหน้า
+// Packing checklist UI.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +7,7 @@ import '../../app/providers.dart';
 import '../../core/widgets.dart';
 import 'packing_repository.dart';
 
+/// Checklist card for one trip.
 class PackingChecklist extends ConsumerStatefulWidget {
   final TripKey tripKey;
   const PackingChecklist({super.key, required this.tripKey});
@@ -23,6 +24,7 @@ class _PackingChecklistState extends ConsumerState<PackingChecklist> {
     super.dispose();
   }
 
+  /// Saves the full list and reloads. Set [clear] to empty the input.
   Future<void> save(List<PackingItem> items, {bool clear = false}) async {
     if (busy) return;
     setState(() => busy = true);

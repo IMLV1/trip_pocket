@@ -1,21 +1,30 @@
-// เก็บเช็กลิสต์ในเครื่องด้วย SharedPreferences แยกตามบัญชีและทริป
-// มีคิวล้างข้อมูลตอนลบทริป และไม่เขียนทับเมื่อข้อมูลเดิมเสียหาย
+// Device-local packing checklist storage.
 
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// One checklist entry.
 class PackingItem {
   final String id, text;
   final bool checked;
   const PackingItem(this.id, this.text, this.checked);
+
+  /// Encodes for local storage.
   Map<String, dynamic> toJson() => {'id': id, 'text': text, 'checked': checked};
+
+  /// Returns a copy with `checked` flipped.
   PackingItem toggle() => PackingItem(id, text, !checked);
 }
 
+/// SharedPreferences store, scoped by uid and tripId.
 class PackingRepository {
   final SharedPreferences prefs;
   PackingRepository(this.prefs);
+
+  /// Storage key for one trip.
   String key(String uid, String tripId) => 'packing.v1.$uid.$tripId';
+
+  /// Loads the list. Throws [FormatException] on corrupt data.
   Future<List<PackingItem>> load(String uid, String tripId) async {
     final raw = prefs.getString(key(uid, tripId));
     if (raw == null) return [];
@@ -38,6 +47,7 @@ class PackingRepository {
     }
   }
 
+  /// Saves the list. Refuses to overwrite corrupt data.
   Future<void> save(String uid, String tripId, List<PackingItem> items) async {
     if (items.any((e) => e.text.trim().isEmpty)) {
       throw const FormatException('รายการเตรียมของต้องไม่ว่าง');
@@ -51,8 +61,11 @@ class PackingRepository {
     }
   }
 
+  /// Trip ids awaiting local cleanup.
   List<String> cleanupQueue(String uid) =>
       prefs.getStringList('packingCleanup.v1.$uid') ?? [];
+
+  /// Records the intent to delete before the cloud delete starts.
   Future<void> queueCleanup(String uid, String tripId) async {
     final ids = {...cleanupQueue(uid), tripId}.toList();
     if (!await prefs.setStringList('packingCleanup.v1.$uid', ids)) {
@@ -60,6 +73,7 @@ class PackingRepository {
     }
   }
 
+  /// Removes the local checklist and its queue entry.
   Future<void> finishCleanup(String uid, String tripId) async {
     if (!await prefs.remove(key(uid, tripId))) {
       throw StateError('ล้างเช็กลิสต์ไม่สำเร็จ');

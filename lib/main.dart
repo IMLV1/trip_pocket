@@ -1,5 +1,4 @@
-// จุดเริ่มต้นของแอป: อ่าน APP_MODE (live, emulator, demo) เริ่ม Firebase ตามโหมด
-// สร้าง repository แล้วส่งเข้า Riverpod ถ้าเริ่มไม่สำเร็จจะแสดงหน้าข้อความ error
+// App entry point: picks the run mode and wires up the repositories.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -16,6 +15,7 @@ import 'features/trips/data/firestore_travel_repository.dart';
 import 'features/trips/data/demo_travel_repository.dart';
 import 'features/trips/domain/travel_repository.dart';
 
+/// Starts the app, or shows an error screen if bootstrap fails.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -38,6 +38,7 @@ Future<void> main() async {
   }
 }
 
+/// Selects the mode, builds repositories and runs the app. Release builds accept only `live`.
 Future<void> bootstrap({String? modeOverride}) async {
   final mode =
       modeOverride ??

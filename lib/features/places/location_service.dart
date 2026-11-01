@@ -1,5 +1,4 @@
-// ขอสิทธิ์และอ่านตำแหน่งปัจจุบันหนึ่งครั้งเมื่อผู้ใช้กด
-// ไม่บันทึกพิกัดและไม่ติดตามเบื้องหลัง
+// One-shot foreground location lookup.
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -7,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
 
+/// A transient location reading. Never persisted.
 class LocationFix {
   final LatLng point;
   final double accuracy;
@@ -14,8 +14,10 @@ class LocationFix {
   const LocationFix(this.point, this.accuracy, this.timestamp);
 }
 
+/// Provides the [LocationService].
 final locationProvider = Provider<LocationService>((ref) => LocationService());
 
+/// Wraps geolocator. All calls are injectable for tests.
 class LocationService {
   final Future<bool> Function() enabled;
   final Future<LocationPermission> Function() check, request;
@@ -42,6 +44,8 @@ class LocationService {
                      timeLimit: Duration(seconds: 20),
                    ),
            ));
+
+  /// Checks the service and permission, then reads once with a timeout.
   Future<LocationFix> locate() async {
     if (!await enabled()) {
       throw StateError('Location ปิดอยู่ กรุณาเปิดตำแหน่งบนอุปกรณ์แล้วลองใหม่');

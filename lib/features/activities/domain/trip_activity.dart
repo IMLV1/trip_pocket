@@ -1,16 +1,18 @@
-// โมเดลจุดหมายในทริป: การตรวจค่า การเรียงลำดับ ค่าเดินทางแต่ละช่วง และการคำนวณงบ
-// ค่าเดินทางนับเฉพาะช่วงที่จุดและเวลายังตรงกับตอนบันทึก ราคาที่ไม่ทราบไม่ถือว่าฟรี
+// Activity model, ordering and budget calculation.
 
 import 'dart:convert';
 import '../../../core/validation.dart';
 import '../../trips/domain/trip.dart';
 
+/// Stored category codes and their labels.
 const activityCategories = {
   'attraction': 'ท่องเที่ยว',
   'food': 'อาหาร',
   'lodging': 'ที่พัก',
   'other': 'อื่น ๆ',
 };
+
+/// Stored travel mode codes and their labels.
 const travelModes = {
   'none': 'ยังไม่เลือก',
   'car': 'รถยนต์',
@@ -19,6 +21,7 @@ const travelModes = {
   'transit': 'ขนส่งสาธารณะ',
 };
 
+/// A stop in a trip. Travel fields describe the segment arriving at this stop.
 class TripActivity {
   final String id,
       title,
@@ -54,7 +57,10 @@ class TripActivity {
     this.travelCostKnown = false,
   });
 
+  /// Position within the day. Legacy records without `orderIndex` fall back to time order.
   int get rank => orderIndex ?? timeMinutes * 1000;
+
+  /// Decodes stored fields, defaulting those missing from schema 1 records.
   factory TripActivity.fromFields(
     String id,
     Map<String, dynamic> d, {
@@ -81,12 +87,15 @@ class TripActivity {
     updatedAt: updatedAt,
   );
 
+  /// Returns a copy with a new rank.
   TripActivity withRank(int rank) => TripActivity.fromFields(
     id,
     {...fields(), 'orderIndex': rank},
     createdAt: createdAt,
     updatedAt: updatedAt,
   );
+
+  /// Throws unless every field is valid for [trip].
   void validate(Trip trip) {
     requireValid(
       textError(title) == null && note.runes.length <= 500,
@@ -137,6 +146,7 @@ class TripActivity {
     );
   }
 
+  /// Encodes as schema 2 fields.
   Map<String, dynamic> fields() => {
     'title': title.trim(),
     'date': date,
@@ -157,6 +167,7 @@ class TripActivity {
   };
 }
 
+/// Sorts by date, rank, time, then id.
 List<TripActivity> sortedActivities(Iterable<TripActivity> items) =>
     items.toList()..sort((a, b) {
       final d = a.date.compareTo(b.date);
@@ -166,6 +177,8 @@ List<TripActivity> sortedActivities(Iterable<TripActivity> items) =>
       final t = a.timeMinutes.compareTo(b.timeMinutes);
       return t != 0 ? t : a.id.compareTo(b.id);
     });
+
+/// Fingerprints both ends of a segment so later edits invalidate its cost.
 String segmentSignature(TripActivity from, TripActivity to) => jsonEncode([
   from.id,
   from.date,
@@ -178,12 +191,15 @@ String segmentSignature(TripActivity from, TripActivity to) => jsonEncode([
   to.latitude,
   to.longitude,
 ]);
+
+/// Whether the stored travel data still matches [from] and [to].
 bool validSegment(TripActivity from, TripActivity to) =>
     from.date == to.date &&
     to.travelMode != 'none' &&
     to.travelFromId == from.id &&
     to.travelSignature == segmentSignature(from, to);
 
+/// Budget summary in satang, with counts of unpriced items.
 class PlanBudget {
   final int activities, transport, unknownActivities, unknownSegments;
   const PlanBudget(
@@ -192,10 +208,15 @@ class PlanBudget {
     this.unknownActivities,
     this.unknownSegments,
   );
+
+  /// Total of known activity and travel costs.
   int get total => activities + transport;
+
+  /// Number of unpriced activities and segments.
   int get unknown => unknownActivities + unknownSegments;
 }
 
+/// Derives the budget. Stale segments count as unknown, never as free.
 PlanBudget planBudget(Iterable<TripActivity> items) {
   final list = sortedActivities(items);
   var cost = 0, travel = 0, unknown = 0, unknownTravel = 0;
@@ -217,5 +238,6 @@ PlanBudget planBudget(Iterable<TripActivity> items) {
   return PlanBudget(cost, travel, unknown, unknownTravel);
 }
 
+/// Total of all known costs.
 int plannedTotal(Iterable<TripActivity> activities) =>
     planBudget(activities).total;

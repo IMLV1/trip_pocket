@@ -1,5 +1,4 @@
-// หน้ารายการทริป: แยกกำลังจะไปกับจบทริปแล้ว ค้นหาชื่อ สร้างทริป และออกจากระบบ
-// ตอนเปิดหน้าจะทำการลบทริปที่ค้างอยู่ต่อ
+// Trip list screen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,6 +7,7 @@ import '../../../app/providers.dart';
 import '../../../core/widgets.dart';
 import '../../../core/design_system.dart';
 
+/// Upcoming and completed trips, with search.
 class TripListScreen extends ConsumerStatefulWidget {
   final String uid;
   const TripListScreen({super.key, required this.uid});
@@ -27,6 +27,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
     super.dispose();
   }
 
+  /// Toggles the search field, clearing the query on close.
   void toggleSearch() => setState(() {
     searching = !searching;
     if (!searching) {
@@ -40,6 +41,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
     Future.microtask(resume);
   }
 
+  /// Continues unfinished deletes and offers a retry on failure.
   Future<void> resume() async {
     if (resuming) return;
     setState(() {

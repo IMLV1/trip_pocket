@@ -1,5 +1,4 @@
-// หน้าเปลี่ยนรหัสผ่าน: ยืนยันรหัสปัจจุบันก่อนตั้งรหัสใหม่
-// บัญชีที่ใช้ Google อย่างเดียวจะเห็นลิงก์ไปหน้าความปลอดภัยของ Google แทน
+// Change password screen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,6 +9,7 @@ import '../../core/design_system.dart';
 import '../../core/validation.dart';
 import '../../core/widgets.dart';
 
+/// Change password form. Google-only accounts get a link to Google instead.
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
   @override
@@ -31,6 +31,7 @@ class _ChangePasswordScreenState extends ConsumerState<ChangePasswordScreen> {
     super.dispose();
   }
 
+  /// Submits the change, clears the fields and pops.
   Future<void> save() async {
     if (busy || !form.currentState!.validate()) return;
     FocusManager.instance.primaryFocus?.unfocus();

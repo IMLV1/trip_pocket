@@ -1,5 +1,4 @@
-// โครงหลักของแอป: ฟังสถานะล็อกอิน แล้วสร้าง router ใหม่ทุกครั้งที่บัญชีเปลี่ยน
-// รวม route ทุกหน้า ตั้งภาษาไทย และแสดงแถบเตือนเมื่อไม่ได้อยู่โหมด live
+// Root widgets and the route table.
 
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/profile_screen.dart';
@@ -18,6 +17,7 @@ import '../features/trips/presentation/trip_detail_screen.dart';
 import '../features/activities/presentation/activity_form_screen.dart';
 import '../core/errors.dart';
 
+/// Shows loading, error or [SessionApp] based on the auth session.
 class TripPocketApp extends ConsumerWidget {
   const TripPocketApp({super.key});
   @override
@@ -51,6 +51,7 @@ class TripPocketApp extends ConsumerWidget {
 }
 
 /// Recreated per uid: drops the complete navigation stack and all old screen state.
+/// The app for one account. Keyed by uid, so switching accounts drops all navigation and screen state.
 class SessionApp extends ConsumerStatefulWidget {
   final String? uid;
   const SessionApp({super.key, required this.uid});

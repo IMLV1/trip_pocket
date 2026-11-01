@@ -1,5 +1,4 @@
-// แผ่นค้นหาและแนะนำสถานที่ทั่วไทย ดูเป็นรายการหรือแผนที่ได้
-// กรองตามจังหวัด อำเภอ ตำบล และหมวด
+// Place search and recommendations sheet.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -13,6 +12,7 @@ import 'curated_places.dart';
 import 'place_catalog.dart';
 import 'poi_map_layer.dart';
 
+/// Search sheet that pops with the confirmed place.
 class RecommendationsSheet extends ConsumerStatefulWidget {
   final TripActivity? anchor;
   final int remaining;
@@ -28,6 +28,8 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
   bool showMap = false, filters = false;
   String? resultKey;
   PlaceResults? result;
+
+  /// Confirms the place details, then closes with the result.
   Future<void> select(CuratedPlace place) async {
     final confirmed = await chooseSuggestedPlace(context, place);
     if (confirmed != null && mounted) Navigator.pop(context, confirmed);
@@ -394,6 +396,7 @@ class _RecommendationsSheetState extends ConsumerState<RecommendationsSheet> {
   }
 }
 
+/// District or subdistrict filter with an "all" option.
 class AreaDropdown extends StatelessWidget {
   final String label, allLabel, value;
   final List<String> options;
@@ -423,6 +426,7 @@ class AreaDropdown extends StatelessWidget {
   );
 }
 
+/// Map view of the search results.
 class DiscoveryMap extends StatelessWidget {
   final List<CuratedPlace> results;
   final String category, province, district, subdistrict, query;

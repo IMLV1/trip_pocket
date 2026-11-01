@@ -1,5 +1,4 @@
-// รายการจุดหมายของหนึ่งวัน: เรียงลำดับ กำหนดการเดินทาง นำทาง แก้ไข และลบ
-// มี TravelEditor สำหรับกรอกวิธีเดินทางและค่าเดินทางของแต่ละช่วง
+// Stop list for one day and the travel segment editor.
 
 import 'package:latlong2/latlong.dart';
 import 'curated_places.dart';
@@ -14,6 +13,7 @@ import '../trips/domain/trip.dart';
 import 'daily_map.dart';
 import 'navigation_service.dart';
 
+/// Shows the map or the stop list of one day, per [showMap] and [showStops].
 class DayPlan extends ConsumerStatefulWidget {
   final String uid;
   final String? date;
@@ -38,6 +38,8 @@ class DayPlan extends ConsumerStatefulWidget {
 
 class _DayPlanState extends ConsumerState<DayPlan> {
   bool working = false;
+
+  /// Runs one action at a time and reports errors.
   Future<void> run(Future<void> Function() action) async {
     if (working || widget.disabled) return;
     setState(() => working = true);
@@ -50,6 +52,7 @@ class _DayPlanState extends ConsumerState<DayPlan> {
     }
   }
 
+  /// Opens the edit screen for a stop.
   void edit(TripActivity a) {
     if (!working && !widget.disabled) {
       context.push('/trips/${widget.trip.id}/activities/${a.id}/edit');
@@ -268,6 +271,7 @@ class _DayPlanState extends ConsumerState<DayPlan> {
   }
 }
 
+/// Edits the travel mode and cost of one segment.
 class TravelEditor extends StatefulWidget {
   final TripActivity from, to;
   const TravelEditor({super.key, required this.from, required this.to});

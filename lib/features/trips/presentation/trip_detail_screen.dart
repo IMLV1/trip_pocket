@@ -1,5 +1,4 @@
-// หน้ารายละเอียดทริป มี 3 แท็บ: แผนเที่ยว แผนที่ และเตรียมของ
-// รวมการ์ดงบ การแชร์ การจบทริป และเมนูแก้ไขหรือลบทริป
+// Trip detail screen with plan, map and packing tabs.
 
 import 'package:latlong2/latlong.dart';
 import '../../places/destination_preview.dart';
@@ -18,6 +17,7 @@ import '../../packing/packing_checklist.dart';
 import '../../sharing/share_plan_sheet.dart';
 import '../../sharing/trip_share_formatter.dart';
 
+/// Trip detail with lazily built plan, map and packing tabs.
 class TripDetailScreen extends ConsumerStatefulWidget {
   final String uid, tripId;
   const TripDetailScreen({super.key, required this.uid, required this.tripId});
@@ -31,6 +31,8 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
   int section = 0;
   final visited = <int>{0};
   TripKey get tripKey => (uid: widget.uid, tripId: widget.tripId);
+
+  /// Confirms, then deletes a stop.
   Future<void> deleteActivity(TripActivity a) async {
     if (busy || !await confirmDelete(context, 'ลบ ${a.title}?')) return;
     setState(() => busy = true);
@@ -45,6 +47,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
     }
   }
 
+  /// Confirms, then marks the trip as completed.
   Future<void> finishTrip() async {
     if (busy) return;
     final accepted = await showDialog<bool>(

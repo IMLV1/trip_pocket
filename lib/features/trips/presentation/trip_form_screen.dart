@@ -1,5 +1,4 @@
-// หน้าสร้างและแก้ไขทริป: ชื่อ จุดหมาย หมุดพื้นที่หลัก วันที่ และงบประมาณ
-// วันสิ้นสุดต้องอยู่หลังวันเริ่มอย่างน้อย 1 วัน
+// Create/edit trip screen.
 
 import 'package:latlong2/latlong.dart';
 import '../../places/place_picker_sheet.dart';
@@ -16,6 +15,7 @@ import '../../../core/widgets.dart';
 import '../../../core/design_system.dart';
 import '../domain/trip.dart';
 
+/// Loads the trip when editing, then shows [TripEditor].
 class TripFormScreen extends ConsumerWidget {
   final String uid;
   final String? tripId;
@@ -39,6 +39,7 @@ class TripFormScreen extends ConsumerWidget {
   }
 }
 
+/// Trip form. The end date must be after the start date.
 class TripEditor extends ConsumerStatefulWidget {
   final String uid;
   final Trip? initial;
@@ -66,6 +67,8 @@ class _TripEditorState extends ConsumerState<TripEditor> {
           widget.initial!.destinationLongitude!,
         )
       : null;
+
+  /// Picks the destination pin, via search first when [search] is true.
   Future<void> chooseDestination({bool search = false}) async {
     if (busy || selecting) return;
     FocusManager.instance.primaryFocus?.unfocus();
@@ -107,6 +110,7 @@ class _TripEditorState extends ConsumerState<TripEditor> {
     super.dispose();
   }
 
+  /// Picks the start or end date, pushing the end date forward if needed.
   Future<void> pick(bool first) async {
     final minimum = first
         ? DateTime(1900)
@@ -142,6 +146,7 @@ class _TripEditorState extends ConsumerState<TripEditor> {
     }
   }
 
+  /// Validates, saves and pops.
   Future<void> save() async {
     if (busy || selecting || !form.currentState!.validate()) return;
     if (end.compareTo(start) <= 0) {

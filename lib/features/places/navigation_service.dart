@@ -1,4 +1,5 @@
-// Opens directions in external Google Maps.
+// Opens directions in external Google Maps. The app has no routing of its own
+// and gets no route or fare data back.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -17,7 +18,10 @@ class NavigationService {
   final MapsLauncher launch;
   NavigationService(this.launch);
 
-  /// Builds a directions URL. Without [from], Maps starts at the user.
+  /// Builds a directions URL.
+  ///
+  /// Without [from], Maps starts at the user's location. Motorcycle has no URL
+  /// mode, so it falls back to driving.
   Uri directions(TripActivity to, {TripActivity? from}) =>
       Uri.https('www.google.com', '/maps/dir/', {
         'api': '1',

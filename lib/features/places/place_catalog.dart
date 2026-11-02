@@ -1,4 +1,5 @@
-// Nationwide offline place catalogue: search and map windows.
+// Nationwide offline place catalogue built from OpenStreetMap. Provides list
+// search and map windows without any network geocoding API.
 
 import 'dart:convert';
 import 'dart:math' as math;
@@ -14,7 +15,10 @@ final placeCatalogProvider = FutureProvider<PlaceCatalog>((ref) async {
   return compute(decodePlaceCatalog, text);
 });
 
-/// Parses and validates the bundled catalogue, including its row count.
+/// Parses and validates the bundled catalogue.
+///
+/// Throws on an unknown format, a malformed row or a count that does not match
+/// the metadata, so a truncated asset cannot pass as complete.
 PlaceCatalog decodePlaceCatalog(String text) {
   final data = jsonDecode(text) as Map<String, dynamic>;
   final metadata = data['metadata'] as Map<String, dynamic>;
@@ -88,6 +92,9 @@ class PoiWindow {
 }
 
 /// Indexed catalogue with text, admin area and spatial lookups.
+///
+/// Indexes are built once in the constructor, so searching stays fast with tens
+/// of thousands of places.
 class PlaceCatalog {
   final List<CuratedPlace> places;
   final String dataTimestamp;
@@ -144,6 +151,9 @@ class PlaceCatalog {
       tokens.every((t) => _text[p.id]!.contains(t));
 
   /// Searches for list views, sorted by distance from [near] or by name.
+  ///
+  /// Distances are approximate and precomputed, which is enough for ranking.
+  /// Returns at most [limit] places plus the full match count.
   PlaceResults search({
     String query = '',
     String category = 'all',
@@ -191,7 +201,10 @@ class PlaceCatalog {
     );
   }
 
-  /// Returns visible markers: up to 100 places from zoom 12, clusters below it.
+  /// Returns the markers for the visible area.
+  ///
+  /// From zoom 12 it shows up to 100 places nearest the center. Below that it
+  /// clusters into cells wider than a marker so they do not overlap.
   PoiWindow window({
     required double south,
     required double north,

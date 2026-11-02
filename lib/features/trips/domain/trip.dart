@@ -1,4 +1,5 @@
-// Trip model and snapshot metadata.
+// Trip model and snapshot metadata. Validation here mirrors firestore.rules,
+// which remain the real enforcement point.
 
 import '../../../core/validation.dart';
 
@@ -50,6 +51,8 @@ class Trip {
       destinationLatitude != null && destinationLongitude != null;
 
   /// Throws unless the pin, text, dates and budget are valid.
+  ///
+  /// The end date must be at least one day after the start date.
   void validate() {
     requireValid(
       (destinationLatitude == null && destinationLongitude == null) ||
@@ -93,6 +96,8 @@ class Trip {
 }
 
 /// A value with its cache and pending-write state.
+///
+/// Screens use this to label stale data and disable actions during a write.
 class DataSnapshot<T> {
   final T value;
   final bool cached, pending;

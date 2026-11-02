@@ -1,4 +1,5 @@
-// Password reset request screen.
+// Password reset request screen. The confirmation text is the same for every
+// email to avoid revealing which accounts exist.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

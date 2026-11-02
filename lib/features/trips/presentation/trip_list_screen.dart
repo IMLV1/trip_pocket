@@ -1,4 +1,5 @@
-// Trip list screen.
+// Trip list screen. Separates upcoming from completed trips, and resumes any
+// unfinished deletes when it opens.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

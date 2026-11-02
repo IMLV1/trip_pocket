@@ -1,4 +1,5 @@
-// Place model, activity form seeds and legacy test fixtures.
+// Place model, activity form seeds and legacy test fixtures. Production data
+// comes from place_catalog.dart, not the Chiang Mai list here.
 
 import 'package:latlong2/latlong.dart';
 import '../activities/domain/trip_activity.dart';

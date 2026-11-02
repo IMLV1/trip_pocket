@@ -1,4 +1,5 @@
-// Trip detail screen with plan, map and packing tabs.
+// Trip detail screen with plan, map and packing tabs. Also holds the budget
+// card, sharing, trip completion and the edit/delete menu.
 
 import 'package:latlong2/latlong.dart';
 import '../../places/destination_preview.dart';
@@ -17,7 +18,10 @@ import '../../packing/packing_checklist.dart';
 import '../../sharing/share_plan_sheet.dart';
 import '../../sharing/trip_share_formatter.dart';
 
-/// Trip detail with lazily built plan, map and packing tabs.
+/// Trip detail with plan, map and packing tabs.
+///
+/// Tabs are built on first visit, so map tiles load only when needed, and stay
+/// alive in an [IndexedStack] to keep their state.
 class TripDetailScreen extends ConsumerStatefulWidget {
   final String uid, tripId;
   const TripDetailScreen({super.key, required this.uid, required this.tripId});

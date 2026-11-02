@@ -1,4 +1,5 @@
-// Travel data contract used by the screens.
+// Travel data contract used by the screens. Implemented by Firestore for real
+// data and by an in-memory class for demo mode and tests.
 
 import 'trip.dart';
 import '../../activities/domain/trip_activity.dart';

@@ -1,4 +1,5 @@
-// Add/edit activity screen.
+// Add/edit activity screen. It can start from a searched place or a tapped map
+// point, and every new pin must be inside Thailand.
 
 import '../../places/recommendations_sheet.dart';
 import '../../places/thailand_boundary.dart';
@@ -71,7 +72,10 @@ class ActivityFormScreen extends ConsumerWidget {
   }
 }
 
-/// Activity form. A searched place must have its pin confirmed before saving.
+/// Activity form.
+///
+/// A searched place starts without a point, because catalogue coordinates may
+/// not be the entrance. The user must confirm the pin before saving.
 class ActivityEditor extends ConsumerStatefulWidget {
   final String uid;
   final Trip trip;
@@ -118,7 +122,10 @@ class _ActivityEditorState extends ConsumerState<ActivityEditor> {
     super.dispose();
   }
 
-  /// Validates the pin, assigns a rank and saves. An empty cost means unknown.
+  /// Validates the pin, assigns a rank and saves.
+  ///
+  /// New stops, and stops moved to another day, go last in that day. An empty
+  /// cost means unknown, not 0.
   Future<void> save() async {
     if (busy || !form.currentState!.validate()) return;
     if (point == null) {

@@ -1,4 +1,4 @@
-// Create/edit trip screen.
+// Create/edit trip screen. Covers the title, destination pin, dates and budget.
 
 import 'package:latlong2/latlong.dart';
 import '../../places/place_picker_sheet.dart';
@@ -69,6 +69,9 @@ class _TripEditorState extends ConsumerState<TripEditor> {
       : null;
 
   /// Picks the destination pin, via search first when [search] is true.
+  ///
+  /// The pin is always confirmed on the map. The destination name is only a
+  /// label, so editing it does not move the pin.
   Future<void> chooseDestination({bool search = false}) async {
     if (busy || selecting) return;
     FocusManager.instance.primaryFocus?.unfocus();

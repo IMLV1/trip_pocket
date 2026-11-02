@@ -1,4 +1,5 @@
-// Sign-in and registration screen.
+// Sign-in and registration screen. Both share one widget; after success the
+// session change rebuilds the router, so no navigation happens here.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,7 +33,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     super.dispose();
   }
 
-  /// Validates, then signs in or registers. Navigation follows the session.
+  /// Validates, then signs in or registers.
+  ///
+  /// No navigation here: the session change rebuilds the router.
   Future<void> submit() async {
     if (busy || !form.currentState!.validate()) return;
     setState(() {

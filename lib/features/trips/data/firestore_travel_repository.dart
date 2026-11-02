@@ -1,4 +1,6 @@
-// Cloud Firestore travel repository.
+// Cloud Firestore travel repository. Writes use transactions and
+// client-generated ids, so a retry after an uncertain result updates the same
+// document.
 
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -95,6 +97,9 @@ class FirestoreTravelRepository implements TravelRepository {
       );
 
   /// Checks child dates on the server, then saves in a transaction.
+  ///
+  /// The date check is best effort: it does not protect against another device
+  /// editing at the same time. A completed trip cannot be reopened.
   @override
   Future<void> saveTrip(String uid, Trip value, {required bool create}) async {
     value.validate();
@@ -160,7 +165,10 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
-  /// Rewrites ranks in 1000 steps, failing if any item changed since it was read.
+  /// Rewrites ranks in 1000 steps.
+  ///
+  /// Fails if any item changed since the user last saw it, so a stale list
+  /// cannot overwrite newer edits.
   @override
   Future<void> reorderActivities(
     String uid,
@@ -230,7 +238,11 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
-  /// Queues local cleanup, marks the trip `deleting`, then continues the delete.
+  /// Queues local cleanup, marks the trip `deleting`, then continues the
+  /// delete.
+  ///
+  /// The parent must outlive its activities, because the rules read it to
+  /// authorize their deletion.
   @override
   Future<void> deleteTrip(String uid, String tripId) async {
     await packing.queueCleanup(uid, tripId);
@@ -248,6 +260,9 @@ class FirestoreTravelRepository implements TravelRepository {
   }
 
   /// Deletes children in batches of 100, then the parent, then local data.
+  ///
+  /// Reads from the server only. A queued id alone never deletes an active
+  /// trip.
   Future<void> _continueDelete(String uid, String id) async {
     final ref = trips(uid).doc(id);
     final p = await ref.get(const GetOptions(source: Source.server));
@@ -274,7 +289,10 @@ class FirestoreTravelRepository implements TravelRepository {
     await packing.finishCleanup(uid, id);
   }
 
-  /// Resumes deletes from the local queue and from `deleting` trips on the server.
+  /// Resumes unfinished deletes.
+  ///
+  /// Combines the local queue with `deleting` trips on the server, which also
+  /// covers deletes started on another device.
   @override
   Future<void> resumePendingDeletes(String uid) async {
     final pending = await trips(uid)

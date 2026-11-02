@@ -1,4 +1,5 @@
-// Maps errors to user-facing Thai messages.
+// Maps errors to user-facing Thai messages. Unknown Firebase codes keep their
+// code in the text to help with support and debugging.
 
 import 'package:firebase_core/firebase_core.dart';
 

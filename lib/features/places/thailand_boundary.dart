@@ -1,4 +1,5 @@
-// Approximate Thailand boundary check.
+// Approximate Thailand boundary check. This is not a legal boundary, so small
+// islands or border points may fall outside it.
 
 import 'dart:convert';
 import 'package:flutter/services.dart';

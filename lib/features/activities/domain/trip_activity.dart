@@ -1,4 +1,5 @@
-// Activity model, ordering and budget calculation.
+// Activity model, ordering and budget calculation. Totals are always derived
+// from activities and never stored, so they cannot drift from the plan.
 
 import 'dart:convert';
 import '../../../core/validation.dart';
@@ -21,7 +22,10 @@ const travelModes = {
   'transit': 'ขนส่งสาธารณะ',
 };
 
-/// A stop in a trip. Travel fields describe the segment arriving at this stop.
+/// A stop in a trip.
+///
+/// Travel fields describe the segment arriving at this stop from the one before
+/// it. `costKnown` separates an unknown price from a real 0.
 class TripActivity {
   final String id,
       title,
@@ -57,10 +61,16 @@ class TripActivity {
     this.travelCostKnown = false,
   });
 
-  /// Position within the day. Legacy records without `orderIndex` fall back to time order.
+  /// Position within the day.
+  ///
+  /// Legacy records without `orderIndex` fall back to time order, so they need
+  /// no migration.
   int get rank => orderIndex ?? timeMinutes * 1000;
 
-  /// Decodes stored fields, defaulting those missing from schema 1 records.
+  /// Decodes stored fields.
+  ///
+  /// Fields missing from schema 1 records get defaults; saving upgrades the
+  /// record to schema 2.
   factory TripActivity.fromFields(
     String id,
     Map<String, dynamic> d, {
@@ -96,6 +106,9 @@ class TripActivity {
   );
 
   /// Throws unless every field is valid for [trip].
+  ///
+  /// Mirrors `firestore.rules` to give a readable error before the server
+  /// rejects the write.
   void validate(Trip trip) {
     requireValid(
       textError(title) == null && note.runes.length <= 500,
@@ -168,6 +181,8 @@ class TripActivity {
 }
 
 /// Sorts by date, rank, time, then id.
+///
+/// The id tie-break keeps the order stable across devices.
 List<TripActivity> sortedActivities(Iterable<TripActivity> items) =>
     items.toList()..sort((a, b) {
       final d = a.date.compareTo(b.date);
@@ -178,7 +193,10 @@ List<TripActivity> sortedActivities(Iterable<TripActivity> items) =>
       return t != 0 ? t : a.id.compareTo(b.id);
     });
 
-/// Fingerprints both ends of a segment so later edits invalidate its cost.
+/// Fingerprints both ends of a segment.
+///
+/// Stored with the travel cost, so moving or retiming either stop invalidates
+/// it.
 String segmentSignature(TripActivity from, TripActivity to) => jsonEncode([
   from.id,
   from.date,
@@ -193,6 +211,9 @@ String segmentSignature(TripActivity from, TripActivity to) => jsonEncode([
 ]);
 
 /// Whether the stored travel data still matches [from] and [to].
+///
+/// False after a reorder or edit, which shows the segment as needing a new
+/// cost.
 bool validSegment(TripActivity from, TripActivity to) =>
     from.date == to.date &&
     to.travelMode != 'none' &&
@@ -216,7 +237,10 @@ class PlanBudget {
   int get unknown => unknownActivities + unknownSegments;
 }
 
-/// Derives the budget. Stale segments count as unknown, never as free.
+/// Derives the budget from [items].
+///
+/// Unpriced activities and stale segments are counted as unknown, never as
+/// free. The first stop of each day has no incoming segment.
 PlanBudget planBudget(Iterable<TripActivity> items) {
   final list = sortedActivities(items);
   var cost = 0, travel = 0, unknown = 0, unknownTravel = 0;

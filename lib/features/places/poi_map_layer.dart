@@ -1,4 +1,5 @@
-// Recommended place markers and the place details sheet.
+// Recommended place markers and the place details sheet. Markers refresh after
+// the camera settles to keep panning smooth.
 
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -18,6 +19,9 @@ IconData placeIcon(String category) => switch (category) {
 };
 
 /// Shows place details. Returns the place if the user adds it.
+///
+/// States that community data has no verified price, opening hours or entrance,
+/// so nothing is saved without the user's review.
 Future<CuratedPlace?> chooseSuggestedPlace(
   BuildContext context,
   CuratedPlace place,

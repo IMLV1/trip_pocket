@@ -1,4 +1,5 @@
-// Packing checklist UI.
+// Packing checklist UI shown in the trip detail packing tab. Works offline
+// because it only touches local storage.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

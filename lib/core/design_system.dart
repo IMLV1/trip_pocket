@@ -1,4 +1,5 @@
-// Colors, theme and small shared UI pieces.
+// Colors, theme and small shared UI pieces. Change the look of the app here
+// rather than styling individual screens.
 
 import 'package:flutter/material.dart';
 

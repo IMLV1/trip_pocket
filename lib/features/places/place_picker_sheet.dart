@@ -1,4 +1,5 @@
-// Bottom sheet for picking a point in Thailand.
+// Bottom sheet for picking a point in Thailand. The point is returned only
+// after the user confirms it.
 
 import 'thailand_boundary.dart';
 import 'package:flutter/material.dart';

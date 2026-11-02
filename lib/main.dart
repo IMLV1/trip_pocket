@@ -1,4 +1,5 @@
-// App entry point: picks the run mode and wires up the repositories.
+// App entry point. Reads APP_MODE (live, emulator or demo), initializes
+// Firebase when needed and injects the matching repositories into Riverpod.
 
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
@@ -38,7 +39,10 @@ Future<void> main() async {
   }
 }
 
-/// Selects the mode, builds repositories and runs the app. Release builds accept only `live`.
+/// Selects the mode, builds repositories and runs the app.
+///
+/// Release builds accept only `live`. Emulator mode uses a separate Firebase
+/// app so it can never write to the real project.
 Future<void> bootstrap({String? modeOverride}) async {
   final mode =
       modeOverride ??

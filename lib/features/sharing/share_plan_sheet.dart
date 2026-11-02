@@ -1,4 +1,5 @@
-// Share preview sheet.
+// Share preview sheet. The user sees the exact text first; the system share
+// sheet does not confirm delivery.
 
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';

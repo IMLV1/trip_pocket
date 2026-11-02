@@ -1,4 +1,5 @@
-// Profile screen and avatar.
+// Profile screen and avatar. Lets the user edit their display name, link Google
+// for a photo and reach the password screen.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

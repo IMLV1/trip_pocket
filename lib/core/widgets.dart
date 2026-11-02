@@ -1,10 +1,14 @@
-// Shared widgets and dialogs.
+// Shared widgets and dialogs for async states, delete confirmation, error
+// messages and the standard page layout.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'errors.dart';
 
 /// Renders an [AsyncValue] with loading, error and retry states.
+///
+/// Set [screenTitle] when this is the whole screen, so those states still get
+/// an app bar.
 class AsyncContent<T> extends StatelessWidget {
   final AsyncValue<T> value;
   final Widget Function(T) data;

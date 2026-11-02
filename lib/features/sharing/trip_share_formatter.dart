@@ -1,10 +1,14 @@
-// Formats a trip as shareable plain text.
+// Formats a trip as shareable plain text. Kept free of UI code so the output is
+// easy to test.
 
 import '../trips/domain/trip.dart';
 import '../activities/domain/trip_activity.dart';
 import '../../core/validation.dart';
 
-/// Builds the daily itinerary and budget summary. Omits notes, coordinates and the checklist.
+/// Builds the daily itinerary and budget summary.
+///
+/// Deliberately omits notes, coordinates and the checklist, which stay private.
+/// Reports how many items are unpriced.
 String formatTripShare(Trip trip, List<TripActivity> activities) {
   final out = StringBuffer(
     'TripPocket: ${trip.title}\nจุดหมาย: ${trip.destination}\n${trip.startDate} ถึง ${trip.endDate}\n',

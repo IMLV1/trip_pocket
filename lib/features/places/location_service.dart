@@ -1,4 +1,5 @@
-// One-shot foreground location lookup.
+// One-shot foreground location lookup. Runs only when the user asks; nothing is
+// tracked in the background or saved.
 
 import 'dart:async';
 import 'package:flutter/foundation.dart';
@@ -46,6 +47,9 @@ class LocationService {
            ));
 
   /// Checks the service and permission, then reads once with a timeout.
+  ///
+  /// Failures throw a [StateError] with Thai guidance. Planning still works
+  /// without a location.
   Future<LocationFix> locate() async {
     if (!await enabled()) {
       throw StateError('Location ปิดอยู่ กรุณาเปิดตำแหน่งบนอุปกรณ์แล้วลองใหม่');

@@ -1,4 +1,5 @@
-// Account operations, with Firebase and demo implementations.
+// Account operations, with Firebase and demo implementations. Screens depend
+// only on AuthRepository, so the backend can be swapped per run mode.
 
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -85,6 +86,8 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   /// Throws if the account changed during an async step.
+  ///
+  /// Guards against writing to the wrong user after a long Google prompt.
   void sameUser(String uid) => requireValid(
     auth.currentUser?.uid == uid,
     'บัญชีเปลี่ยนแล้ว กรุณาลองใหม่',
@@ -113,6 +116,9 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   /// Signs out of Firebase first, then best-effort from Google.
+  ///
+  /// Firebase owns the session, so a Google failure must not keep the user
+  /// signed in.
   @override
   Future<void> signOut() async {
     await auth.signOut();
@@ -122,6 +128,8 @@ class FirebaseAuthRepository implements AuthRepository {
     } catch (_) {}
   }
 
+  /// Sends the reset email in Thai.
+  ///
   /// Hides `user-not-found` to avoid revealing which emails have accounts.
   @override
   Future<void> sendPasswordReset(String email) async {
@@ -148,6 +156,9 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   /// Reauthenticates, then updates the password.
+  ///
+  /// Rejects accounts without a password provider, since those are managed by
+  /// Google.
   @override
   Future<void> changePassword({
     required String currentPassword,
@@ -177,7 +188,10 @@ class FirebaseAuthRepository implements AuthRepository {
     await user.updatePassword(newPassword);
   }
 
-  /// Links a Google account with the same email, keeping any chosen name.
+  /// Links a Google account with the same email.
+  ///
+  /// Already linked accounts just refresh. Keeps any name the user chose;
+  /// Google's name is only a fallback, and only https photos are accepted.
   @override
   Future<bool> connectGoogleProfile() async {
     final user = requireUser();
@@ -214,6 +228,8 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   /// Exchanges a Google credential for a Firebase session.
+  ///
+  /// Refuses to run while another account is signed in.
   @override
   Future<bool> signInWithGoogle() async {
     requireValid(auth.currentUser == null, 'ออกจากระบบก่อนเปลี่ยนบัญชี');

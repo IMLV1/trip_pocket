@@ -1,11 +1,14 @@
-// Parsing, formatting and validation helpers.
+// Parsing, formatting and validation helpers. Money is integer satang, dates
+// are YYYY-MM-DD and times are minutes from midnight.
 
 import 'package:intl/intl.dart';
 
 /// Maximum amount in satang (10,000,000 baht).
 const maxMoney = 1000000000;
 
-/// Parses baht text into satang. Returns null if malformed or over [maxMoney].
+/// Parses baht text into satang.
+///
+/// Accepts up to two decimals. Returns null if malformed or over [maxMoney].
 int? parseMoney(String value) {
   final s = value.trim();
   if (!RegExp(r'^\d{1,8}(\.\d{1,2})?$').hasMatch(s)) return null;
@@ -28,6 +31,8 @@ String dateKey(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
 /// Whether [s] is a real YYYY-MM-DD date between 1900 and 2100.
+///
+/// Round-trips through [dateKey] to reject dates like 2026-02-31.
 bool validDate(String s) {
   if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(s)) return false;
   final d = DateTime.tryParse(s);
@@ -61,6 +66,8 @@ String? passwordError(String? s) =>
     (s ?? '').length >= 6 ? null : 'รหัสผ่านอย่างน้อย 6 ตัวอักษร';
 
 /// Throws a [StateError] with [message] unless [condition] holds.
+///
+/// The message is shown to the user, so it must be written in Thai.
 void requireValid(bool condition, String message) {
   if (!condition) throw StateError(message);
 }

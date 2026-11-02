@@ -1,4 +1,6 @@
-// Shared Riverpod providers.
+// Shared Riverpod providers. Repositories are placeholders overridden in
+// bootstrap; the stream providers auto-dispose so closed screens stop
+// listening.
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/auth/auth_repository.dart';

@@ -1,4 +1,5 @@
-// Place search and recommendations sheet.
+// Place search and recommendations sheet. Filters by province, district,
+// subdistrict and category, with list and map views.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -13,6 +14,9 @@ import 'place_catalog.dart';
 import 'poi_map_layer.dart';
 
 /// Search sheet that pops with the confirmed place.
+///
+/// With no query, results are ranked by distance from [anchor]. [remaining] is
+/// shown as context only, since catalogue prices are unknown.
 class RecommendationsSheet extends ConsumerStatefulWidget {
   final TripActivity? anchor;
   final int remaining;

@@ -1,4 +1,5 @@
-// Change password screen.
+// Change password screen. Requires the current password because Firebase needs
+// a recent login for this operation.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,7 +10,10 @@ import '../../core/design_system.dart';
 import '../../core/validation.dart';
 import '../../core/widgets.dart';
 
-/// Change password form. Google-only accounts get a link to Google instead.
+/// Change password form.
+///
+/// Google-only accounts have no TripPocket password, so they get a link to
+/// Google security settings instead.
 class ChangePasswordScreen extends ConsumerStatefulWidget {
   const ChangePasswordScreen({super.key});
   @override

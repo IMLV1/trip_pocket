@@ -1,4 +1,5 @@
-// Read-only map preview of the trip destination.
+// Read-only map preview of the trip destination. Changing the pin goes through
+// the confirmed picker instead.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';

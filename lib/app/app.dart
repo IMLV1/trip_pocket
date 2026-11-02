@@ -1,4 +1,6 @@
-// Root widgets and the route table.
+// Root widgets and the route table. The router is rebuilt per account and
+// redirects by sign-in state, so one user's screens never survive into the next
+// session.
 
 import '../features/auth/forgot_password_screen.dart';
 import '../features/auth/profile_screen.dart';
@@ -51,7 +53,11 @@ class TripPocketApp extends ConsumerWidget {
 }
 
 /// Recreated per uid: drops the complete navigation stack and all old screen state.
-/// The app for one account. Keyed by uid, so switching accounts drops all navigation and screen state.
+/// The app for one account.
+///
+/// Keyed by uid, so switching accounts drops all navigation and screen state.
+/// Signed-out users are redirected to `/login`, and signed-in users away from
+/// the auth routes.
 class SessionApp extends ConsumerStatefulWidget {
   final String? uid;
   const SessionApp({super.key, required this.uid});

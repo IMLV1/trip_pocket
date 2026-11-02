@@ -1,4 +1,5 @@
-// Map of one trip day.
+// Map of one trip day. Shows numbered stops, the trip destination and
+// recommendations, and adds a stop when the user taps inside Thailand.
 
 import 'curated_places.dart';
 import 'poi_map_layer.dart';
@@ -22,6 +23,9 @@ Color categoryColor(String category) => switch (category) {
 };
 
 /// Map of a day: numbered stops, trip destination and recommendations.
+///
+/// Tapping the map asks for confirmation before calling [onAdd]. If tiles fail
+/// to load, the pins and stop list stay usable.
 class DailyMap extends ConsumerStatefulWidget {
   final List<TripActivity> activities;
   final LatLng? destination;
@@ -83,7 +87,9 @@ class _DailyMapState extends ConsumerState<DailyMap> {
     super.dispose();
   }
 
-  /// Reads the location on request and centers the map. The fix is never stored.
+  /// Reads the location on request and centers the map.
+  ///
+  /// The fix lives only in this widget's state and is never stored or shared.
   Future<void> locate() async {
     if (locating) return;
     setState(() => locating = true);

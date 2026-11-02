@@ -1,4 +1,5 @@
-// In-memory travel repository for demo mode.
+// In-memory travel repository for demo mode. Follows the same rules as
+// Firestore where it matters, but data is lost when the app exits.
 
 import 'dart:async';
 import '../domain/trip.dart';

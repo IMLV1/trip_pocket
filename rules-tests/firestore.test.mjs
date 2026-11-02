@@ -93,3 +93,22 @@ test('completed trip flag is owner-only, typed, monotonic and compatible with re
  await assertSucceeds(deleteDoc(doc(d,tripPath+'/activities/a')));
  await assertSucceeds(deleteDoc(p));
 });
+
+const packing=(n=1)=>({items:Array.from({length:n},(_,i)=>({id:'p'+i,text:'ของ'+i,checked:false})),updatedAt:serverTimestamp()});
+test('packing checklist is owner-only, bounded and deleted before its trip',async()=>{
+ const d=db(),p=doc(d,tripPath),c=doc(d,tripPath+'/packing/checklist');
+ await assertFails(setDoc(c,packing()));
+ await setDoc(p,trip());
+ await assertSucceeds(setDoc(c,packing()));
+ await assertSucceeds(updateDoc(c,{items:[{id:'p0',text:'ของ0',checked:true}],updatedAt:serverTimestamp()}));
+ if((await getDoc(c)).data().items[0].checked!==true)throw Error('packing not persisted');
+ await assertSucceeds(setDoc(c,packing(200)));
+ for(const bad of [packing(201),{...packing(),items:'x'},{...packing(),extra:true},{items:[]},{...packing(),updatedAt:Timestamp.fromMillis(1)}])await assertFails(setDoc(c,bad));
+ await assertFails(setDoc(doc(d,tripPath+'/packing/other'),packing()));
+ for(const uid of ['other',null]){const o=db(uid);await assertFails(getDoc(doc(o,tripPath+'/packing/checklist')));await assertFails(setDoc(doc(o,tripPath+'/packing/checklist'),packing()));await assertFails(deleteDoc(doc(o,tripPath+'/packing/checklist')));}
+ await updateDoc(p,{status:'deleting',updatedAt:serverTimestamp()});
+ await assertFails(setDoc(c,packing()));
+ await assertSucceeds(getDocs(collection(d,tripPath+'/packing')));
+ await assertSucceeds(deleteDoc(c));
+ await assertSucceeds(deleteDoc(p));
+});

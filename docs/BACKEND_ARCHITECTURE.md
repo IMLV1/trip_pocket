@@ -84,11 +84,13 @@ Path: `users/{uid}/trips/{tripId}/activities/{activityId}`; activityId สร้
 
 ไม่เก็บยอดรวมซ้ำในทริป Flutter รวม estimatedCostSatang จากกิจกรรมชุดที่โหลดสำเร็จ และแสดง planned/remaining เป็น derived state ถ้ายังโหลดกิจกรรมไม่ครบต้องไม่แสดงยอด 0 เสมือนเป็นยอดจริง
 
-### เช็กลิสต์ในเครื่อง
+### เช็กลิสต์ของที่เตรียมไป
 
-Key: `packing.v1.{uid}.{tripId}` ค่าคือ JSON array ของ `{id, text, checked}` text ต้องไม่ว่างหลัง trim อ่านเขียนผ่าน PackingRepository เท่านั้น หาก JSON เสียให้แจ้งปัญหา ไม่ overwrite ทิ้งเงียบ ๆ
+โหมด live/emulator เก็บใน Firestore ที่ `users/{uid}/trips/{tripId}/packing/checklist` ฟิลด์ `items` (array ของ `{id, text, checked}` ไม่เกิน 200 รายการ, text 1-100 ตัวอักษร) และ `updatedAt` (server time) เขียนผ่าน transaction ที่ต้องเห็น trip สถานะ active เท่านั้น Rules ให้เฉพาะเจ้าของอ่าน/เขียน และลบได้ตอนทริป active หรือ deleting ลบทริปจะลบเอกสารนี้ก่อน parent เช่นเดียวกับ activities ถ้าเปิดทริปครั้งแรกแล้วยังไม่มีเอกสารบนคลาวด์แต่มีเช็กลิสต์เดิมในเครื่อง จะอัปโหลดขึ้นคลาวด์แล้วล้าง key ในเครื่อง
 
-เช็กลิสต์อยู่เฉพาะเครื่อง ไม่ sync ข้ามอุปกรณ์ และอาจหายเมื่อล้างข้อมูลแอปหรือถอนติดตั้ง การเก็บเช็กลิสต์ในเครื่องไม่แปลว่าแผนที่หรือ CRUD บน cloud ใช้งานออฟไลน์ได้ครบ
+โหมด demo และข้อมูลจากเวอร์ชันก่อนใช้ key ในเครื่อง: `packing.v1.{uid}.{tripId}` ค่าคือ JSON array ของ `{id, text, checked}` text ต้องไม่ว่างหลัง trim อ่านเขียนผ่าน PackingRepository เท่านั้น หาก JSON เสียให้แจ้งปัญหา ไม่ overwrite ทิ้งเงียบ ๆ
+
+ในโหมด live/emulator เช็กลิสต์ sync ข้ามอุปกรณ์ผ่านบัญชี Firebase แต่การบันทึกต้องออนไลน์เหมือน CRUD อื่น ในโหมด demo เช็กลิสต์อยู่เฉพาะเครื่องและอาจหายเมื่อล้างข้อมูลแอปหรือถอนติดตั้ง
 
 ## สัญญา repository
 

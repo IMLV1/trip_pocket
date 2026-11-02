@@ -47,8 +47,12 @@ Cloud Firestore
               createdAt
               updatedAt
 
+          packing/{checklist}
+            items        array {id, text, checked} ไม่เกิน 200
+            updatedAt
+
 Local Storage
-  packing.v1.{uid}.{tripId}                JSON เช็กลิสต์
+  packing.v1.{uid}.{tripId}                JSON เช็กลิสต์ (โหมด demo และข้อมูลเก่าที่รออัปโหลด)
   packingCleanup.v1.{uid}                  JSON tripIds ที่รอล้าง local key
 ```
 
@@ -56,7 +60,7 @@ Local Storage
 flowchart LR
     A[บัญชี Firebase Auth] -->|uid หนึ่งบัญชีมีหลายทริป| T[Trip document]
     T -->|หนึ่งทริปมีหลายกิจกรรม| E[Activity documents]
-    T -.->|uid และ tripId อ้างถึงข้อมูลในเครื่อง| P[Local packing checklist]
+    T -->|หนึ่งทริปมีหนึ่งเช็กลิสต์| P[Packing checklist document]
 ```
 
 ใช้ subcollection แทนการฝังกิจกรรมทั้งหมดเป็น array ใน Trip เพื่อ CRUD รายการแยกกันและทำ stream ได้ ไม่สร้าง days collection เพราะ date ใน Activity ใช้จัดกลุ่มวันได้อยู่แล้ว ไม่สร้าง places collection เพราะสถานที่ใน MVP เป็นหมุดที่ผูกกับกิจกรรม ไม่ใช่คลังสถานที่ส่วนกลาง
@@ -233,7 +237,7 @@ Rules ต้องตรวจทุก write ไม่ใช่แค่ create
 
 ลบ Activity: ยืนยัน → delete → รอผล → stream อัปเดต timeline และยอดรวม หากล้มเหลวไม่ลบจาก UI เสมือนสำเร็จถาวร
 
-ลบ Trip: ยืนยันออนไลน์ → เก็บ tripId ใน packingCleanup.v1.{uid} → mark deleting → ลบ children → ลบ parent → ล้าง packing key และลบรายการ cleanup queue ถ้าสะดุดให้แสดงลบค้างและ retry
+ลบ Trip: ยืนยันออนไลน์ → เก็บ tripId ใน packingCleanup.v1.{uid} → mark deleting → ลบ children (activities และ packing/checklist) → ลบ parent → ล้าง packing key และลบรายการ cleanup queue ถ้าสะดุดให้แสดงลบค้างและ retry
 
 ถ้า mark deleting ไม่สำเร็จและยังเป็น active ห้าม cleanup เช็กลิสต์จาก queue ให้ตรวจสถานะ parent ก่อนเสมอ หาก parent deleting ให้ทำ cloud cleanup ต่อ หาก parent ไม่อยู่จริงหลังการอ่าน server สำเร็จจึงล้าง local key ได้ permission-denied/network error ไม่ใช่หลักฐานว่า parent หายแล้ว
 

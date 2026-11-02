@@ -57,6 +57,7 @@ Future<void> bootstrap({String? modeOverride}) async {
   final packing = PackingRepository(prefs);
   late AuthRepository auth;
   late TravelRepository travel;
+  PackingStore packingStore = packing;
   if (mode == 'demo') {
     auth = DemoAuthRepository();
     travel = DemoTravelRepository(packing);
@@ -92,6 +93,7 @@ Future<void> bootstrap({String? modeOverride}) async {
     }
     auth = FirebaseAuthRepository(firebaseAuth);
     travel = FirestoreTravelRepository(db, packing);
+    packingStore = FirestorePackingRepository(db, packing);
   }
   runApp(
     ProviderScope(
@@ -99,7 +101,7 @@ Future<void> bootstrap({String? modeOverride}) async {
         modeProvider.overrideWithValue(mode),
         authRepositoryProvider.overrideWithValue(auth),
         travelRepositoryProvider.overrideWithValue(travel),
-        packingRepositoryProvider.overrideWithValue(packing),
+        packingRepositoryProvider.overrideWithValue(packingStore),
       ],
       child: const TripPocketApp(),
     ),

@@ -1,3 +1,6 @@
+// Profile screen and avatar. Lets the user edit their display name, link Google
+// for a photo and reach the password screen.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +10,7 @@ import '../../core/validation.dart';
 import '../../core/widgets.dart';
 import 'auth_repository.dart';
 
+/// Shows an https photo, or the first letter of the name.
 class ProfileAvatar extends StatelessWidget {
   final Session user;
   const ProfileAvatar({super.key, required this.user});
@@ -48,6 +52,7 @@ class ProfileAvatar extends StatelessWidget {
   }
 }
 
+/// Edits the display name, Google link and password.
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
   @override
@@ -66,6 +71,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     super.dispose();
   }
 
+  /// Saves the display name.
   Future<void> saveName() async {
     if (busy || !form.currentState!.validate()) return;
     setState(() => busy = true);
@@ -83,6 +89,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     }
   }
 
+  /// Links Google, or refreshes the photo if already linked.
   Future<void> connect() async {
     if (busy) return;
     FocusManager.instance.primaryFocus?.unfocus();

@@ -1,9 +1,13 @@
+// Read-only map preview of the trip destination. Changing the pin goes through
+// the confirmed picker instead.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Read-only destination preview; choosing a new point uses the confirmed picker.
+/// Non-interactive map with the destination pin.
 class DestinationPreview extends StatelessWidget {
   final LatLng point;
   final String label;

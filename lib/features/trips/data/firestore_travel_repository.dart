@@ -1,3 +1,7 @@
+// Cloud Firestore travel repository. Writes use transactions and
+// client-generated ids, so a retry after an uncertain result updates the same
+// document.
+
 import 'package:flutter/foundation.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../domain/trip.dart';
@@ -6,13 +10,20 @@ import '../../activities/domain/trip_activity.dart';
 import '../../packing/packing_repository.dart';
 import '../../../core/validation.dart';
 
+/// [TravelRepository] stored under `users/{uid}/trips`.
 class FirestoreTravelRepository implements TravelRepository {
   final FirebaseFirestore db;
   final PackingRepository packing;
   FirestoreTravelRepository(this.db, this.packing);
+
+  /// Trip collection of an account.
   CollectionReference<Map<String, dynamic>> trips(String uid) =>
       db.collection('users').doc(uid).collection('trips');
+
+  /// Converts a Firestore timestamp.
   DateTime? stamp(dynamic value) => value is Timestamp ? value.toDate() : null;
+
+  /// Decodes a trip document.
   Trip trip(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
     return Trip.fromFields(
@@ -23,6 +34,7 @@ class FirestoreTravelRepository implements TravelRepository {
     );
   }
 
+  /// Decodes an activity document.
   TripActivity activity(DocumentSnapshot<Map<String, dynamic>> doc) {
     final d = doc.data()!;
     return TripActivity.fromFields(
@@ -33,6 +45,7 @@ class FirestoreTravelRepository implements TravelRepository {
     );
   }
 
+  /// Streams trips by status, with cache and pending-write metadata.
   @override
   Stream<DataSnapshot<List<Trip>>> watchTrips(
     String uid, {
@@ -53,6 +66,7 @@ class FirestoreTravelRepository implements TravelRepository {
         );
   }
 
+  /// Streams a single trip.
   @override
   Stream<DataSnapshot<Trip?>> watchTrip(String uid, String tripId) => trips(uid)
       .doc(tripId)
@@ -64,6 +78,8 @@ class FirestoreTravelRepository implements TravelRepository {
           pending: s.metadata.hasPendingWrites,
         ),
       );
+
+  /// Streams activities, sorted client-side.
   @override
   Stream<DataSnapshot<List<TripActivity>>> watchActivities(
     String uid,
@@ -79,6 +95,11 @@ class FirestoreTravelRepository implements TravelRepository {
           pending: s.metadata.hasPendingWrites,
         ),
       );
+
+  /// Checks child dates on the server, then saves in a transaction.
+  ///
+  /// The date check is best effort: it does not protect against another device
+  /// editing at the same time. A completed trip cannot be reopened.
   @override
   Future<void> saveTrip(String uid, Trip value, {required bool create}) async {
     value.validate();
@@ -118,6 +139,7 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
+  /// Saves an activity after checking its parent trip in a transaction.
   @override
   Future<void> saveActivity(
     String uid,
@@ -143,6 +165,10 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
+  /// Rewrites ranks in 1000 steps.
+  ///
+  /// Fails if any item changed since the user last saw it, so a stale list
+  /// cannot overwrite newer edits.
   @override
   Future<void> reorderActivities(
     String uid,
@@ -181,6 +207,7 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
+  /// Deletes an activity while the trip is active.
   @override
   Future<void> deleteActivity(String uid, String tripId, String id) async {
     final parent = trips(uid).doc(tripId);
@@ -191,6 +218,7 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
+  /// Marks a trip as completed. Safe to repeat.
   @override
   Future<void> completeTrip(String uid, String tripId) async {
     final parent = trips(uid).doc(tripId);
@@ -210,6 +238,11 @@ class FirestoreTravelRepository implements TravelRepository {
     });
   }
 
+  /// Queues local cleanup, marks the trip `deleting`, then continues the
+  /// delete.
+  ///
+  /// The parent must outlive its activities, because the rules read it to
+  /// authorize their deletion.
   @override
   Future<void> deleteTrip(String uid, String tripId) async {
     await packing.queueCleanup(uid, tripId);
@@ -226,6 +259,10 @@ class FirestoreTravelRepository implements TravelRepository {
     await _continueDelete(uid, tripId);
   }
 
+  /// Deletes children in batches of 100, then the parent, then local data.
+  ///
+  /// Reads from the server only. A queued id alone never deletes an active
+  /// trip.
   Future<void> _continueDelete(String uid, String id) async {
     final ref = trips(uid).doc(id);
     final p = await ref.get(const GetOptions(source: Source.server));
@@ -252,6 +289,10 @@ class FirestoreTravelRepository implements TravelRepository {
     await packing.finishCleanup(uid, id);
   }
 
+  /// Resumes unfinished deletes.
+  ///
+  /// Combines the local queue with `deleting` trips on the server, which also
+  /// covers deletes started on another device.
   @override
   Future<void> resumePendingDeletes(String uid) async {
     final pending = await trips(uid)

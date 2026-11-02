@@ -1,3 +1,6 @@
+// Password reset request screen. The confirmation text is the same for every
+// email to avoid revealing which accounts exist.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +10,7 @@ import '../../core/errors.dart';
 import '../../core/validation.dart';
 import '../../core/widgets.dart';
 
+/// Requests a reset link. The result text never reveals whether an account exists.
 class ForgotPasswordScreen extends ConsumerStatefulWidget {
   const ForgotPasswordScreen({super.key});
   @override
@@ -25,6 +29,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
     super.dispose();
   }
 
+  /// Sends the request and switches to the confirmation view.
   Future<void> send() async {
     if (busy || sent || !form.currentState!.validate()) return;
     setState(() {

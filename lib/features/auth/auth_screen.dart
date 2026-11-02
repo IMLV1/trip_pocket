@@ -1,3 +1,6 @@
+// Sign-in and registration screen. Both share one widget; after success the
+// session change rebuilds the router, so no navigation happens here.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +10,7 @@ import '../../core/errors.dart';
 import '../../core/widgets.dart';
 import '../../core/design_system.dart';
 
+/// Sign-in form, or registration when [register] is true.
 class AuthScreen extends ConsumerStatefulWidget {
   final bool register;
   const AuthScreen({super.key, this.register = false});
@@ -29,6 +33,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     super.dispose();
   }
 
+  /// Validates, then signs in or registers.
+  ///
+  /// No navigation here: the session change rebuilds the router.
   Future<void> submit() async {
     if (busy || !form.currentState!.validate()) return;
     setState(() {
@@ -49,6 +56,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     }
   }
 
+  /// Signs in with Google.
   Future<void> googleLogin() async {
     if (busy) return;
     setState(() {

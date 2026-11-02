@@ -1,3 +1,6 @@
+// Trip detail screen with plan, map and packing tabs. Also holds the budget
+// card, sharing, trip completion and the edit/delete menu.
+
 import 'package:latlong2/latlong.dart';
 import '../../places/destination_preview.dart';
 import '../../places/day_plan.dart';
@@ -15,6 +18,10 @@ import '../../packing/packing_checklist.dart';
 import '../../sharing/share_plan_sheet.dart';
 import '../../sharing/trip_share_formatter.dart';
 
+/// Trip detail with plan, map and packing tabs.
+///
+/// Tabs are built on first visit, so map tiles load only when needed, and stay
+/// alive in an [IndexedStack] to keep their state.
 class TripDetailScreen extends ConsumerStatefulWidget {
   final String uid, tripId;
   const TripDetailScreen({super.key, required this.uid, required this.tripId});
@@ -28,6 +35,8 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
   int section = 0;
   final visited = <int>{0};
   TripKey get tripKey => (uid: widget.uid, tripId: widget.tripId);
+
+  /// Confirms, then deletes a stop.
   Future<void> deleteActivity(TripActivity a) async {
     if (busy || !await confirmDelete(context, 'ลบ ${a.title}?')) return;
     setState(() => busy = true);
@@ -42,6 +51,7 @@ class _TripDetailScreenState extends ConsumerState<TripDetailScreen> {
     }
   }
 
+  /// Confirms, then marks the trip as completed.
   Future<void> finishTrip() async {
     if (busy) return;
     final accepted = await showDialog<bool>(

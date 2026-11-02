@@ -1,3 +1,6 @@
+// Recommended place markers and the place details sheet. Markers refresh after
+// the camera settles to keep panning smooth.
+
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -7,6 +10,7 @@ import 'curated_places.dart';
 import 'place_catalog.dart';
 import '../activities/domain/trip_activity.dart';
 
+/// Icon for a place category.
 IconData placeIcon(String category) => switch (category) {
   'food' => Icons.restaurant,
   'lodging' => Icons.hotel,
@@ -14,6 +18,10 @@ IconData placeIcon(String category) => switch (category) {
   _ => Icons.park,
 };
 
+/// Shows place details. Returns the place if the user adds it.
+///
+/// States that community data has no verified price, opening hours or entrance,
+/// so nothing is saved without the user's review.
 Future<CuratedPlace?> chooseSuggestedPlace(
   BuildContext context,
   CuratedPlace place,
@@ -70,6 +78,7 @@ Future<CuratedPlace?> chooseSuggestedPlace(
   ),
 );
 
+/// Recommended place markers. Must be a child of a FlutterMap.
 class PoiMapLayer extends ConsumerStatefulWidget {
   final void Function(CuratedPlace)? onSelected;
   final String category, province, district, subdistrict, query;

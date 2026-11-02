@@ -1,9 +1,13 @@
+// Bottom sheet for picking a point in Thailand. The point is returned only
+// after the user confirms it.
+
 import 'thailand_boundary.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+/// Opens the picker. Returns null if dismissed.
 Future<LatLng?> pickPlace(BuildContext context, LatLng? initial) async {
   final boundary = await ThailandBoundary.load();
   if (!context.mounted) return null;
@@ -15,6 +19,7 @@ Future<LatLng?> pickPlace(BuildContext context, LatLng? initial) async {
   );
 }
 
+/// Map sheet that accepts only points inside Thailand.
 class PlacePickerSheet extends StatefulWidget {
   final LatLng? initial;
   final ThailandBoundary? boundary;

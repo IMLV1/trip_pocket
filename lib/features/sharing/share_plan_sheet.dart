@@ -1,8 +1,13 @@
+// Share preview sheet. The user sees the exact text first; the system share
+// sheet does not confirm delivery.
+
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../core/widgets.dart';
 
+/// Opens the system share sheet. Replaceable in tests.
 class PlatformShareService {
+  /// Shares [text]. [origin] anchors the popover on iPad.
   Future<void> share(String text, Rect origin) async {
     await SharePlus.instance.share(
       ShareParams(text: text, sharePositionOrigin: origin),
@@ -10,6 +15,7 @@ class PlatformShareService {
   }
 }
 
+/// Previews the text before sharing.
 class SharePlanSheet extends StatefulWidget {
   final String text;
   final bool cached;

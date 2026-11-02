@@ -1,5 +1,9 @@
+// Maps errors to user-facing Thai messages. Unknown Firebase codes keep their
+// code in the text to help with support and debugging.
+
 import 'package:firebase_core/firebase_core.dart';
 
+/// Returns a Thai message suitable for showing to the user.
 String errorText(Object e) {
   if (e is FirebaseException) {
     return switch (e.code) {

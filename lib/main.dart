@@ -1,3 +1,6 @@
+// App entry point. Reads APP_MODE (live, emulator or demo), initializes
+// Firebase when needed and injects the matching repositories into Riverpod.
+
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +16,7 @@ import 'features/trips/data/firestore_travel_repository.dart';
 import 'features/trips/data/demo_travel_repository.dart';
 import 'features/trips/domain/travel_repository.dart';
 
+/// Starts the app, or shows an error screen if bootstrap fails.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
@@ -35,6 +39,10 @@ Future<void> main() async {
   }
 }
 
+/// Selects the mode, builds repositories and runs the app.
+///
+/// Release builds accept only `live`. Emulator mode uses a separate Firebase
+/// app so it can never write to the real project.
 Future<void> bootstrap({String? modeOverride}) async {
   final mode =
       modeOverride ??

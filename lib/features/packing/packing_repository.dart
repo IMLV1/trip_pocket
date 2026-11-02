@@ -1,18 +1,34 @@
+// Device-local packing checklist storage. Keys are scoped by uid and tripId,
+// and a cleanup queue removes data when a trip is deleted.
+
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
+/// One checklist entry.
 class PackingItem {
   final String id, text;
   final bool checked;
   const PackingItem(this.id, this.text, this.checked);
+
+  /// Encodes for local storage.
   Map<String, dynamic> toJson() => {'id': id, 'text': text, 'checked': checked};
+
+  /// Returns a copy with `checked` flipped.
   PackingItem toggle() => PackingItem(id, text, !checked);
 }
 
+/// SharedPreferences store, scoped by uid and tripId.
 class PackingRepository {
   final SharedPreferences prefs;
   PackingRepository(this.prefs);
+
+  /// Storage key for one trip.
   String key(String uid, String tripId) => 'packing.v1.$uid.$tripId';
+
+  /// Loads the list.
+  ///
+  /// Throws [FormatException] on corrupt data instead of returning an empty
+  /// list, which would let the next save erase it.
   Future<List<PackingItem>> load(String uid, String tripId) async {
     final raw = prefs.getString(key(uid, tripId));
     if (raw == null) return [];
@@ -35,6 +51,9 @@ class PackingRepository {
     }
   }
 
+  /// Saves the list.
+  ///
+  /// Loads first so that corrupt data is reported rather than overwritten.
   Future<void> save(String uid, String tripId, List<PackingItem> items) async {
     if (items.any((e) => e.text.trim().isEmpty)) {
       throw const FormatException('รายการเตรียมของต้องไม่ว่าง');
@@ -48,8 +67,13 @@ class PackingRepository {
     }
   }
 
+  /// Trip ids awaiting local cleanup.
   List<String> cleanupQueue(String uid) =>
       prefs.getStringList('packingCleanup.v1.$uid') ?? [];
+
+  /// Records the intent to delete before the cloud delete starts.
+  ///
+  /// Lets cleanup finish on a later launch if the app is killed midway.
   Future<void> queueCleanup(String uid, String tripId) async {
     final ids = {...cleanupQueue(uid), tripId}.toList();
     if (!await prefs.setStringList('packingCleanup.v1.$uid', ids)) {
@@ -57,6 +81,7 @@ class PackingRepository {
     }
   }
 
+  /// Removes the local checklist and its queue entry.
   Future<void> finishCleanup(String uid, String tripId) async {
     if (!await prefs.remove(key(uid, tripId))) {
       throw StateError('ล้างเช็กลิสต์ไม่สำเร็จ');

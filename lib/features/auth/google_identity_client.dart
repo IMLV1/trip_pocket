@@ -1,6 +1,10 @@
+// Google Sign-In wrapper. Keeps the plugin behind an interface so account flows
+// can be tested without native UI.
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+/// Credential and profile from a chosen Google account.
 class GoogleIdentity {
   final AuthCredential credential;
   final String email;
@@ -13,13 +17,22 @@ class GoogleIdentity {
   });
 }
 
+/// Abstraction over Google Sign-In, so tests can use a fake.
 abstract class GoogleIdentityClient {
+  /// Prompts for an account. Returns null if cancelled.
   Future<GoogleIdentity?> authenticate();
+
+  /// Signs out of Google.
   Future<void> signOut();
 }
 
+/// Native implementation for Android and iOS.
 class NativeGoogleIdentityClient implements GoogleIdentityClient {
   Future<void>? _initialized;
+
+  /// Initializes the SDK once, then exchanges the account for a credential.
+  ///
+  /// Cancelled and interrupted prompts return null rather than throwing.
   @override
   Future<GoogleIdentity?> authenticate() async {
     _initialized ??= GoogleSignIn.instance.initialize();
@@ -48,6 +61,7 @@ class NativeGoogleIdentityClient implements GoogleIdentityClient {
     }
   }
 
+  /// No-op if the SDK was never initialized.
   @override
   Future<void> signOut() async {
     if (_initialized != null) {

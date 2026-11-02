@@ -1,3 +1,6 @@
+// In-memory travel repository for demo mode. Follows the same rules as
+// Firestore where it matters, but data is lost when the app exits.
+
 import 'dart:async';
 import '../domain/trip.dart';
 import '../domain/travel_repository.dart';
@@ -5,15 +8,22 @@ import '../../activities/domain/trip_activity.dart';
 import '../../packing/packing_repository.dart';
 import '../../../core/validation.dart';
 
+/// [TravelRepository] backed by in-memory maps. Data is lost on exit.
 class DemoTravelRepository implements TravelRepository {
   final PackingRepository packing;
   DemoTravelRepository(this.packing);
   final _trips = <String, Map<String, Trip>>{};
   final _activities = <String, Map<String, TripActivity>>{};
   final _changes = StreamController<void>.broadcast();
+
+  /// Trips of an account.
   Map<String, Trip> user(String u) => _trips.putIfAbsent(u, () => {});
+
+  /// Activities of a trip.
   Map<String, TripActivity> children(String u, String t) =>
       _activities.putIfAbsent('$u/$t', () => {});
+
+  /// Emits [read] now and after every change.
   Stream<T> watch<T>(T Function() read) async* {
     yield read();
     await for (final _ in _changes.stream) {
@@ -21,6 +31,7 @@ class DemoTravelRepository implements TravelRepository {
     }
   }
 
+  /// Trips with the requested status, sorted by start date.
   @override
   Stream<DataSnapshot<List<Trip>>> watchTrips(
     String uid, {
@@ -33,15 +44,21 @@ class DemoTravelRepository implements TravelRepository {
         ..sort((a, b) => a.startDate.compareTo(b.startDate)),
     ),
   );
+
+  /// A single trip.
   @override
   Stream<DataSnapshot<Trip?>> watchTrip(String uid, String tripId) =>
       watch(() => DataSnapshot(user(uid)[tripId]));
+
+  /// Sorted activities of a trip.
   @override
   Stream<DataSnapshot<List<TripActivity>>> watchActivities(
     String uid,
     String tripId,
   ) =>
       watch(() => DataSnapshot(sortedActivities(children(uid, tripId).values)));
+
+  /// Mirrors the Firestore rules for completed trips and date ranges.
   @override
   Future<void> saveTrip(String uid, Trip trip, {required bool create}) async {
     trip.validate();
@@ -61,6 +78,7 @@ class DemoTravelRepository implements TravelRepository {
     _changes.add(null);
   }
 
+  /// Validates and stores an activity.
   @override
   Future<void> saveActivity(
     String uid,
@@ -75,6 +93,7 @@ class DemoTravelRepository implements TravelRepository {
     _changes.add(null);
   }
 
+  /// Rewrites ranks if the items are unchanged.
   @override
   Future<void> reorderActivities(
     String uid,
@@ -101,12 +120,14 @@ class DemoTravelRepository implements TravelRepository {
     _changes.add(null);
   }
 
+  /// Removes an activity.
   @override
   Future<void> deleteActivity(String uid, String tripId, String id) async {
     children(uid, tripId).remove(id);
     _changes.add(null);
   }
 
+  /// Marks a trip as completed.
   @override
   Future<void> completeTrip(String uid, String tripId) async {
     final old = user(uid)[tripId];
@@ -122,6 +143,7 @@ class DemoTravelRepository implements TravelRepository {
     _changes.add(null);
   }
 
+  /// Removes the trip, its activities and its checklist.
   @override
   Future<void> deleteTrip(String uid, String tripId) async {
     await packing.queueCleanup(uid, tripId);
@@ -131,6 +153,7 @@ class DemoTravelRepository implements TravelRepository {
     _changes.add(null);
   }
 
+  /// Finishes local cleanup for trips already removed.
   @override
   Future<void> resumePendingDeletes(String uid) async {
     for (final id in packing.cleanupQueue(uid)) {

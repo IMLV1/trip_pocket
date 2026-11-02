@@ -1,3 +1,6 @@
+// Nationwide offline place catalogue built from OpenStreetMap. Provides list
+// search and map windows without any network geocoding API.
+
 import 'dart:convert';
 import 'dart:math' as math;
 import 'package:flutter/foundation.dart';
@@ -6,11 +9,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'curated_places.dart';
 
+/// Loads the catalogue once, decoding it off the UI isolate.
 final placeCatalogProvider = FutureProvider<PlaceCatalog>((ref) async {
   final text = await rootBundle.loadString('assets/thailand_pois.json');
   return compute(decodePlaceCatalog, text);
 });
 
+/// Parses and validates the bundled catalogue.
+///
+/// Throws on an unknown format, a malformed row or a count that does not match
+/// the metadata, so a truncated asset cannot pass as complete.
 PlaceCatalog decodePlaceCatalog(String text) {
   final data = jsonDecode(text) as Map<String, dynamic>;
   final metadata = data['metadata'] as Map<String, dynamic>;
@@ -57,15 +65,18 @@ PlaceCatalog decodePlaceCatalog(String text) {
   return PlaceCatalog(places, dataTimestamp: date);
 }
 
+/// Lowercases, trims and collapses whitespace.
 String normalizePlaceQuery(String text) =>
     text.toLowerCase().trim().replaceAll(RegExp(r'\s+'), ' ');
 
+/// A page of results and the total before the limit.
 class PlaceResults {
   final List<CuratedPlace> places;
   final int total;
   const PlaceResults(this.places, this.total);
 }
 
+/// A map marker: one place, or a cluster when [place] is null.
 class PoiGroup {
   final LatLng point;
   final int count;
@@ -73,12 +84,17 @@ class PoiGroup {
   const PoiGroup(this.point, this.count, this.place);
 }
 
+/// Markers for the visible area and the total match count.
 class PoiWindow {
   final List<PoiGroup> groups;
   final int total;
   const PoiWindow(this.groups, this.total);
 }
 
+/// Indexed catalogue with text, admin area and spatial lookups.
+///
+/// Indexes are built once in the constructor, so searching stays fast with tens
+/// of thousands of places.
 class PlaceCatalog {
   final List<CuratedPlace> places;
   final String dataTimestamp;
@@ -106,12 +122,20 @@ class PlaceCatalog {
     }
     provinces = names.where((p) => p != 'ประเทศไทย').toList()..sort();
   }
+
+  /// Districts of [province], sorted.
   List<String> districtsOf(String province) =>
       (_districts[province]?.toList() ?? <String>[])..sort();
+
+  /// Subdistricts of [district], sorted.
   List<String> subdistrictsOf(String province, String district) =>
       (_subdistricts['$province/$district']?.toList() ?? <String>[])..sort();
+
+  /// Spatial grid key, 0.25 degrees per cell.
   String _cell(double lat, double lon) =>
       '${(lat * 4).floor()}/${(lon * 4).floor()}';
+
+  /// Whether [p] passes every filter and contains every token.
   bool _matches(
     CuratedPlace p,
     String category,
@@ -126,6 +150,10 @@ class PlaceCatalog {
       (subdistrict.isEmpty || p.subdistrict == subdistrict) &&
       tokens.every((t) => _text[p.id]!.contains(t));
 
+  /// Searches for list views, sorted by distance from [near] or by name.
+  ///
+  /// Distances are approximate and precomputed, which is enough for ranking.
+  /// Returns at most [limit] places plus the full match count.
   PlaceResults search({
     String query = '',
     String category = 'all',
@@ -173,6 +201,10 @@ class PlaceCatalog {
     );
   }
 
+  /// Returns the markers for the visible area.
+  ///
+  /// From zoom 12 it shows up to 100 places nearest the center. Below that it
+  /// clusters into cells wider than a marker so they do not overlap.
   PoiWindow window({
     required double south,
     required double north,

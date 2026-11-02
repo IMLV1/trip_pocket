@@ -1,3 +1,6 @@
+// Trip list screen. Separates upcoming from completed trips, and resumes any
+// unfinished deletes when it opens.
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +8,7 @@ import '../../../app/providers.dart';
 import '../../../core/widgets.dart';
 import '../../../core/design_system.dart';
 
+/// Upcoming and completed trips, with search.
 class TripListScreen extends ConsumerStatefulWidget {
   final String uid;
   const TripListScreen({super.key, required this.uid});
@@ -24,6 +28,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
     super.dispose();
   }
 
+  /// Toggles the search field, clearing the query on close.
   void toggleSearch() => setState(() {
     searching = !searching;
     if (!searching) {
@@ -37,6 +42,7 @@ class _TripListScreenState extends ConsumerState<TripListScreen> {
     Future.microtask(resume);
   }
 
+  /// Continues unfinished deletes and offers a retry on failure.
   Future<void> resume() async {
     if (resuming) return;
     setState(() {

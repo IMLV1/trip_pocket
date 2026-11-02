@@ -1,13 +1,19 @@
+// Activity model, ordering and budget calculation. Totals are always derived
+// from activities and never stored, so they cannot drift from the plan.
+
 import 'dart:convert';
 import '../../../core/validation.dart';
 import '../../trips/domain/trip.dart';
 
+/// Stored category codes and their labels.
 const activityCategories = {
   'attraction': 'ท่องเที่ยว',
   'food': 'อาหาร',
   'lodging': 'ที่พัก',
   'other': 'อื่น ๆ',
 };
+
+/// Stored travel mode codes and their labels.
 const travelModes = {
   'none': 'ยังไม่เลือก',
   'car': 'รถยนต์',
@@ -16,6 +22,10 @@ const travelModes = {
   'transit': 'ขนส่งสาธารณะ',
 };
 
+/// A stop in a trip.
+///
+/// Travel fields describe the segment arriving at this stop from the one before
+/// it. `costKnown` separates an unknown price from a real 0.
 class TripActivity {
   final String id,
       title,
@@ -51,7 +61,16 @@ class TripActivity {
     this.travelCostKnown = false,
   });
 
+  /// Position within the day.
+  ///
+  /// Legacy records without `orderIndex` fall back to time order, so they need
+  /// no migration.
   int get rank => orderIndex ?? timeMinutes * 1000;
+
+  /// Decodes stored fields.
+  ///
+  /// Fields missing from schema 1 records get defaults; saving upgrades the
+  /// record to schema 2.
   factory TripActivity.fromFields(
     String id,
     Map<String, dynamic> d, {
@@ -78,12 +97,18 @@ class TripActivity {
     updatedAt: updatedAt,
   );
 
+  /// Returns a copy with a new rank.
   TripActivity withRank(int rank) => TripActivity.fromFields(
     id,
     {...fields(), 'orderIndex': rank},
     createdAt: createdAt,
     updatedAt: updatedAt,
   );
+
+  /// Throws unless every field is valid for [trip].
+  ///
+  /// Mirrors `firestore.rules` to give a readable error before the server
+  /// rejects the write.
   void validate(Trip trip) {
     requireValid(
       textError(title) == null && note.runes.length <= 500,
@@ -134,6 +159,7 @@ class TripActivity {
     );
   }
 
+  /// Encodes as schema 2 fields.
   Map<String, dynamic> fields() => {
     'title': title.trim(),
     'date': date,
@@ -154,6 +180,9 @@ class TripActivity {
   };
 }
 
+/// Sorts by date, rank, time, then id.
+///
+/// The id tie-break keeps the order stable across devices.
 List<TripActivity> sortedActivities(Iterable<TripActivity> items) =>
     items.toList()..sort((a, b) {
       final d = a.date.compareTo(b.date);
@@ -163,6 +192,11 @@ List<TripActivity> sortedActivities(Iterable<TripActivity> items) =>
       final t = a.timeMinutes.compareTo(b.timeMinutes);
       return t != 0 ? t : a.id.compareTo(b.id);
     });
+
+/// Fingerprints both ends of a segment.
+///
+/// Stored with the travel cost, so moving or retiming either stop invalidates
+/// it.
 String segmentSignature(TripActivity from, TripActivity to) => jsonEncode([
   from.id,
   from.date,
@@ -175,12 +209,18 @@ String segmentSignature(TripActivity from, TripActivity to) => jsonEncode([
   to.latitude,
   to.longitude,
 ]);
+
+/// Whether the stored travel data still matches [from] and [to].
+///
+/// False after a reorder or edit, which shows the segment as needing a new
+/// cost.
 bool validSegment(TripActivity from, TripActivity to) =>
     from.date == to.date &&
     to.travelMode != 'none' &&
     to.travelFromId == from.id &&
     to.travelSignature == segmentSignature(from, to);
 
+/// Budget summary in satang, with counts of unpriced items.
 class PlanBudget {
   final int activities, transport, unknownActivities, unknownSegments;
   const PlanBudget(
@@ -189,10 +229,18 @@ class PlanBudget {
     this.unknownActivities,
     this.unknownSegments,
   );
+
+  /// Total of known activity and travel costs.
   int get total => activities + transport;
+
+  /// Number of unpriced activities and segments.
   int get unknown => unknownActivities + unknownSegments;
 }
 
+/// Derives the budget from [items].
+///
+/// Unpriced activities and stale segments are counted as unknown, never as
+/// free. The first stop of each day has no incoming segment.
 PlanBudget planBudget(Iterable<TripActivity> items) {
   final list = sortedActivities(items);
   var cost = 0, travel = 0, unknown = 0, unknownTravel = 0;
@@ -214,5 +262,6 @@ PlanBudget planBudget(Iterable<TripActivity> items) {
   return PlanBudget(cost, travel, unknown, unknownTravel);
 }
 
+/// Total of all known costs.
 int plannedTotal(Iterable<TripActivity> activities) =>
     planBudget(activities).total;

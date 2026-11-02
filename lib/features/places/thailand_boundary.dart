@@ -1,12 +1,18 @@
+// Approximate Thailand boundary check. This is not a legal boundary, so small
+// islands or border points may fall outside it.
+
 import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:latlong2/latlong.dart';
 
 /// Approximate admin boundary, not a legal/survey boundary or full coastline.
+/// Polygons loaded from the bundled GeoJSON.
 class ThailandBoundary {
   final List<dynamic> polygons;
   ThailandBoundary(this.polygons);
   static Future<ThailandBoundary>? _cached;
+
+  /// Loads the asset once and caches it.
   static Future<ThailandBoundary> load() =>
       _cached ??= rootBundle.loadString('assets/thailand.geojson').then((s) {
         final g = jsonDecode(s)['geometry'];
@@ -14,10 +20,14 @@ class ThailandBoundary {
           g['type'] == 'Polygon' ? [g['coordinates']] : g['coordinates'],
         );
       });
+
+  /// Whether [p] is inside a polygon and outside its holes.
   bool contains(LatLng p) => polygons.any(
     (polygon) =>
         _ring(p, polygon[0]) && !polygon.skip(1).any((hole) => _ring(p, hole)),
   );
+
+  /// Ray casting test against a single ring.
   bool _ring(LatLng p, List<dynamic> ring) {
     var inside = false;
     for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {

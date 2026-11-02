@@ -62,6 +62,20 @@ service cloud.firestore {
     allow update: if owner(uid) && parentAfter().data.status == 'active' && validActivity(request.resource.data) && request.resource.data.createdAt == resource.data.createdAt;
     allow delete: if owner(uid) && parent().data.status in ['active','deleting'];
    }
+   // Packing checklist: one document holding the whole list. Each entry is
+   // validated by the app; the rules bound the shape and size.
+   match /packing/{docId} {
+    function tripDoc() {return get(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));}
+    function tripAfter() {return getAfter(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));}
+    function validPacking(d) {
+     return docId == 'checklist'
+      && d.keys().hasAll(['items','updatedAt']) && d.keys().hasOnly(['items','updatedAt'])
+      && d.items is list && d.items.size() <= 200 && d.updatedAt == request.time;
+    }
+    allow read: if owner(uid) && exists(/databases/$(database)/documents/users/$(uid)/trips/$(tripId));
+    allow create, update: if owner(uid) && tripAfter().data.status == 'active' && validPacking(request.resource.data);
+    allow delete: if owner(uid) && tripDoc().data.status in ['active','deleting'];
+   }
   }
  }
 }

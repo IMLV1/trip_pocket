@@ -1,5 +1,5 @@
-// Packing checklist UI shown in the trip detail packing tab. Works offline
-// because it only touches local storage.
+// Packing checklist UI shown in the trip detail packing tab. Stored in
+// Firestore with the trip, or on the device in demo mode.
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -55,7 +55,11 @@ class _PackingChecklistState extends ConsumerState<PackingChecklist> {
             'เช็กลิสต์ก่อนออกเดินทาง',
             style: Theme.of(context).textTheme.titleLarge,
           ),
-          const Text('บันทึกเฉพาะเครื่องนี้ ใช้ได้แม้ออฟไลน์'),
+          Text(
+            ref.watch(packingRepositoryProvider).deviceOnly
+                ? 'บันทึกเฉพาะเครื่องนี้ (โหมดเดโม)'
+                : 'บันทึกในบัญชีผ่าน Firebase เปิดได้ทุกเครื่อง',
+          ),
           AsyncContent(
             value: ref.watch(packingProvider(widget.tripKey)),
             retry: () => ref.invalidate(packingProvider(widget.tripKey)),

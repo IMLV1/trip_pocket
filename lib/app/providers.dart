@@ -23,7 +23,7 @@ final travelRepositoryProvider = Provider<TravelRepository>(
 );
 
 /// Must be overridden in `bootstrap`.
-final packingRepositoryProvider = Provider<PackingRepository>(
+final packingRepositoryProvider = Provider<PackingStore>(
   (ref) => throw UnimplementedError(),
 );
 
@@ -63,7 +63,7 @@ final activitiesProvider = StreamProvider.autoDispose
           .watchActivities(key.uid, key.tripId),
     );
 
-/// Device-local checklist of a trip.
+/// Packing checklist of a trip.
 final packingProvider = FutureProvider.autoDispose
     .family<List<PackingItem>, TripKey>(
       (ref, key) =>

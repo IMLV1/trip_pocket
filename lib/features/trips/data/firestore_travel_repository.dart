@@ -259,7 +259,8 @@ class FirestoreTravelRepository implements TravelRepository {
     await _continueDelete(uid, tripId);
   }
 
-  /// Deletes children in batches of 100, then the parent, then local data.
+  /// Deletes activities in batches of 100 and the packing checklist, then the
+  /// parent, then local data.
   ///
   /// Reads from the server only. A queued id alone never deletes an active
   /// trip.
@@ -281,6 +282,17 @@ class FirestoreTravelRepository implements TravelRepository {
       if (children.docs.isEmpty) break;
       final batch = db.batch();
       for (final child in children.docs) {
+        batch.delete(child.reference);
+      }
+      await batch.commit();
+    }
+    // The cloud packing checklist is a child too and must go before the parent.
+    final packingDocs = await ref
+        .collection('packing')
+        .get(const GetOptions(source: Source.server));
+    if (packingDocs.docs.isNotEmpty) {
+      final batch = db.batch();
+      for (final child in packingDocs.docs) {
         batch.delete(child.reference);
       }
       await batch.commit();
